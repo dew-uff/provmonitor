@@ -4,8 +4,7 @@ import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
 
-public interface ExecutionStatusDAO {
-
+public interface ExecutionFilesStatusDAO {
 	/**
 	 * Get the object representing the Element Execution Status searching by Id.
 	 * @param elementId <code>String</code> - The desired Element ID
@@ -48,5 +47,4 @@ public interface ExecutionStatusDAO {
 	 * 		</ul>
 	 * */
 	public void createTable() throws ProvMonitorException;
-	
 }

@@ -12,7 +12,6 @@ import java.util.Iterator;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
@@ -23,7 +22,7 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 
 public class CVSManagerTests {
 	public static void main(String[] args) {
-		String centralRepository = "C:\\Testes\\RepositorioCentral\\";
+		//String centralRepository = "C:\\Testes\\RepositorioCentral\\";
 		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
 		String nonce = sf.format(Calendar.getInstance().getTime());
 		String workspacePath = "C:\\Testes\\TesteCVSManager\\Teste_" + nonce + "\\";
@@ -75,6 +74,7 @@ public class CVSManagerTests {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void addByPatternsTest(String workspacePath, Collection<String> filePathList){
 		CVSManager cvsMan = CVSManagerFactory.getInstance();
 		try {
@@ -150,6 +150,7 @@ public class CVSManagerTests {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void mostBasicJGitTest(String repositoryFolder){
 		FileRepository repository;
 		try {
@@ -160,8 +161,8 @@ public class CVSManagerTests {
 			Git.init().call();
 			
 			//adding files
-			RevWalk walk = new RevWalk(repository);
-			RevCommit commit = null;
+			//RevWalk walk = new RevWalk(repository);
+			//RevCommit commit = null;
 			
 			File exampleHtml = new File(repositoryFolder + "\\examplePage.html");
 			exampleHtml.createNewFile();

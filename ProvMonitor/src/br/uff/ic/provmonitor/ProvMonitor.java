@@ -35,6 +35,7 @@ public class ProvMonitor {
 		options.addOption("stDt", 	true, "sartDateTime");
 		options.addOption("edDt", 	true, "endDateTime");
 		options.addOption("cR", 	true, "centralRepository");
+		options.addOption("wp", 	true, "workspacePath");
 		//options.addOption("",true,"");
 		
 		options.addOption("context",true,"context");
@@ -77,9 +78,15 @@ public class ProvMonitor {
 					//OptionsValidator.validate(cmd);
 					//Getting parameters
 					String experimentId = cmd.getOptionValue("ei");
+					String workspacePath = cmd.getOptionValue("wp");
+					String centralRepository = cmd.getOptionValue("cR");
+					
 					//Invoking BusinessServices
 					//OutputStream outputStream = Thread.currentThread().get
-					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId);
+					
+					//RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId);
+					
+					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, workspacePath, centralRepository);
 				}
 				break;
 			case FINALIZE_EXPERIMENT_EXECUTION:
@@ -103,8 +110,9 @@ public class ProvMonitor {
 					Date starDateTime = DateUtils.dateParse(startDate);
 					String endDate = cmd.getOptionValue("edDt");
 					Date endDateTime = DateUtils.dateParse(endDate);
+					String workspacePath = cmd.getOptionValue("wp");
 					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime);
+					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
 				}
 				break;
 			case NOTIFY_ACTIVITY_EXECUTION_STARTUP:
@@ -114,8 +122,9 @@ public class ProvMonitor {
 					String[] context = cmd.getOptionValues("context");
 					String startDate = cmd.getOptionValue("stDt");
 					Date starDateTime = DateUtils.dateParse(startDate);
+					String workspacePath = cmd.getOptionValue("wp");
 					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime);
+					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
 				}
 				break;
 			case NOTIFY_DECISION_POINT_ENDING:
@@ -137,8 +146,9 @@ public class ProvMonitor {
 					Date starDateTime = DateUtils.dateParse(startDate);
 					String endDate = cmd.getOptionValue("edDt");
 					Date endDateTime = DateUtils.dateParse(endDate);
+					String workspacePath = cmd.getOptionValue("wp");
 					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionEnding(processInstanceId, context, starDateTime, endDateTime);
+					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionEnding(processInstanceId, context, starDateTime, endDateTime, workspacePath);
 				}
 				break;
 			case NOTIFY_PROCESS_EXECUTION_STARTUP:
@@ -148,8 +158,9 @@ public class ProvMonitor {
 					String[] context = cmd.getOptionValues("context");
 					String startDate = cmd.getOptionValue("stDt");
 					Date starDateTime = DateUtils.dateParse(startDate);
+					String workspacePath = cmd.getOptionValue("wp");
 					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionStartup(processInstanceId, context, starDateTime);
+					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionStartup(processInstanceId, context, starDateTime, workspacePath);
 				}
 				break;
 			case PUBLISH_ARTIFACT_VALUE_LOCATION:

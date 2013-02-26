@@ -8,10 +8,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 public class WorkspaceAccessReader {
@@ -121,11 +120,11 @@ public class WorkspaceAccessReader {
 	 * @param rootPath <code>Path</code> - Path to be used as root for the recursively read
 	 * @param startDate <code>Date</code> - Date to be compared with. It will return all path entries with access time greater than this date 
 	 * @param onlyFiles <code>boolean</code> - Flag to include Directory's Paths or only File's Paths
-	 * @return AbsolutePathArray <code>ArrayList<String></code> - Array with the absolute path of all Entries with access time greater than the one informed on startDate param.
+	 * @return <code>Collection<AccessedPath> - Array with the absolute path and access dateTime of all Entries with access time greater than the one informed on startDate parameter.
 	 * @throws IOException - When any problem occurs accessing Path attributes.
 	 * */
-	public static final Map<String,Date> readAccessedPathsAndAccessTime (Path rootPath, Date startDate, boolean onlyFiles) throws IOException{
-		Map<String, Date> result = new HashMap<String, Date>();
+	public static final Collection<AccessedPath> readAccessedPathsAndAccessTime (Path rootPath, Date startDate, boolean onlyFiles) throws IOException{
+		ArrayList<AccessedPath> result = new ArrayList<AccessedPath>();
 		
 		//If the rootPath is not a Directory, verify accessTime. Else iterate recursively inside it's structure. 
 		if (!rootPath.toFile().isDirectory()){
@@ -135,7 +134,7 @@ public class WorkspaceAccessReader {
 			//Date compare
 			if (startDate.compareTo(fileDate) < 0){
 				//System.out.println("Accessed Path: " + rootPath + " - Access date: " + fileDate);
-				result.put(rootPath.toFile().getAbsolutePath(), fileDate);
+				result.add(new AccessedPath(rootPath.toFile().getAbsolutePath(), fileDate));
 			}
 		}else{
 			//Queue to help navigate recursively inside the Path.
@@ -163,14 +162,14 @@ public class WorkspaceAccessReader {
 							pathQueue.add(childrenPass);
 							if (!onlyFiles){
 								//System.out.println("Accessed Path: " + childrenPassName.getAbsolutePath() + " - Access date: " + fileDate);
-								result.put(childrenPassName.getAbsolutePath(), fileDate);
+								result.add(new AccessedPath(childrenPassName.getAbsolutePath(), fileDate));
 							}
 						}
 					}else{
 						//Date compare
 						if (startDate.compareTo(fileDate) < 0){
 							//System.out.println("Accessed Path: " + childrenPassName.getAbsolutePath() + " - Access date: " + fileDate);
-							result.put(childrenPassName.getAbsolutePath(), fileDate);
+							result.add(new AccessedPath(childrenPassName.getAbsolutePath(), fileDate));
 						}
 					}
 				}
@@ -199,14 +198,14 @@ public class WorkspaceAccessReader {
 								pathQueue.add(childrenPass);
 								if (!onlyFiles){
 									//System.out.println("Accessed Path: " + childrenPassName.getAbsolutePath() + " - Access date: " + fileDate);
-									result.put(childrenPassName.getAbsolutePath(), fileDate);
+									result.add(new AccessedPath(childrenPassName.getAbsolutePath(), fileDate));
 								}
 							}
 						}else{
 							//Date compare
 							if (startDate.compareTo(fileDate) < 0){
 								//System.out.println("Accessed Path: " + childrenPassName.getAbsolutePath() + " - Access date: " + fileDate);
-								result.put(childrenPassName.getAbsolutePath(), fileDate);
+								result.add(new AccessedPath(childrenPassName.getAbsolutePath(), fileDate));
 							}
 						}
 					}

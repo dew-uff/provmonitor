@@ -17,11 +17,13 @@ import br.uff.ic.provmonitor.utils.DateUtils;
 public class ExecutionStatusDAO_JavaDVImpl implements ExecutionStatusDAO{
 
 	@Override
-	public ExecutionStatus getById(String elementId)  throws ProvMonitorException{
+	public ExecutionStatus getById(String elementId, String elementPath) throws ProvMonitorException{
 		Connection conn = ConnectionManager.getInstance().getConnection();
 		try {
-			PreparedStatement psGetById = conn.prepareStatement("SELECT * FROM EXECUTION_STATUS WHERE ID_ELEMENT = ? ");
+			PreparedStatement psGetById = conn.prepareStatement("SELECT * FROM EXECUTION_STATUS WHERE ID_ELEMENT = ? AND PATH LIKE ? ");
 			psGetById.setString(1, elementId);
+			psGetById.setString(2, elementPath);
+			
 			
 			ResultSet rs = psGetById.executeQuery();
 			

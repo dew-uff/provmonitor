@@ -1,12 +1,19 @@
 package br.uff.ic.provmonitor.model;
 
-import org.apache.derby.client.am.DateTime;
+import java.util.Date;
 
 public class ExecutionFilesStatus {
+	
+	public static final String TYPE_READ = "READ";
+	public static final String TYPE_CREATE = "CREATE";
+	public static final String TYPE_REMOVE = "REMOVE";
+	public static final String TYPE_CHANGE = "CHANGE";
+	
 	private String elementId;
 	private String elementPath;
-	private String elementAccessType;
-	private DateTime elementAccessDateTime;
+	private String filePath;
+	private String filetAccessType;
+	private Date fileAccessDateTime;
 	
 	public String getElementId() {
 		return elementId;
@@ -20,18 +27,24 @@ public class ExecutionFilesStatus {
 	public void setElementPath(String elementPath) {
 		this.elementPath = elementPath;
 	}
-	public String getElementAccessType() {
-		return elementAccessType;
+	public String getFilePath() {
+		return filePath;
 	}
-	public void setElementAccessType(String elementAccessType) {
-		this.elementAccessType = elementAccessType;
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
-	public DateTime getElementAccessDateTime() {
-		return elementAccessDateTime;
+	public String getFiletAccessType() {
+		return filetAccessType;
 	}
-	public void setElementAccessDateTime(DateTime elementAccessDateTime) {
-		this.elementAccessDateTime = elementAccessDateTime;
+	public void setFiletAccessType(String filetAccessType) {
+		this.filetAccessType = filetAccessType;
 	}
-	
+	public Date getFileAccessDateTime() {
+		return fileAccessDateTime;
+	}
+	public void setFileAccessDateTime(Date fileAccessDateTime) {
+		this.fileAccessDateTime = fileAccessDateTime;
+	}
+
 	
 }
