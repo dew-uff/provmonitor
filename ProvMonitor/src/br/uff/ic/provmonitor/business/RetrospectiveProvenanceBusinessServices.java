@@ -56,6 +56,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Repository clone
 		
+		//Repository Branch
 		
 		//System.out.println("initializeExperimentExecution end execution.");
 	}
@@ -68,7 +69,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	//public String initializeExperimentExecution(String experimentId) throws CharonException{
 		//return repository.getCharon().getCharonAPI().initializeExperimentExecution(experimentId);
 	//}
-	public static void initializeExperimentExecution(String experimentId, String workspacePath, String sourceRepository) throws ProvMonitorException{
+	public static void initializeExperimentExecution(String experimentId, String sourceRepository, String workspacePath) throws ProvMonitorException{
 		//System.out.println("initializeExperimentExecution start execution...");
 		
 		//Record Timestamp
@@ -81,12 +82,23 @@ public class RetrospectiveProvenanceBusinessServices {
 		System.out.println("ExperimentInstanceId: " + experimentInstanceId);
 		System.out.println("BranchName: Branch_" + experimentInstanceId);
 		
+		System.out.println("Workspace: " + workspacePath);
+		System.out.println("CentralRepository: " + sourceRepository);
+		
 		//Initialize DB
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
 		daoFactory.getDatabaseControlDAO().dbInitialize();
 		
 		//Repository clone
+		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		//System.out.println("Cloning to: " + workspacePath);
+		cvsManager.cloneRepository(sourceRepository, workspacePath);
 		
+		//Repository branch
+		//cvsManager.createBranch(workspacePath, experimentInstanceId);
+		
+		//Repository checkOut
+		//cvsManager.checkout(workspacePath, experimentInstanceId);
 		
 		//System.out.println("initializeExperimentExecution end execution.");
 	}
@@ -408,3 +420,4 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 }
+

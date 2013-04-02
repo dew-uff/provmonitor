@@ -36,7 +36,8 @@ public class GitManager implements CVSManager {
 
 			CloneCommand cCom = Git.cloneRepository();
 			cCom.setURI(sourceRepository);
-			cCom.setDirectory(new File(workspacePath));			
+			File newPath = new File(workspacePath);
+			cCom.setDirectory(newPath);			
 		
 			//First Try cloning everything
 			cCom.setCloneAllBranches(true);
@@ -56,12 +57,12 @@ public class GitManager implements CVSManager {
 		try {
 			repository = getRepository(workspace);
 			Git git = new Git(repository);
-			git.branchCreate().setName(branchName).call();
+//			git.branchCreate().setName(branchName).call();
 			
-//			CheckoutCommand co = git.checkout();
-//	        co.setName(branchName);
-//	        co.setCreateBranch(true);
-//	        co.call();
+			CheckoutCommand co = git.checkout();
+	        co.setName(branchName);
+	        co.setCreateBranch(true);
+	        co.call();
 	        
 		} catch (IOException | GitAPIException e) {
 			throw new CVSException("Could not create branch: " + e.getMessage(), e.getCause());

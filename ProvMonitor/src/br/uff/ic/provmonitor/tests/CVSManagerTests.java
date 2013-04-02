@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.eclipse.jgit.api.Git;
@@ -22,6 +23,12 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 
 public class CVSManagerTests {
 	public static void main(String[] args) {
+		//mainTestCode();
+		//initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\RepositorioCentral\\files");
+		initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\files");
+	}
+	
+	private static void mainTestCode(){
 		//String centralRepository = "C:\\Testes\\RepositorioCentral\\";
 		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
 		String nonce = sf.format(Calendar.getInstance().getTime());
@@ -213,6 +220,28 @@ public class CVSManagerTests {
 			out.close();
 			
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void initializeTest(String experimentId, String sourceRepository, String workspacePath){
+		try{
+		//Record Timestamp
+			Date timeStampInitExecute = Calendar.getInstance().getTime();
+			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+			String nonce = sf.format(timeStampInitExecute);
+			String experimentInstanceId = experimentId + nonce;
+					
+			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			cvsManager.cloneRepository(sourceRepository, workspacePath);
+			
+			//Repository branch
+			//cvsManager.createBranch(workspacePath, experimentInstanceId);
+			
+			//Repository checkOut
+			cvsManager.checkout(workspacePath, experimentInstanceId);
+			
+		}catch(CVSException e){
 			e.printStackTrace();
 		}
 	}

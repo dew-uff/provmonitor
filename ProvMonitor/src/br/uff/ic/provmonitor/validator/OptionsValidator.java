@@ -20,6 +20,12 @@ public class OptionsValidator {
 				if(!cmd.hasOption("ei")){
 					throw new ValidateException("The experimentId must be informed: -ei parameter");
 				}
+				if(!cmd.hasOption("wp")){
+					throw new ValidateException("The workspace path must be informed: -wp parameter");
+				}
+				if(!cmd.hasOption("cR")){
+					throw new ValidateException("The central repository path must be informed: -cR parameter");
+				}
 				break;
 			case FINALIZE_EXPERIMENT_EXECUTION:
 				{
@@ -60,6 +66,12 @@ public class OptionsValidator {
 					}
 					if(!cmd.hasOption("stDt")){
 						throw new ValidateException("The star time must be informed: -stDt parameter");
+					}
+					if(!cmd.hasOption("wp")){
+						throw new ValidateException("The workspace path must be informed: -wp parameter");
+					}
+					if(!cmd.hasOption("cR")){
+						throw new ValidateException("The central repository path must be informed: -cR parameter");
 					}
 				}
 				break;

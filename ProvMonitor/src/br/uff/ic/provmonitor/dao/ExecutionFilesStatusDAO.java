@@ -2,6 +2,7 @@ package br.uff.ic.provmonitor.dao;
 
 import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
+import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
 
 public interface ExecutionFilesStatusDAO {
@@ -23,10 +24,10 @@ public interface ExecutionFilesStatusDAO {
 	
 	
 	/**
-	 * Update the element execution status information.
-	 * @param executionStatus <code>ExecutionStatus</code> - Object with element execution status to be updated.
+	 * Update the element file execution status information.
+	 * @param executionFileStatus <code>ExecutionFilesStatus</code> - Object with element execution status to be updated.
 	 * */
-	public void update(ExecutionStatus executionStatus) throws ProvMonitorException;
+	public void update(ExecutionFilesStatus executionFileStatus) throws ProvMonitorException;
 	
 	/**
 	 * Verify table existence in database. <br />

@@ -81,12 +81,15 @@ public class ProvMonitor {
 					String workspacePath = cmd.getOptionValue("wp");
 					String centralRepository = cmd.getOptionValue("cR");
 					
+					//System.out.println("Workspace: " + workspacePath);
+					//System.out.println("Central Repository: " + centralRepository);
+					
 					//Invoking BusinessServices
 					//OutputStream outputStream = Thread.currentThread().get
 					
 					//RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId);
 					
-					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, workspacePath, centralRepository);
+					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, centralRepository, workspacePath);
 				}
 				break;
 			case FINALIZE_EXPERIMENT_EXECUTION:
