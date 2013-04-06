@@ -25,7 +25,79 @@ public class CVSManagerTests {
 	public static void main(String[] args) {
 		//mainTestCode();
 		//initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\RepositorioCentral\\files");
-		initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\files");
+		String workspace = "C:\\Testes\\workspace\\Teste5\\";
+		String centralRepository = "C:\\Testes\\CentralRepo\\Repo1";
+		
+		File workPath = new File (workspace);
+		workPath.delete();
+		
+		File centralRepo = new File(centralRepository);
+		if (!centralRepo.exists()){
+			createCentralRepository(centralRepository);
+		}
+		
+		initializeTest("experimentId", centralRepository, workspace);
+		
+		createFileContent(new String(workspace + "\\File1.html"));
+		createFileContent(new String(workspace + "\\File2.html"));
+		
+		String message = "Teste de Commit intermediário";
+		intermediateCommit(workspace, message);
+	}
+	
+	private static void initializeTest(String experimentId, String sourceRepository, String workspacePath){
+		try{
+			//Record Timestamp
+			Date timeStampInitExecute = Calendar.getInstance().getTime();
+			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+			String nonce = sf.format(timeStampInitExecute);
+			String experimentInstanceId = experimentId + nonce;
+					
+			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			cvsManager.cloneRepository(sourceRepository, workspacePath);
+			
+			//Repository branch
+			//cvsManager.createBranch(workspacePath, experimentInstanceId);
+			
+			//Repository checkOut
+			//cvsManager.checkout(workspacePath, experimentInstanceId);
+			
+		}catch(CVSException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static void createCentralRepository(String centralRepository){
+		try{
+			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			cvsManager.createWorkspace(centralRepository);
+			
+			createFileContent(new String(centralRepository + "\\File1.html"));
+			createFileContent(new String(centralRepository + "\\File2.html"));
+			
+			String message = "Commit Inicial";
+			intermediateCommit(centralRepository, message);
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static void intermediateCommit(String workspacePath, String message){
+		try{
+			
+			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			//cvsManager.addAllFromPath(workspacePath);
+			cvsManager.commit(workspacePath, message);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static void fileChangesGenerator(String fileName){
+		
 	}
 	
 	private static void mainTestCode(){
@@ -224,25 +296,5 @@ public class CVSManagerTests {
 		}
 	}
 	
-	private static void initializeTest(String experimentId, String sourceRepository, String workspacePath){
-		try{
-		//Record Timestamp
-			Date timeStampInitExecute = Calendar.getInstance().getTime();
-			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
-			String nonce = sf.format(timeStampInitExecute);
-			String experimentInstanceId = experimentId + nonce;
-					
-			CVSManager cvsManager = CVSManagerFactory.getInstance();
-			cvsManager.cloneRepository(sourceRepository, workspacePath);
-			
-			//Repository branch
-			//cvsManager.createBranch(workspacePath, experimentInstanceId);
-			
-			//Repository checkOut
-			cvsManager.checkout(workspacePath, experimentInstanceId);
-			
-		}catch(CVSException e){
-			e.printStackTrace();
-		}
-	}
+
 }
