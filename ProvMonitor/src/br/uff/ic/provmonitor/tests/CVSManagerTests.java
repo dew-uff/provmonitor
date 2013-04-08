@@ -25,8 +25,10 @@ public class CVSManagerTests {
 	public static void main(String[] args) {
 		//mainTestCode();
 		//initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\RepositorioCentral\\files");
-		String workspace = "C:\\Testes\\workspace\\Teste5\\";
-		String centralRepository = "C:\\Testes\\CentralRepo\\Repo1";
+		//String workspace = "C:\\Testes\\workspace\\Teste7\\";
+		String workspace = "C:\\GitWorkspaceTest\\Teste1";
+		//String centralRepository = "C:\\Testes\\CentralRepo\\Repo4";
+		String centralRepository = "C:\\GitTeste\\Repo1";
 		
 		File workPath = new File (workspace);
 		workPath.delete();
@@ -37,6 +39,8 @@ public class CVSManagerTests {
 		}
 		
 		initializeTest("experimentId", centralRepository, workspace);
+		
+		
 		
 		createFileContent(new String(workspace + "\\File1.html"));
 		createFileContent(new String(workspace + "\\File2.html"));
@@ -60,7 +64,7 @@ public class CVSManagerTests {
 			//cvsManager.createBranch(workspacePath, experimentInstanceId);
 			
 			//Repository checkOut
-			//cvsManager.checkout(workspacePath, experimentInstanceId);
+			//cvsManager.checkout(workspacePath, "trunk");
 			
 		}catch(CVSException e){
 			e.printStackTrace();
@@ -88,7 +92,7 @@ public class CVSManagerTests {
 		try{
 			
 			CVSManager cvsManager = CVSManagerFactory.getInstance();
-			//cvsManager.addAllFromPath(workspacePath);
+			cvsManager.addAllFromPath(workspacePath);
 			cvsManager.commit(workspacePath, message);
 			
 		}catch(Exception e){

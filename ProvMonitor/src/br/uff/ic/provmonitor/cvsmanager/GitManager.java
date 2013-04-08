@@ -35,6 +35,9 @@ public class GitManager implements CVSManager {
 		try {
 
 			CloneCommand cCom = Git.cloneRepository();
+			
+			cCom.setBare(false);
+			
 			cCom.setURI(sourceRepository);
 			File newPath = new File(workspacePath);
 			cCom.setDirectory(newPath);			
@@ -79,6 +82,7 @@ public class GitManager implements CVSManager {
 			
 			CommitCommand commit = git.commit();
 	        RevCommit revision;
+	        
 			revision = commit.setMessage(message).call();
 			String revisionId = revision.getId().getName();
 			
@@ -147,7 +151,7 @@ public class GitManager implements CVSManager {
 	 * */
 	private Repository getRepository(String sourceURI) throws IOException{
 		FileRepositoryBuilder frb = new FileRepositoryBuilder();
-		Repository repository = frb.setGitDir(new File(sourceURI))
+		Repository repository = frb.setGitDir(new File(sourceURI + "\\.git"))
 				  .readEnvironment() // scan environment GIT_* variables
 				  .findGitDir() // scan up the file system tree
 				  .build();
