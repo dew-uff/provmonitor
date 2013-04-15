@@ -1,5 +1,7 @@
 package br.uff.ic.provmonitor;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,6 +13,10 @@ import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
 import br.uff.ic.provmonitor.enums.MethodType;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ValidateException;
+import br.uff.ic.provmonitor.log.LogMessages;
+import br.uff.ic.provmonitor.log.ProvMonitorLevel;
+import br.uff.ic.provmonitor.log.ProvMonitorLogger;
+import br.uff.ic.provmonitor.tests.ProvMonitorTests;
 import br.uff.ic.provmonitor.utils.DateUtils;
 import br.uff.ic.provmonitor.validator.OptionsValidator;
 
@@ -46,7 +52,15 @@ public class ProvMonitor {
 	 * @return 
 	 */
 	public static void main(String[] args) {
+		//Execution start time...
+		Date provExecStartTime = Calendar.getInstance().getTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss:SSS");
 		try {
+			//Starting Log
+			ProvMonitorLogger.config(ProvMonitorLevel.DEBUG);
+			ProvMonitorLogger.measure(ProvMonitor.class.getName(), "Main", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(provExecStartTime)});
+			
+			
 			//System.out.println("rodou!");
 			//System.out.println("ProvMonitor: StartExecution....");
 			
@@ -89,7 +103,15 @@ public class ProvMonitor {
 					
 					//RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId);
 					
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, centralRepository, workspacePath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case FINALIZE_EXPERIMENT_EXECUTION:
@@ -126,8 +148,17 @@ public class ProvMonitor {
 					String startDate = cmd.getOptionValue("stDt");
 					Date starDateTime = DateUtils.dateParse(startDate);
 					String workspacePath = cmd.getOptionValue("wp");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
+					
 				}
 				break;
 			case NOTIFY_DECISION_POINT_ENDING:
@@ -136,8 +167,16 @@ public class ProvMonitor {
 					String decisionPointId = cmd.getOptionValue("di");
 					String optionValue = cmd.getOptionValue("ov");
 					String[] context = cmd.getOptionValues("context");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyDecisionPointEnding", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyDecisionPointEnding(decisionPointId, optionValue, context);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyDecisionPointEnding", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case NOTIFY_PROCESS_EXECUTION_ENDING:
@@ -150,8 +189,16 @@ public class ProvMonitor {
 					String endDate = cmd.getOptionValue("edDt");
 					Date endDateTime = DateUtils.dateParse(endDate);
 					String workspacePath = cmd.getOptionValue("wp");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionEnding", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionEnding(processInstanceId, context, starDateTime, endDateTime, workspacePath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionEnding", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case NOTIFY_PROCESS_EXECUTION_STARTUP:
@@ -162,8 +209,16 @@ public class ProvMonitor {
 					String startDate = cmd.getOptionValue("stDt");
 					Date starDateTime = DateUtils.dateParse(startDate);
 					String workspacePath = cmd.getOptionValue("wp");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionStartup(processInstanceId, context, starDateTime, workspacePath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case PUBLISH_ARTIFACT_VALUE_LOCATION:
@@ -173,8 +228,16 @@ public class ProvMonitor {
 					String[] context = cmd.getOptionValues("context");
 					String hostURL = cmd.getOptionValue("hUrl");
 					String hostLocalPath = cmd.getOptionValue("hPath");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "publishArtifactValueLocation", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.publishArtifactValueLocation(artifactId, context, hostURL, hostLocalPath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "publishArtifactValueLocation", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case SET_ARTIFACT_VALUE:
@@ -183,8 +246,16 @@ public class ProvMonitor {
 					String artifactId = cmd.getOptionValue("ai");
 					String value = cmd.getOptionValue("av");
 					String[] context = cmd.getOptionValues("context");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "setArtifactValue", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.setArtifactValue(artifactId, context, value);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "setArtifactValue", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			}
@@ -192,17 +263,22 @@ public class ProvMonitor {
 			System.out.print("Parameter parse error: ");
 			System.out.println(e.getMessage());
 			//e.printStackTrace();
+			ProvMonitorLogger.fatal(ProvMonitor.class.getName(), "Main", "ParseException: " + e.getMessage());
 		}catch (ValidateException e){
 			System.out.println(e.getMessage());
+			ProvMonitorLogger.fatal(ProvMonitor.class.getName(), "Main", "Validade parameters exception: " + e.getMessage());
 			//e.printStackTrace();
 		}catch (ProvMonitorException pe){
 			System.out.println(pe.getMessage());
+			ProvMonitorLogger.fatal(ProvMonitor.class.getName(), "Main", "ProvMonitor execution excetption: " + pe.getMessage());
 		}catch (Exception e){
 			e.printStackTrace();
-		}//finally{
-			//System.out.flush();
-			//System.out.println("ProvMonitor: End Execution....");
-		//}
+			ProvMonitorLogger.fatal(ProvMonitor.class.getName(), "Main", "Generic non treated exception: " + e.getMessage());
+		}finally{
+			Date provExecEndTime = Calendar.getInstance().getTime();
+			Long diffTime = ((provExecEndTime.getTime() - provExecStartTime.getTime())/1000);
+			ProvMonitorLogger.measure(ProvMonitorTests.class.getName(), "Main", LogMessages.END_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(provExecEndTime), diffTime});
+		}
 		
 	}
 

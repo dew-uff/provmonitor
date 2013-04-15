@@ -69,7 +69,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	//public String initializeExperimentExecution(String experimentId) throws CharonException{
 		//return repository.getCharon().getCharonAPI().initializeExperimentExecution(experimentId);
 	//}
-	public static void initializeExperimentExecution(String experimentId, String sourceRepository, String workspacePath) throws ProvMonitorException{
+	public static String initializeExperimentExecution(String experimentId, String sourceRepository, String workspacePath) throws ProvMonitorException{
 		//System.out.println("initializeExperimentExecution start execution...");
 		
 		//Record Timestamp
@@ -101,6 +101,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		//cvsManager.checkout(workspacePath, experimentInstanceId);
 		
 		//System.out.println("initializeExperimentExecution end execution.");
+		return experimentInstanceId;
 	}
 	
 	public static void FinalizeExperimentExecution(String experimentInstanceId, String centralRepository, Date endDateTime) throws ProvMonitorException{
