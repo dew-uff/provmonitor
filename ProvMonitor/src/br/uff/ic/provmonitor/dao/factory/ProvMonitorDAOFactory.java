@@ -5,6 +5,7 @@ import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactValueLocaltionDAO;
 import br.uff.ic.provmonitor.dao.DatabaseControlDAO;
+import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.ProcessInstanceDAO;
 import br.uff.ic.provmonitor.dao.impl.javadb.ActivityInstanceDAO_JavaDBImpl;
@@ -12,7 +13,8 @@ import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactPortActivityInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactValueLocaltionDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.DatabaseControlDAO_JavaDBImpl;
-import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionStatusDAO_JavaDVImpl;
+import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionFilesStatusDAO_JavaDBImpl;
+import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ProcessInstanceDAO_JavaDBImpl;
 
 /**
@@ -47,7 +49,11 @@ public class ProvMonitorDAOFactory {
 	 * @return ExecutionStatusDAO
 	 * */
 	public ExecutionStatusDAO getExecutionStatusDAO(){
-		return new ExecutionStatusDAO_JavaDVImpl();
+		return new ExecutionStatusDAO_JavaDBImpl();
+	}
+	
+	public ExecutionFilesStatusDAO getExecutionFileStatusDAO(){
+		return new ExecutionFilesStatusDAO_JavaDBImpl();
 	}
 	
 	/**

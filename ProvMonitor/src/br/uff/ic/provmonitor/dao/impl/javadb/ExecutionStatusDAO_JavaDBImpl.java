@@ -14,7 +14,7 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
 import br.uff.ic.provmonitor.utils.DateUtils;
 
-public class ExecutionStatusDAO_JavaDVImpl implements ExecutionStatusDAO{
+public class ExecutionStatusDAO_JavaDBImpl implements ExecutionStatusDAO{
 
 	@Override
 	public ExecutionStatus getById(String elementId, String elementPath) throws ProvMonitorException{

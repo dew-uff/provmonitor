@@ -1,5 +1,8 @@
 package br.uff.ic.provmonitor.tests;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,19 +22,49 @@ public class ProvMonitorTests {
 			
 			String centralRepository = "";
 			String workspacePath = "";
+			String activityInstanceId_1 = "ActivyInstanceId01";
+			//String context = "";
 			Date startDateTime = Calendar.getInstance().getTime();
 			
 			//Starting Log
 			ProvMonitorLogger.config(ProvMonitorLevel.DEBUG);
-			ProvMonitorLogger.measure(ProvMonitorTests.class.getName(), "Main", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(provExecStartTime)});
 			
+			//Starging execution
+			ProvMonitorLogger.measure(ProvMonitorTests.class.getName(), "Main", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(provExecStartTime)});
 			ProvMonitorLogger.info(ProvMonitorTests.class.getName(), "Main", "Starting ProvMonitor tests...");
 			
-			ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Calling initializeExperimentTest.");
 			//InitializeExperimentTest
+			ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Calling initializeExperimentTest.");
 			String experimentInstanceId = initializeExperimentTest("ExperimentTeste1", centralRepository, workspacePath, startDateTime);
-			ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Return of initializeExperimentTest without erros. ExperimentInstanceId: " + experimentInstanceId + ". ");	
+			ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Return of initializeExperimentTest without erros. ExperimentInstanceId: " + experimentInstanceId + ". ");
 			
+			//Updating context
+			//context = experimentInstanceId.concat("\\".concat(activityInstanceId_1));
+			String [] context = {experimentInstanceId,activityInstanceId_1};
+			
+			//Activity Start
+			Date activityStartDateTime = Calendar.getInstance().getTime();
+			ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(activityStartDateTime)});
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId_1, context, activityStartDateTime, workspacePath);
+			Date activityStartDateTimeEndExec = Calendar.getInstance().getTime();
+			Long diffTimeActvity1 = ((activityStartDateTime.getTime() - provExecStartTime.getTime())/1000);
+			ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.END_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(activityStartDateTimeEndExec),diffTimeActvity1});
+			
+			//Changing files
+			createFileContent(centralRepository + "\\File1.html");
+			createFileContent(centralRepository + "\\File2.html");
+			
+			//Activity End
+			Date endActiviyDateTime = Calendar.getInstance().getTime();
+			ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(endActiviyDateTime)});
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId_1, context, activityStartDateTime, endActiviyDateTime, workspacePath);
+			Date endActiviyDateTimeEndExec = Calendar.getInstance().getTime();
+			Long diffTimeActvity1End = ((activityStartDateTime.getTime() - provExecStartTime.getTime())/1000);
+			ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", LogMessages.END_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(endActiviyDateTimeEndExec),diffTimeActvity1End});
+			
+			//Finalize Experiment
+			Date endDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, endDateTime);
 			
 		}catch(ProvMonitorException e){
 			ProvMonitorLogger.fatal(ProvMonitorTests.class.getName(), "main", "Error: " + e.getMessage());
@@ -58,5 +91,28 @@ public class ProvMonitorTests {
 		}
 		
 		return experimentInstanceId;
+	}
+	
+	private static void createFileContent(String filePath){
+		File exampleHtml = new File(filePath);
+		try {
+			exampleHtml.createNewFile();
+			FileWriter out = new FileWriter(exampleHtml);
+			
+			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+			String nonce = sf.format(Calendar.getInstance().getTime());
+			
+			out.write("<html>");
+			out.write("<table>");
+			out.write("<tr><td>line1</td><td>");
+			out.write(nonce);
+			out.write("</td><tr>");
+			out.write("</table>");
+			out.write("</html>");
+			out.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -17,10 +17,10 @@ public interface ExecutionFilesStatusDAO {
 	
 	/**
 	 * Persist the element execution status information.
-	 * @param executionStatus <code>ExecutionStatus</code> - Object to be persisted.
+	 * @param executionFileStatus <code>ExecutionFilesStatus</code> - Object to be persisted.
 	 * @throws ProvMonitorException
 	 * */
-	public void persist(ExecutionStatus executionStatus) throws ProvMonitorException;
+	public void persist(ExecutionFilesStatus executionFileStatus) throws ProvMonitorException;
 	
 	
 	/**

@@ -199,6 +199,8 @@ public class RetrospectiveProvenanceBusinessServices {
 			ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
 			//factory.getActivityInstanceDAO().persist(activityInstance);
 			factory.getExecutionStatusDAO().persist(elementExecStatus);
+			//Persist acessed files
+			//factory.get
 			
 		}catch(IOException e){
 			throw new ProvMonitorException(e.getMessage(), e.getCause());
