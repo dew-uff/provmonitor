@@ -11,6 +11,7 @@ public interface CVSManager {
 	
 	public void createWorkspace(String workspace) throws CVSException;
 	public void cloneRepository(String sourceRepository, String workspacePath) throws CVSException;
+	public void cloneRepository(String sourceRepository, String workspacePath, Collection<String> cloneOnlyBranches) throws CVSException;
 	public void createBranch(String workspace, String branchName) throws CVSException;
 	/**
 	 * @return String Commit ID - Identification of the commit.

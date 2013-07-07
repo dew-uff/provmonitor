@@ -95,7 +95,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		cvsManager.cloneRepository(sourceRepository, workspacePath);
 		
 		//Repository branch
-		//cvsManager.createBranch(workspacePath, experimentInstanceId);
+		cvsManager.createBranch(workspacePath, experimentInstanceId);
 		
 		//Repository checkOut
 		//cvsManager.checkout(workspacePath, experimentInstanceId);
@@ -104,12 +104,14 @@ public class RetrospectiveProvenanceBusinessServices {
 		return experimentInstanceId;
 	}
 	
-	public static void FinalizeExperimentExecution(String experimentInstanceId, String centralRepository, Date endDateTime) throws ProvMonitorException{
+	public static void FinalizeExperimentExecution(String experimentInstanceId, String centralRepository, String workspacePath, Date endDateTime) throws ProvMonitorException{
 		//Stop DB infra
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
 		daoFactory.getDatabaseControlDAO().dbFinalize();
 		
 		//Pushback Repository
+		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		cvsManager.pushBack(workspacePath, centralRepository);
 		
 	}
 	
@@ -196,11 +198,18 @@ public class RetrospectiveProvenanceBusinessServices {
 			
 			
 			
+			//TODO: Implementar controle de transação e atomicidade para os casos de atributos multivalorados
+			
 			ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+			
 			//factory.getActivityInstanceDAO().persist(activityInstance);
 			factory.getExecutionStatusDAO().persist(elementExecStatus);
+			
 			//Persist acessed files
-			//factory.get
+			for (ExecutionFilesStatus executionFileStatus: execFiles){
+				factory.getExecutionFileStatusDAO().persist(executionFileStatus);
+			}
+			
 			
 		}catch(IOException e){
 			throw new ProvMonitorException(e.getMessage(), e.getCause());
@@ -269,8 +278,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		//Record Timestamp
 		
 		//Verify accessed files
+		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
 		try{
-			ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
 			Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
 			if (accessedFiles != null && !accessedFiles.isEmpty()){
 				for (AccessedPath acFile: accessedFiles){
@@ -306,7 +315,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Recover executionStatus element
 		System.out.println("Starting ActivityExecutionEnding Method...");
-		ExecutionStatusDAO execStatusDAO = new ProvMonitorDAOFactory().getExecutionStatusDAO();
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
 		System.out.println("Getting activity by id: " + activityInstanceId);
 		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementPath.toString());
 		
@@ -328,6 +338,11 @@ public class RetrospectiveProvenanceBusinessServices {
 		System.out.println("Persisting Activity....");
 		execStatusDAO.update(elemExecutionStatus);
 		System.out.println("Activity Persisted.");
+		
+		//Persist acessed files
+		for (ExecutionFilesStatus executionFileStatus: execFiles){
+			factory.getExecutionFileStatusDAO().persist(executionFileStatus);
+		}
 		
 	}
 	

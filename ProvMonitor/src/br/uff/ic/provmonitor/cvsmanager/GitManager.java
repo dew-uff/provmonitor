@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -16,6 +17,13 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import br.uff.ic.provmonitor.exceptions.CVSException;
 
+/**
+ * 
+ * CVS Manager Implementation for Git CVS.
+ * <br /><p>
+ * <b>Technology:</b> Uses jGit API.</p>
+ * 
+ * */
 public class GitManager implements CVSManager {
 
 	@Override
@@ -30,8 +38,7 @@ public class GitManager implements CVSManager {
 	}
 	
 	@Override
-	public void cloneRepository(String sourceRepository, String workspacePath)
-			throws CVSException {
+	public void cloneRepository(String sourceRepository, String workspacePath) throws CVSException {
 		try {
 
 			CloneCommand cCom = Git.cloneRepository();
@@ -45,12 +52,55 @@ public class GitManager implements CVSManager {
 			//First Try cloning everything
 			cCom.setCloneAllBranches(true);
 			
+			//Cloning only Trunk
+//			cCom.setCloneAllBranches(false);
+//			
+//			Collection<String> branchCollection = new ArrayList<String>();
+//			branchCollection.add("master");
+//			cCom.setBranchesToClone(branchCollection);
+			
 			cCom.call();
 		} catch (GitAPIException e) {
 			throw new CVSException("Could not clone repository: " + e.getMessage(), e.getCause());
 		}
 		
 		
+	}
+	
+	/**
+	 * Clone only the specified branches. Or Full clone when branches collection is null.
+	 * 
+	 * @param sourceRepository - String - Source Repository to be cloned.
+	 * @param workspacePath - String - Destiny workspace path.
+	 * @param cloneOnlyBranches - Collection< String > - Branches to be cloned. Null for Full clone.
+	 * 
+	 * */
+	public void cloneRepository(String sourceRepository, String workspacePath, Collection<String> cloneOnlyBranches) throws CVSException{
+		try {
+		Boolean fullClone = cloneOnlyBranches==null?true:false;
+		
+		CloneCommand cCom = Git.cloneRepository();
+		cCom.setBare(false);
+		
+		cCom.setURI(sourceRepository);
+		File newPath = new File(workspacePath);
+		cCom.setDirectory(newPath);			
+		
+		if (fullClone){
+			//Cloning everything
+			cCom.setCloneAllBranches(true);
+		}else{
+			//Cloning only branches
+			cCom.setCloneAllBranches(false);
+			cCom.setBranchesToClone(cloneOnlyBranches);
+			cCom.setCloneSubmodules(false);
+		} 
+		
+		cCom.call();
+		
+		} catch (GitAPIException e) {
+			throw new CVSException("Could not clone repository: " + e.getMessage(), e.getCause());
+		}
 	}
 
 	@Override
@@ -120,9 +170,21 @@ public class GitManager implements CVSManager {
 	}
 
 	@Override
-	public void pushBack(String workspacePath, String repositoryPath)
-			throws CVSException {
-		// TODO Auto-generated method stub
+	public void pushBack(String workspacePath, String repositoryPath) throws CVSException {
+		try{
+			
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			PushCommand pc = git.push();
+			
+			pc.setRemote(repositoryPath);
+			
+			pc.call();
+		
+		}catch (IOException | GitAPIException  e){
+			throw new CVSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
+		}
+		
 		
 	}
 

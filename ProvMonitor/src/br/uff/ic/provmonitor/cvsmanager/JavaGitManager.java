@@ -13,7 +13,9 @@ import edu.nyu.cs.javagit.api.WorkingTree;
 import edu.nyu.cs.javagit.api.commands.GitCommitResponse;
 
 /**
- * CVS Manager Implementation for Git CVS
+ * CVS Manager Implementation for Git CVS.
+ * <br /><p>
+ * <b>Technology:</b> using command line git commands.</p>
  */
 public class JavaGitManager implements CVSManager{
 
@@ -37,6 +39,13 @@ public class JavaGitManager implements CVSManager{
 		}catch(IOException e){
 			throw new CVSException(e.getMessage(), e.getCause());
 		}
+	}
+	
+	@Override
+	public void cloneRepository(String sourceRepository, String workspacePath,
+			Collection<String> cloneOnlyBranches) throws CVSException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -156,4 +165,5 @@ public class JavaGitManager implements CVSManager{
 		// TODO Auto-generated method stub
 		
 	}
+
 }

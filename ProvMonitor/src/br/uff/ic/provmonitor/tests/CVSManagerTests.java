@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -23,10 +24,21 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 
 public class CVSManagerTests {
 	public static void main(String[] args) {
+		//basicCVSFunctionalitiesTests();
+		try {
+			cloneParcialAndFullTest();
+		} catch (ProvMonitorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private static void basicCVSFunctionalitiesTests(){
 		//mainTestCode();
 		//initializeTest("experimentId", "c:\\TesteProvMonitor\\CloneCheckOut\\files", "c:\\bda\\RepositorioCentral\\files");
 		//String workspace = "C:\\Testes\\workspace\\Teste7\\";
-		String workspace = "C:\\GitWorkspaceTest\\Teste1";
+		String workspace = "C:\\GitWorkspaceTest\\Teste2";
 		//String centralRepository = "C:\\Testes\\CentralRepo\\Repo4";
 		String centralRepository = "C:\\GitTeste\\Repo1";
 		
@@ -61,7 +73,7 @@ public class CVSManagerTests {
 			cvsManager.cloneRepository(sourceRepository, workspacePath);
 			
 			//Repository branch
-			//cvsManager.createBranch(workspacePath, experimentInstanceId);
+			cvsManager.createBranch(workspacePath, experimentInstanceId);
 			
 			//Repository checkOut
 			//cvsManager.checkout(workspacePath, "trunk");
@@ -100,10 +112,11 @@ public class CVSManagerTests {
 		}
 	}
 	
-	private static void fileChangesGenerator(String fileName){
-		
-	}
+//	private static void fileChangesGenerator(String fileName){
+//		
+//	}
 	
+	@SuppressWarnings("unused")
 	private static void mainTestCode(){
 		//String centralRepository = "C:\\Testes\\RepositorioCentral\\";
 		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
@@ -298,6 +311,23 @@ public class CVSManagerTests {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	
+	private static void cloneParcialAndFullTest() throws ProvMonitorException{
+		
+		String centralRepository = "C:\\Testes\\CentralRepo\\Repo1";
+		String workspacePathFull = "C:\\Testes\\workspaces\\WorkspaceFullClone4";
+		String workspacePath = "C:\\Testes\\workspaces\\WorkspaceParcialClone4";
+		
+		Collection<String> branchesToBeCloned = new ArrayList<String>();
+		branchesToBeCloned.add("master");
+		
+		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		//System.out.println("Cloning to: " + workspacePath);
+		cvsManager.cloneRepository(centralRepository, workspacePathFull);
+		cvsManager.cloneRepository(centralRepository, workspacePath, branchesToBeCloned);
 	}
 	
 

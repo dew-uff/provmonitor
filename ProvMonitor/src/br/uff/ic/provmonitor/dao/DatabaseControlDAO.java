@@ -10,6 +10,10 @@ import br.uff.ic.provmonitor.exceptions.ServerDBException;
  * */
 public interface DatabaseControlDAO {
 	
+	public final String DATABASE_TYPE_JAVADB ="JAVADB";
+	public final String DATABASE_TYPE_MYSQL ="MYSQL";
+	public final String DATABASE_TYPE_POSTEGRESQL ="POSTEGRE";
+	
 	/**
 	 * Execute all initializing steps needed for the database implementation. <br />
 	 * <ul>

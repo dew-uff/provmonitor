@@ -7,12 +7,14 @@ import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactValueLocaltionDAO;
 import br.uff.ic.provmonitor.dao.DatabaseControlDAO;
+import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.ProcessInstanceDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
 import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ServerDBException;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 
 public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 
@@ -31,9 +33,12 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 	 * */
 	@Override
 	public void dbInitialize() throws ProvMonitorException{
-			//Start JavaDB Server
-			serverDBStart();
-			
+		
+			//Server must start only when using JavaDB Implementation
+			if (ProvMonitorProperties.getInstance().getDataBaseType() == null || DatabaseControlDAO.DATABASE_TYPE_JAVADB.equals(ProvMonitorProperties.getInstance().getDataBaseType())){
+				//Start JavaDB Server
+				serverDBStart();
+			}
 			//Verify existence and create schema objects if needed
 			verifyAndCreateSchemaObjects();
 			
@@ -49,8 +54,11 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 	@Override
 	public void dbFinalize() throws DatabaseException, ServerDBException{
 		try{
-			//Stop JavaDB Server
-			serverDBStop();
+			//Shut down server only when using JavaDB Implementation
+			if (ProvMonitorProperties.getInstance().getDataBaseType() == null || DatabaseControlDAO.DATABASE_TYPE_JAVADB.equals(ProvMonitorProperties.getInstance().getDataBaseType())){
+				//Stop JavaDB Server
+				serverDBStop();
+			}
 			
 		}catch(ServerDBException e){
 			throw e;
@@ -134,6 +142,12 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 		ExecutionStatusDAO executionStatusDAO = daoFactory.getExecutionStatusDAO();
 		if (!executionStatusDAO.isTableCreated()){
 			executionStatusDAO.createTable();
+		}
+		
+		//Verify and create if needed ExecutionFilesStatus Database Object
+		ExecutionFilesStatusDAO executionFilesStatusDAO = daoFactory.getExecutionFileStatusDAO();
+		if(!executionFilesStatusDAO.isTableCreated()){
+			executionFilesStatusDAO.createTable();
 		}
 		
 		//Verify and create if needed ProcessInstance Database Object

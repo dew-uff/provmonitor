@@ -1,12 +1,10 @@
 package br.uff.ic.provmonitor.dao.impl.javadb;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
-import java.util.Collection;
 
 import br.uff.ic.provmonitor.connection.ConnectionManager;
 import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
@@ -68,36 +66,36 @@ public class ExecutionFilesStatusDAO_JavaDBImpl implements ExecutionFilesStatusD
 		
 	}
 	
-	public void persit(Collection<ExecutionFilesStatus> filesCollection){
-		for (ExecutionFilesStatus execFile: filesCollection){
-			
-		}
-	}
-
-	private void persist(ExecutionFilesStatus executionFileStatus, Connection conn) throws DatabaseException{
-		try{
-			
-			PreparedStatement psInsert = conn.prepareStatement("INSERT INTO EXECUTION_FILE_STATUS (ID_ELEMENT" +
-																								 ",ELEMENT_PATH" +
-																								 ",FILE_PATH" +
-																								 ",FILE_ACCESS_TYPE" +
-																								 ",FILE_ACCESS_TIME" +
-																								 ") values (?,?,?,?,?)");
-			psInsert.setString(1, executionFileStatus.getElementId());
-			psInsert.setString(2, executionFileStatus.getElementPath());
-			psInsert.setString(3, executionFileStatus.getFilePath());
-			psInsert.setString(4, executionFileStatus.getFiletAccessType());
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
-			
-			psInsert.executeUpdate(); 
-			
-			conn.commit();
-			
-			
-		}catch(SQLException e){
-			throw new DatabaseException(e.getMessage(), e.getCause());
-		}
-	}
+//	public void persit(Collection<ExecutionFilesStatus> filesCollection){
+//		for (ExecutionFilesStatus execFile: filesCollection){
+//			
+//		}
+//	}
+//
+//	private void persist(ExecutionFilesStatus executionFileStatus, Connection conn) throws DatabaseException{
+//		try{
+//			
+//			PreparedStatement psInsert = conn.prepareStatement("INSERT INTO EXECUTION_FILE_STATUS (ID_ELEMENT" +
+//																								 ",ELEMENT_PATH" +
+//																								 ",FILE_PATH" +
+//																								 ",FILE_ACCESS_TYPE" +
+//																								 ",FILE_ACCESS_TIME" +
+//																								 ") values (?,?,?,?,?)");
+//			psInsert.setString(1, executionFileStatus.getElementId());
+//			psInsert.setString(2, executionFileStatus.getElementPath());
+//			psInsert.setString(3, executionFileStatus.getFilePath());
+//			psInsert.setString(4, executionFileStatus.getFiletAccessType());
+//			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
+//			
+//			psInsert.executeUpdate(); 
+//			
+//			conn.commit();
+//			
+//			
+//		}catch(SQLException e){
+//			throw new DatabaseException(e.getMessage(), e.getCause());
+//		}
+//	}
 	@Override
 	public void update(ExecutionFilesStatus executionFileStatus) throws ProvMonitorException {
 		Connection conn = ConnectionManager.getInstance().getConnection();
@@ -162,7 +160,7 @@ public class ExecutionFilesStatusDAO_JavaDBImpl implements ExecutionFilesStatusD
 			psInsert.setString(2,"TesteParam2");
 			psInsert.setString(3,"TesteParam3");
 			psInsert.setString(4,"TesteParam4");
-			psInsert.setDate(5, (Date) Calendar.getInstance().getTime());
+			psInsert.setDate(5, (DateUtils.utilsDate2SqlDate(Calendar.getInstance().getTime())));
 			
 			psInsert.executeUpdate(); 
 			

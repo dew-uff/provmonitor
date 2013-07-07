@@ -18,6 +18,7 @@ import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.tests.ProvMonitorTests;
 import br.uff.ic.provmonitor.utils.DateUtils;
+import br.uff.ic.provmonitor.utils.ExtendedContextUtils;
 import br.uff.ic.provmonitor.validator.OptionsValidator;
 
 public class ProvMonitor {
@@ -42,6 +43,7 @@ public class ProvMonitor {
 		options.addOption("edDt", 	true, "endDateTime");
 		options.addOption("cR", 	true, "centralRepository");
 		options.addOption("wp", 	true, "workspacePath");
+		options.addOption("sceContext", true, "sciCumulusExtendedContext");
 		//options.addOption("",true,"");
 		
 		options.addOption("context",true,"context");
@@ -119,11 +121,12 @@ public class ProvMonitor {
 					//Reading parameters
 					String experimentInstanceId = cmd.getOptionValue("eii");
 					String centralRepository = cmd.getOptionValue("cR");
+					String workspacePath = cmd.getOptionValue("wp");
 					String endDate = cmd.getOptionValue("edDt");
 					Date endDateTime = DateUtils.dateParse(endDate);
 					
 					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, endDateTime);
+					RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspacePath, endDateTime);
 				}
 				break;
 			case NOTIFY_ACTIVITY_EXECUTION_ENDING:
@@ -136,6 +139,16 @@ public class ProvMonitor {
 					String endDate = cmd.getOptionValue("edDt");
 					Date endDateTime = DateUtils.dateParse(endDate);
 					String workspacePath = cmd.getOptionValue("wp");
+					
+					String extendedContext = cmd.getOptionValue("sceContext");
+					if (extendedContext != null && extendedContext.length() > 0){
+						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+						String[] context2 = exCUtil.appendContext(context);
+						
+						//Invoking BusinessServices
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context2, starDateTime, endDateTime, workspacePath);
+					}
+					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
 				}
@@ -151,6 +164,15 @@ public class ProvMonitor {
 					
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
+					String extendedContext = cmd.getOptionValue("sceContext");
+					if (extendedContext != null && extendedContext.length() > 0){
+						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+						String[] context2 = exCUtil.appendContext(context);
+						
+						//Invoking BusinessServices
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
+					}
 					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);

@@ -20,9 +20,11 @@ public class ExecutionStatusDAO_JavaDBImpl implements ExecutionStatusDAO{
 	public ExecutionStatus getById(String elementId, String elementPath) throws ProvMonitorException{
 		Connection conn = ConnectionManager.getInstance().getConnection();
 		try {
-			PreparedStatement psGetById = conn.prepareStatement("SELECT * FROM EXECUTION_STATUS WHERE ID_ELEMENT = ? AND PATH LIKE ? ");
+			PreparedStatement psGetById = conn.prepareStatement("SELECT * FROM EXECUTION_STATUS WHERE ID_ELEMENT LIKE ? AND PATH LIKE ? ");
 			psGetById.setString(1, elementId);
-			psGetById.setString(2, elementPath);
+			//psGetById.setString(2, elementPath);
+			String elementPath2 = elementPath.replaceAll("\\\\", "\\\\\\\\");
+			psGetById.setString(2, elementPath2);
 			
 			
 			ResultSet rs = psGetById.executeQuery();
@@ -44,7 +46,7 @@ public class ExecutionStatusDAO_JavaDBImpl implements ExecutionStatusDAO{
 			}
 			
 			
-		} catch (SQLException e) {
+		} catch (SQLException | RuntimeException e) {
 			throw new DatabaseException(e.getMessage(), e.getCause());
 		} 
 	}
