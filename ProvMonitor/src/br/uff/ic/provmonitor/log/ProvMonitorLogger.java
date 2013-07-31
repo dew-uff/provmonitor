@@ -149,6 +149,19 @@ public class ProvMonitorLogger {
 	}
 	
 	/**
+	 * Register fatal errors message logs.
+	 * 
+	 * @param sourceClass - Source Class that generated the log message.
+	 * @param sourceMethod - Source Method that generated the log message.
+	 * @param msg - log message.
+	 * @param params - parameters of the log message.
+	 */
+	public static void fatal(String sourceClass, String sourceMethod, String msg, Object[] params){
+		//logger.logp(Level.CONFIG,sourceClass, sourceMethod, msg);
+		logger.logp(ProvMonitorLevel.FATAL,sourceClass, sourceMethod, msg, params);
+	}
+	
+	/**
 	 * Register warning message logs.
 	 * @param msg
 	 */

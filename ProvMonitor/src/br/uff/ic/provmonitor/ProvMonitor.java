@@ -1,21 +1,28 @@
 package br.uff.ic.provmonitor;
 
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
+import br.uff.ic.provmonitor.business.ProvMonitorBusinessHelper;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
+import br.uff.ic.provmonitor.business.scicumulus.SciCumulusBusinessHelper;
 import br.uff.ic.provmonitor.enums.MethodType;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ValidateException;
 import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
+import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 import br.uff.ic.provmonitor.tests.ProvMonitorTests;
 import br.uff.ic.provmonitor.utils.DateUtils;
 import br.uff.ic.provmonitor.utils.ExtendedContextUtils;
@@ -23,8 +30,6 @@ import br.uff.ic.provmonitor.validator.OptionsValidator;
 
 public class ProvMonitor {
 
-	//private Options options = new Options();
-	
 	private static void optionsInitialize(Options options){
 		// add m option - Method Type to be invoked on the BusinessServices
 		options.addOption("m", true, "method type");
@@ -45,8 +50,9 @@ public class ProvMonitor {
 		options.addOption("wp", 	true, "workspacePath");
 		options.addOption("sceContext", true, "sciCumulusExtendedContext");
 		//options.addOption("",true,"");
-		
 		options.addOption("context",true,"context");
+		options.addOption("ver", false, "version");
+		options.addOption("propertiesGen", false, "propertiesDefaultValuesGeneration");
 	}
 	
 	/**
@@ -58,10 +64,6 @@ public class ProvMonitor {
 		Date provExecStartTime = Calendar.getInstance().getTime();
 		SimpleDateFormat sdf = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss:SSS");
 		try {
-			//Starting Log
-			ProvMonitorLogger.config(ProvMonitorLevel.DEBUG);
-			ProvMonitorLogger.measure(ProvMonitor.class.getName(), "Main", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(provExecStartTime)});
-			
 			
 			//System.out.println("rodou!");
 			//System.out.println("ProvMonitor: StartExecution....");
@@ -80,6 +82,20 @@ public class ProvMonitor {
 			CommandLineParser parser = new PosixParser();
 			CommandLine cmd = parser.parse(options, args);
 			
+			//Only prints ProvMonitorVersion into the Default Output
+			if (cmd.hasOption("ver")){
+				printProvMonitorVersion();
+				return;
+			}
+			if (cmd.hasOption("propertiesGen")){
+				ProvMonitorProperties.getInstance().generateDefaultPropertiesFile();
+				return;
+			}
+			
+			//Starting Log
+			ProvMonitorLogger.config(ProvMonitorLevel.DEBUG);
+			ProvMonitorLogger.measure(ProvMonitor.class.getName(), "Main", LogMessages.START_EXECUTION_TIME, new Object[]{sdf.format(provExecStartTime)});
+			
 			//Validate options in the CommandLine
 			OptionsValidator.validate(cmd);
 			
@@ -96,6 +112,11 @@ public class ProvMonitor {
 					String experimentId = cmd.getOptionValue("ei");
 					String workspacePath = cmd.getOptionValue("wp");
 					String centralRepository = cmd.getOptionValue("cR");
+					String experimentInstanceId = cmd.getOptionValue("eii");
+					
+					if (experimentInstanceId == null || !(experimentInstanceId.length() > 0) ){
+						experimentInstanceId = ProvMonitorBusinessHelper.generateExperimentInstanceId(experimentId);
+					}
 					
 					//System.out.println("Workspace: " + workspacePath);
 					//System.out.println("Central Repository: " + centralRepository);
@@ -109,7 +130,7 @@ public class ProvMonitor {
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
 					
-					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, centralRepository, workspacePath);
+					RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, experimentInstanceId, centralRepository, workspacePath);
 					
 					Date methodEnd = Calendar.getInstance().getTime();
 					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
@@ -141,7 +162,8 @@ public class ProvMonitor {
 					String workspacePath = cmd.getOptionValue("wp");
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
-					if (extendedContext != null && extendedContext.length() > 0){
+					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
 						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
 						String[] context2 = exCUtil.appendContext(context);
 						
@@ -166,7 +188,8 @@ public class ProvMonitor {
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
-					if (extendedContext != null && extendedContext.length() > 0){
+					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
 						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
 						String[] context2 = exCUtil.appendContext(context);
 						
@@ -300,8 +323,45 @@ public class ProvMonitor {
 			Date provExecEndTime = Calendar.getInstance().getTime();
 			Long diffTime = ((provExecEndTime.getTime() - provExecStartTime.getTime())/1000);
 			ProvMonitorLogger.measure(ProvMonitorTests.class.getName(), "Main", LogMessages.END_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(provExecEndTime), diffTime});
+			try {
+				ProvMonitorOutputManager.getInstance().flush();
+			} catch (ProvMonitorException e) {
+				ProvMonitorLogger.fatal(ProvMonitorTests.class.getName(), "Main", LogMessages.FATAL_ERROR_OUTPUT_NOT_FLUSHED, new Object[]{e.getMessage()});
+			}
 		}
 		
+	}
+	
+	/**
+	 * Puts ProvMonitor version into ProvMonitorOutputManager. <br />
+	 * @see ProvMonitorOutputManager
+	 * 
+	 */
+	private static void printProvMonitorVersion(){
+//		try {
+//				File file = new File("ProvMonitor.jar");
+//		        JarFile jar = new JarFile(file);
+//		        Manifest mf = jar.getManifest();
+//			    Map<String, Attributes> entries = mf.getEntries();
+//			    for (String att: entries.keySet()){
+//			    	//System.out.println(att +  ": " + entries.values().  
+//			    }
+//			    jar.close();
+			
+		try {
+			//URLClassLoader cl = (URLClassLoader) ProvMonitor.class.getClassLoader();
+			//URL url = cl.findResource("META-INF/MANIFEST.MF");
+			//Manifest manifest = new Manifest(url.openStream());
+			FileInputStream in = new FileInputStream("META-INF/MANIFEST.MF");
+			Manifest manifest = new Manifest(in);
+			//Manifest manifest = new Manifest(new URL(manifestPath).openStream());
+			Attributes attr = manifest.getMainAttributes();
+			
+			String value = attr.getValue("ProvMonior-Version");
+			ProvMonitorOutputManager.getInstance().appendMessageLine("ProvMonitor Version: " + value);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 }

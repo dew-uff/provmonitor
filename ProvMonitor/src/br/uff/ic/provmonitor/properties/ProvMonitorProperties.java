@@ -5,7 +5,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.eclipse.jgit.util.StringUtils;
+
 import br.uff.ic.provmonitor.connection.DatabaseType;
+import br.uff.ic.provmonitor.cvsmanager.VCSType;
+import br.uff.ic.provmonitor.log.LogMessages;
+import br.uff.ic.provmonitor.log.ProvMonitorLevel;
+import br.uff.ic.provmonitor.log.ProvMonitorLogger;
+import br.uff.ic.provmonitor.output.ProvMonitorOutputType;
 
 /**
  * Properties of ProvMonitor System
@@ -16,9 +23,10 @@ public class ProvMonitorProperties {
 	private String dataBaseConnection;
 	private String dataBaseUser;
 	private String dataBaseUserPass;
-	private String logMode;
-	private String cvsType;
+	private ProvMonitorLevel logMode;
+	private VCSType vcsType;
 	private String outputFile;
+	private ProvMonitorOutputType outputType;
 	private Properties provMonitorProps;
 	private static ProvMonitorProperties myInstance;
 	
@@ -27,6 +35,7 @@ public class ProvMonitorProperties {
 	 * */
 	private ProvMonitorProperties (){
 		this.loadProperties();
+		this.loadPropertiesDefaultValues();
 	}
 	
 	/**
@@ -64,25 +73,41 @@ public class ProvMonitorProperties {
 	public void setDataBaseUserPass(String dataBaseUserPass) {
 		this.dataBaseUserPass = dataBaseUserPass;
 	}
-	public String getLogMode() {
+	public ProvMonitorLevel getLogMode() {
 		return logMode;
 	}
-
-	public void setLogMode(String logMode) {
+	public void setLogMode(ProvMonitorLevel logMode) {
 		this.logMode = logMode;
 	}
-
-	public String getCvsType() {
-		return cvsType;
+	public VCSType getVcsType() {
+		return vcsType;
 	}
-	public void setCvsType(String cvsType) {
-		this.cvsType = cvsType;
+
+	public void setVcsType(VCSType vcsType) {
+		this.vcsType = vcsType;
 	}
 	public String getOutputFile() {
 		return outputFile;
 	}
 	public void setOutputFile(String outputFile) {
 		this.outputFile = outputFile;
+	}
+	public ProvMonitorOutputType getOutputType() {
+		return outputType;
+	}
+
+	public void setOutputType(ProvMonitorOutputType outputType) {
+		this.outputType = outputType;
+	}
+
+	/**
+	 * Save an example ProvMonitorProperties file with default values
+	 * */
+	public void generateDefaultPropertiesFile(){
+		ProvMonitorProperties.getInstance();
+		ProvMonitorProperties.getInstance().clearProperties();
+		ProvMonitorProperties.getInstance().loadPropertiesDefaultValues();
+		this.savaDefaultProperties();
 	}
 	
 	private void loadProperties(){
@@ -101,27 +126,67 @@ public class ProvMonitorProperties {
 			dataBaseConnection = provMonitorProps.getProperty("dataBaseConnection");
 			dataBaseUser = provMonitorProps.getProperty("dataBaseUser");
 			dataBaseUserPass = provMonitorProps.getProperty("dataBaseUserPass");
-			logMode = provMonitorProps.getProperty("logMode");
-			cvsType = provMonitorProps.getProperty("cvsType");
+			logMode = ProvMonitorLevel.valueOf(provMonitorProps.getProperty("logMode"));
+			vcsType = VCSType.valueOf(provMonitorProps.getProperty("cvsType"));
 			outputFile = provMonitorProps.getProperty("outputFile");
+			outputType = ProvMonitorOutputType.valueOf(provMonitorProps.getProperty("outputType"));
 			
 			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ProvMonitorLogger.debug(ProvMonitorProperties.class.getName(), "loadProperties", e.getMessage());
+			ProvMonitorLogger.warning(ProvMonitorProperties.class.getName(), "loadProperties", LogMessages.WARNING_PROPERTIES_FILE_NOT_FOUND_LOADING_DEFAULT_OPTIONS);
+			
+			Properties defaultProps = new Properties();
+			provMonitorProps = new Properties(defaultProps);
 		}
+	}
+	
+	
+	/**
+	 * Clear all the properties values
+	 * */
+	private void clearProperties(){
+		dataBaseType = null;
+		dataBaseConnection = null;
+		dataBaseUser = null;
+		dataBaseUserPass = null;
+		logMode = null;
+		vcsType = null;
+		outputFile = null;
+		outputType = null;
+	}
+	
+	/**
+	 * Load the default values for the properties not setted on the properties files.
+	 */
+	private void loadPropertiesDefaultValues(){
+		if (dataBaseType == null || StringUtils.isEmptyOrNull(dataBaseConnection) || StringUtils.isEmptyOrNull(dataBaseUser) || StringUtils.isEmptyOrNull(dataBaseUserPass)){
+			dataBaseType = DatabaseType.JAVADB;
+			dataBaseConnection = "";
+			dataBaseUser = "";
+			dataBaseUserPass = "";
+			
+		}
+		if (logMode == null){
+			logMode = ProvMonitorLevel.WARNING;
+		}
+		if (vcsType == null){
+			vcsType = VCSType.GIT;
+		}
+		if (outputFile == null || StringUtils.isEmptyOrNull(outputFile)){
+			outputFile = "";
+			outputType = ProvMonitorOutputType.CONSOLE;
+		}
+		
 	}
 	
 	private void savaDefaultProperties(){
 		try {
 			// create and load default properties
 			Properties defaultProps = new Properties();
-			FileInputStream in = new FileInputStream("provMonitor.properties");
 			
-			defaultProps.load(in);
-			in.close();
-	
 			// create application properties with default
 			provMonitorProps = new Properties(defaultProps);
 			
@@ -129,12 +194,13 @@ public class ProvMonitorProperties {
 			provMonitorProps.setProperty("dataBaseConnection", dataBaseConnection);
 			provMonitorProps.setProperty("dataBaseUser", dataBaseUser);
 			provMonitorProps.setProperty("dataBaseUserPass", dataBaseUserPass);
-			provMonitorProps.setProperty("logMode", logMode);
-			provMonitorProps.setProperty("cvsType", cvsType);
+			provMonitorProps.setProperty("logMode", logMode.getName());
+			provMonitorProps.setProperty("cvsType", vcsType.getName());
 			provMonitorProps.setProperty("outputFile", outputFile);
+			provMonitorProps.setProperty("outputType", outputType.getCode());
 			
 			
-			FileOutputStream out = new FileOutputStream("provMonitor2.properties");
+			FileOutputStream out = new FileOutputStream("provMonitor.properties");
 			provMonitorProps.store(out, "---No Comment---");
 			
 			
@@ -144,13 +210,4 @@ public class ProvMonitorProperties {
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Save an example ProvMonitorProperties file with default values
-	 * */
-	public void generateDefaultPropertiesFile(){
-		ProvMonitorProperties.getInstance();
-		this.savaDefaultProperties();
-	}
-	
 }

@@ -9,7 +9,7 @@ public enum DatabaseType {
 	PROVMANAGER_SERVICE (2, "PROVMANAGER_SERVICE"),
 	LOCAL_FILE (3, "LOCAL_FILE"),
 	MYSQL (4, "MYSQL"),
-	POSTGRE (5, "POSTGRE");
+	POSTGRES (5, "POSTGRES");
 	
 	private Integer code;
 	private String name;

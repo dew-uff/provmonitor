@@ -17,8 +17,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import br.uff.ic.provmonitor.cvsmanager.CVSManager;
-import br.uff.ic.provmonitor.cvsmanager.CVSManagerFactory;
+import br.uff.ic.provmonitor.cvsmanager.VCSManager;
+import br.uff.ic.provmonitor.cvsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.exceptions.CVSException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 
@@ -69,7 +69,7 @@ public class CVSManagerTests {
 			String nonce = sf.format(timeStampInitExecute);
 			String experimentInstanceId = experimentId + nonce;
 					
-			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			VCSManager cvsManager = VCSManagerFactory.getInstance();
 			cvsManager.cloneRepository(sourceRepository, workspacePath);
 			
 			//Repository branch
@@ -85,7 +85,7 @@ public class CVSManagerTests {
 	
 	private static void createCentralRepository(String centralRepository){
 		try{
-			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			VCSManager cvsManager = VCSManagerFactory.getInstance();
 			cvsManager.createWorkspace(centralRepository);
 			
 			createFileContent(new String(centralRepository + "\\File1.html"));
@@ -103,7 +103,7 @@ public class CVSManagerTests {
 	private static void intermediateCommit(String workspacePath, String message){
 		try{
 			
-			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			VCSManager cvsManager = VCSManagerFactory.getInstance();
 			cvsManager.addAllFromPath(workspacePath);
 			cvsManager.commit(workspacePath, message);
 			
@@ -153,7 +153,7 @@ public class CVSManagerTests {
 	}
 	
 	private static void createWorkspaceTest(String workspacePath){
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		try{
 			cvsManager.createWorkspace(workspacePath);
 		}catch (CVSException e) {
@@ -162,7 +162,7 @@ public class CVSManagerTests {
 	}
 	
 	private static void checkOutTest(String workspacePath){
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		try{
 			cvsManager.checkout(workspacePath, "head");
 		}catch (CVSException e) {
@@ -172,7 +172,7 @@ public class CVSManagerTests {
 	
 	@SuppressWarnings("unused")
 	private static void addByPatternsTest(String workspacePath, Collection<String> filePathList){
-		CVSManager cvsMan = CVSManagerFactory.getInstance();
+		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.addPathOrFile(workspacePath, filePathList);
 		} catch (CVSException e) {
@@ -181,7 +181,7 @@ public class CVSManagerTests {
 	}
 	
 	private static void addAllTest(String workspacePath){
-		CVSManager cvsMan = CVSManagerFactory.getInstance();
+		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.addAllFromPath(workspacePath);
 		} catch (CVSException e) {
@@ -190,7 +190,7 @@ public class CVSManagerTests {
 	}
 	
 	private static void commitTest(String workspacePath, String message){
-		CVSManager cvsMan = CVSManagerFactory.getInstance();
+		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.commit(workspacePath, message);
 		} catch (CVSException e) {
@@ -199,7 +199,7 @@ public class CVSManagerTests {
 	}
 	
 	private static void cloneTest(String sourceUri, String destinationFolder){
-		CVSManager cvsMan = CVSManagerFactory.getInstance();
+		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.cloneRepository(sourceUri, destinationFolder);
 		} catch (CVSException e) {
@@ -224,7 +224,7 @@ public class CVSManagerTests {
 			String workspacePath = "C:\\Testes\\Teste_" + nonce;
 			new File(workspacePath).mkdirs();
 			
-			CVSManager cvs = CVSManagerFactory.getInstance();
+			VCSManager cvs = VCSManagerFactory.getInstance();
 			
 			cvs.cloneRepository(centralRepository, workspacePath);
 			cvs.createBranch(workspacePath, branchName);
@@ -324,7 +324,7 @@ public class CVSManagerTests {
 		Collection<String> branchesToBeCloned = new ArrayList<String>();
 		branchesToBeCloned.add("master");
 		
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
 		cvsManager.cloneRepository(centralRepository, workspacePathFull);
 		cvsManager.cloneRepository(centralRepository, workspacePath, branchesToBeCloned);

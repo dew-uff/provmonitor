@@ -7,7 +7,7 @@ import br.uff.ic.provmonitor.exceptions.CVSException;
 /**
  * CVS Manager Interface. Make it independent of implementation.
  */
-public interface CVSManager {
+public interface VCSManager {
 	
 	public void createWorkspace(String workspace) throws CVSException;
 	public void cloneRepository(String sourceRepository, String workspacePath) throws CVSException;

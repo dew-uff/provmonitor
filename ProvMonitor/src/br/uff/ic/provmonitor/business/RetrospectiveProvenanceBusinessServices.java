@@ -8,8 +8,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-import br.uff.ic.provmonitor.cvsmanager.CVSManager;
-import br.uff.ic.provmonitor.cvsmanager.CVSManagerFactory;
+import br.uff.ic.provmonitor.cvsmanager.VCSManager;
+import br.uff.ic.provmonitor.cvsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
@@ -69,15 +69,20 @@ public class RetrospectiveProvenanceBusinessServices {
 	//public String initializeExperimentExecution(String experimentId) throws CharonException{
 		//return repository.getCharon().getCharonAPI().initializeExperimentExecution(experimentId);
 	//}
-	public static String initializeExperimentExecution(String experimentId, String sourceRepository, String workspacePath) throws ProvMonitorException{
+	public static String initializeExperimentExecution(String experimentId, String experimentInstanceId, String sourceRepository, String workspacePath) throws ProvMonitorException{
 		//System.out.println("initializeExperimentExecution start execution...");
 		
 		//Record Timestamp
-		Date timeStampInitExecute = Calendar.getInstance().getTime();
-		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
-		String nonce = sf.format(timeStampInitExecute);
-		String experimentInstanceId = experimentId + nonce;
+//		Date timeStampInitExecute = Calendar.getInstance().getTime();
+//		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+//		String nonce = sf.format(timeStampInitExecute);
+//		String experimentInstanceId = experimentId + nonce;
 		
+		//If Experiment Id is not informed, generate it.
+		if (experimentInstanceId == null || !(experimentInstanceId.length() > 0) ){
+			experimentInstanceId = ProvMonitorBusinessHelper.generateExperimentInstanceId(experimentId);
+		}
+
 		//Printing Generated Values
 		System.out.println("ExperimentInstanceId: " + experimentInstanceId);
 		System.out.println("BranchName: Branch_" + experimentInstanceId);
@@ -90,7 +95,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		daoFactory.getDatabaseControlDAO().dbInitialize();
 		
 		//Repository clone
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
 		cvsManager.cloneRepository(sourceRepository, workspacePath);
 		
@@ -110,7 +115,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		daoFactory.getDatabaseControlDAO().dbFinalize();
 		
 		//Pushback Repository
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		cvsManager.pushBack(workspacePath, centralRepository);
 		
 	}
@@ -189,7 +194,7 @@ public class RetrospectiveProvenanceBusinessServices {
 				   .append(elementPath.toString())
 				   .append("; StartActivityCommit");
 			
-			CVSManager cvsManager = CVSManagerFactory.getInstance();
+			VCSManager cvsManager = VCSManagerFactory.getInstance();
 			cvsManager.addAllFromPath(workspacePath);
 			String commitId = cvsManager.commit(workspacePath, message.toString());
 			
@@ -308,7 +313,7 @@ public class RetrospectiveProvenanceBusinessServices {
 			   .append(elementPath.toString())
 			   .append("; EndActivityCommit");
 		
-		CVSManager cvsManager = CVSManagerFactory.getInstance();
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		cvsManager.addAllFromPath(workspacePath);
 		String commitId = cvsManager.commit(workspacePath, message.toString());
 				

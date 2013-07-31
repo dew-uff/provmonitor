@@ -16,6 +16,10 @@ import br.uff.ic.provmonitor.dao.impl.javadb.DatabaseControlDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionFilesStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ProcessInstanceDAO_JavaDBImpl;
+import br.uff.ic.provmonitor.dao.impl.postegres.DatabaseControlDAO_PostegresImpl;
+import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionFilesStatusDAO_PostegresImpl;
+import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionStatusDAO_PostegresImpl;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 
 /**
  * ProvMonitor Database access objects Factory. Responsible for return the right instance of database access objects implementation. <br />
@@ -49,11 +53,25 @@ public class ProvMonitorDAOFactory {
 	 * @return ExecutionStatusDAO
 	 * */
 	public ExecutionStatusDAO getExecutionStatusDAO(){
-		return new ExecutionStatusDAO_JavaDBImpl();
+		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
+			case POSTGRES:
+				return new ExecutionStatusDAO_PostegresImpl();
+			case MYSQL:
+			case JAVADB:
+			default:
+				return new ExecutionStatusDAO_JavaDBImpl();
+		}
 	}
 	
 	public ExecutionFilesStatusDAO getExecutionFileStatusDAO(){
-		return new ExecutionFilesStatusDAO_JavaDBImpl();
+		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
+			case POSTGRES:
+				return new ExecutionFilesStatusDAO_PostegresImpl();
+			case MYSQL:
+			case JAVADB:
+			default:
+				return new ExecutionFilesStatusDAO_JavaDBImpl();
+		}
 	}
 	
 	/**
@@ -69,7 +87,15 @@ public class ProvMonitorDAOFactory {
 	 * @return DatabaseControlDAO
 	 * */
 	public DatabaseControlDAO getDatabaseControlDAO(){
-		return new DatabaseControlDAO_JavaDBImpl();
+		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
+			case POSTGRES:
+				return new DatabaseControlDAO_PostegresImpl();
+			case MYSQL:
+			case JAVADB:
+			default:
+				return new DatabaseControlDAO_JavaDBImpl();
+		}
+		
 	}
 	
 	/**

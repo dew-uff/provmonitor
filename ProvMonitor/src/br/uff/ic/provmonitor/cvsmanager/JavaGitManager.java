@@ -17,7 +17,7 @@ import edu.nyu.cs.javagit.api.commands.GitCommitResponse;
  * <br /><p>
  * <b>Technology:</b> using command line git commands.</p>
  */
-public class JavaGitManager implements CVSManager{
+public class JavaGitManager implements VCSManager{
 
 	@Override
 	public void createWorkspace(String workspace) throws CVSException {

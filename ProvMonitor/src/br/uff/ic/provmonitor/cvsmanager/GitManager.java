@@ -24,7 +24,7 @@ import br.uff.ic.provmonitor.exceptions.CVSException;
  * <b>Technology:</b> Uses jGit API.</p>
  * 
  * */
-public class GitManager implements CVSManager {
+public class GitManager implements VCSManager {
 
 	@Override
 	public void createWorkspace(String workspace) throws CVSException {

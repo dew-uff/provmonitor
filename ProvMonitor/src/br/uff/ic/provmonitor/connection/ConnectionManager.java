@@ -29,7 +29,7 @@ public class ConnectionManager {
 		case MYSQL:
 			conn = getMySQLConnectionURL();
 			break;
-		case POSTGRE:
+		case POSTGRES:
 			conn = getPOSTGRESQLConnectionURL(); 
 			break;
 		default:
@@ -103,7 +103,7 @@ public class ConnectionManager {
 	private Connection getPOSTGRESQLConnectionURL() throws ConnectionException{
 		try{
 			// define the driver to use 
-		    String driver = "com.mysql.jdbc.Driver";
+		    String driver = "org.postgresql.Driver";
 		    
 		    //Testing for driver
 		    Class.forName(driver);

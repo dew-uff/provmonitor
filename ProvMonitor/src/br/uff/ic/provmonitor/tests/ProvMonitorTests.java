@@ -17,16 +17,23 @@ import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 public class ProvMonitorTests {
 	public static void main(String[] args) {
 
-		completeProcessTest();
+		Date startDateTime = Calendar.getInstance().getTime();
+		//completeProcessTest();
+		try {
+			initializeExperimentTest("Scicumulus", "ScicumulusTeste1", "C:\\Testes\\CentralRepo\\exp_ProvMonitor", "C:\\Testes\\workspaces\\SciCumulusWksp1", startDateTime);
+		} catch (ProvMonitorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	
 	}
 	
 	
-	private static String initializeExperimentTest(String experimentId, String centralRepository, String workspacePath, Date startDateTime) throws ProvMonitorException{
-		String experimentInstanceId = "";
+	private static String initializeExperimentTest(String experimentId, String experimentInstanceId, String centralRepository, String workspacePath, Date startDateTime) throws ProvMonitorException{
+		//String experimentInstanceId = "";
 		
 		try {
-			experimentInstanceId = RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, centralRepository, workspacePath);
+			experimentInstanceId = RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, experimentInstanceId, centralRepository, workspacePath);
 		} catch (ProvMonitorException e) {
 			// TODO Auto-generated catch block
 			ProvMonitorLogger.fatal(ProvMonitorTests.class.getName(), "initializeExperimentTest", "Exception: " + e.getMessage());
@@ -87,7 +94,7 @@ public class ProvMonitorTests {
 					
 					//InitializeExperimentTest
 					ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Calling initializeExperimentTest.");
-					String experimentInstanceId = initializeExperimentTest("ExperimentTeste1", centralRepository, workspacePath, startDateTime);
+					String experimentInstanceId = initializeExperimentTest("ExperimentTeste1", null, centralRepository, workspacePath, startDateTime);
 					ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Return of initializeExperimentTest without erros. ExperimentInstanceId: " + experimentInstanceId + ". ");
 					
 					//Updating context
@@ -128,6 +135,7 @@ public class ProvMonitorTests {
 				}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void completeProcessTest(){
 		//Execution start time...
 				Date provExecStartTime = Calendar.getInstance().getTime();
@@ -146,7 +154,7 @@ public class ProvMonitorTests {
 					
 					//Starting Log
 					//ProvMonitorLogger.config(ProvMonitorLevel.DEBUG);
-					ProvMonitorLogger.config(ProvMonitorLevel.valueOf(ProvMonitorProperties.getInstance().getLogMode()));
+					ProvMonitorLogger.config(ProvMonitorProperties.getInstance().getLogMode());
 					
 					//Loading Properties
 					ProvMonitorProperties prop = ProvMonitorProperties.getInstance();
@@ -158,7 +166,7 @@ public class ProvMonitorTests {
 					
 					//InitializeExperimentTest
 					ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Calling initializeExperimentTest.");
-					String experimentInstanceId = initializeExperimentTest("ExperimentTeste1", centralRepository, workspacePath, startDateTime);
+					String experimentInstanceId = initializeExperimentTest("ExperimentTeste1", null, centralRepository, workspacePath, startDateTime);
 					ProvMonitorLogger.debug(ProvMonitorTests.class.getName(), "Main", "Return of initializeExperimentTest without erros. ExperimentInstanceId: " + experimentInstanceId + ". ");
 					
 					//Updating context
