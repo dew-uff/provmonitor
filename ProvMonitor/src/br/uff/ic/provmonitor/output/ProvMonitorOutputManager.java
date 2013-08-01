@@ -44,8 +44,10 @@ public class ProvMonitorOutputManager {
 	 * @param message String - Message line to be appended in output. 
 	 */
 	public void appendMessageLine(String message){
-		getInstance().outputMessage.append("\n")
-								   .append(message);
+		if (getInstance().outputMessage.length() > 0){
+			getInstance().outputMessage.append("\n");
+		}
+		appendMenssage(message);
 	}
 	
 	/**

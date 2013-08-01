@@ -8,8 +8,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-import br.uff.ic.provmonitor.cvsmanager.VCSManager;
-import br.uff.ic.provmonitor.cvsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
@@ -17,6 +15,8 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
 import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
+import br.uff.ic.provmonitor.vcsmanager.VCSManager;
+import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.workspaceWatcher.AccessedPath;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspaceAccessReader;
 

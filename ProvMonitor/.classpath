@@ -13,5 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/jsch-0.1.17-J2MECDC-20050224.jar"/>
 	<classpathentry kind="lib" path="libs/postgresql-9.2-1002.jdbc4.jar"/>
+	<classpathentry kind="lib" path="META-INF"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

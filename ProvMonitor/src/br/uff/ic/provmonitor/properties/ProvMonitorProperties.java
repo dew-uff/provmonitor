@@ -1,6 +1,7 @@
 package br.uff.ic.provmonitor.properties;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -8,11 +9,11 @@ import java.util.Properties;
 import org.eclipse.jgit.util.StringUtils;
 
 import br.uff.ic.provmonitor.connection.DatabaseType;
-import br.uff.ic.provmonitor.cvsmanager.VCSType;
 import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputType;
+import br.uff.ic.provmonitor.vcsmanager.VCSType;
 
 /**
  * Properties of ProvMonitor System
@@ -122,18 +123,21 @@ public class ProvMonitorProperties {
 			// create application properties with default
 			provMonitorProps = new Properties(defaultProps);
 			
-			dataBaseType = DatabaseType.valueOf(provMonitorProps.getProperty("dataBaseType"));
+			dataBaseType = DatabaseType.valueOfName(provMonitorProps.getProperty("dataBaseType"));
 			dataBaseConnection = provMonitorProps.getProperty("dataBaseConnection");
 			dataBaseUser = provMonitorProps.getProperty("dataBaseUser");
 			dataBaseUserPass = provMonitorProps.getProperty("dataBaseUserPass");
 			logMode = ProvMonitorLevel.valueOf(provMonitorProps.getProperty("logMode"));
-			vcsType = VCSType.valueOf(provMonitorProps.getProperty("cvsType"));
+			vcsType = VCSType.valueOfName(provMonitorProps.getProperty("cvsType"));
 			outputFile = provMonitorProps.getProperty("outputFile");
-			outputType = ProvMonitorOutputType.valueOf(provMonitorProps.getProperty("outputType"));
+			outputType = ProvMonitorOutputType.valueOfName(provMonitorProps.getProperty("outputType"));
 			
 			
 			
-		} catch (IOException e) {
+		}catch(FileNotFoundException e){
+			//Properties File not found. Starting with default options
+			provMonitorProps = new Properties();
+		}catch (IOException e) {
 			// TODO Auto-generated catch block
 			ProvMonitorLogger.debug(ProvMonitorProperties.class.getName(), "loadProperties", e.getMessage());
 			ProvMonitorLogger.warning(ProvMonitorProperties.class.getName(), "loadProperties", LogMessages.WARNING_PROPERTIES_FILE_NOT_FOUND_LOADING_DEFAULT_OPTIONS);
@@ -201,7 +205,7 @@ public class ProvMonitorProperties {
 			
 			
 			FileOutputStream out = new FileOutputStream("provMonitor.properties");
-			provMonitorProps.store(out, "---No Comment---");
+			provMonitorProps.store(out, "---Auto Generated Properties---");
 			
 			
 			out.close();

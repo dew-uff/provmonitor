@@ -1,4 +1,4 @@
-package br.uff.ic.provmonitor.cvsmanager;
+package br.uff.ic.provmonitor.vcsmanager;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,9 +1,10 @@
 package br.uff.ic.provmonitor;
 
-import java.io.FileInputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -352,13 +353,57 @@ public class ProvMonitor {
 			//URLClassLoader cl = (URLClassLoader) ProvMonitor.class.getClassLoader();
 			//URL url = cl.findResource("META-INF/MANIFEST.MF");
 			//Manifest manifest = new Manifest(url.openStream());
-			FileInputStream in = new FileInputStream("META-INF/MANIFEST.MF");
-			Manifest manifest = new Manifest(in);
-			//Manifest manifest = new Manifest(new URL(manifestPath).openStream());
-			Attributes attr = manifest.getMainAttributes();
 			
-			String value = attr.getValue("ProvMonior-Version");
-			ProvMonitorOutputManager.getInstance().appendMessageLine("ProvMonitor Version: " + value);
+			//FileInputStream in = new FileInputStream("../META-INF/MANIFEST.MF");
+			//Manifest manifest = new Manifest(in);
+			
+			//String path = ProvMonitor.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
+		    //path = path.replace("classes/", "");
+
+		    //URL url = new URL("jar:file:"+path+"PMonitor.jar!/");
+			
+//	        JarURLConnection jarConnection = null;
+//            jarConnection = (JarURLConnection)url.openConnection();
+//            Manifest manifest = jarConnection.getManifest();
+
+            //java.util.jar.Attributes manifestItem = manifest.getMainAttributes();
+            //System.out.println(manifestItem.getValue("ProvMonior-Version"));
+			
+			//Manifest manifest = new Manifest(new URL(manifestPath).openStream());
+//			Manifest manifest = new Manifest(ProvMonitor.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF"));
+//			if (manifest == null){
+//				System.out.println("Manifest file not found!");
+//				return;
+//			}
+//			Attributes attr = manifest.getMainAttributes();
+//			if (attr == null){
+//				System.out.println("Attributes of the Manifest file not found!");
+//				return;
+//			}
+//			for (Object value:attr.values()){
+//				System.out.println("Value: " + (String) value);
+//			}
+			
+//			String value = attr.getValue("ProvMonior-Version");
+//			ProvMonitorOutputManager.getInstance().appendMessageLine("ProvMonitor Version: " + value);
+			
+			//Enumeration<URL> resources = ProvMonitor.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+//			Enumeration<URL> resources = ClassLoader.getSystemResources("MANIFEST.MF");
+//			while (resources.hasMoreElements()) {
+//				URL url = resources.nextElement();
+//				System.out.println("Resource: " + url.getPath());
+//				Manifest manifest = new Manifest(url.openStream());
+//				Attributes attr = manifest.getMainAttributes();
+//				for (Object value:attr.values()){
+//					System.out.println("Value: " + (String) value);
+//				}
+//			}
+			
+			Manifest manifest = new Manifest(ClassLoader.getSystemResourceAsStream("MANIFEST.MF"));
+			String versionValue = manifest.getMainAttributes().getValue("ProvMonior-Version");
+			ProvMonitorOutputManager.getInstance().appendMessageLine("ProvMonitor Version: " + versionValue);
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}

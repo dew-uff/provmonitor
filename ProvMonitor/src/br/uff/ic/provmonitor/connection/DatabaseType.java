@@ -32,7 +32,7 @@ public enum DatabaseType {
 	 * @param code <code>Integer</code> The code of the enum searched.
 	 * @return DatabaseType 
 	 * */
-	public DatabaseType valueOf(Integer code){
+	public static DatabaseType valueOf(Integer code){
 		for (DatabaseType pctValue: DatabaseType.values()){
 			if (pctValue.getCode().equals(code)){
 				return pctValue;
@@ -41,7 +41,7 @@ public enum DatabaseType {
 		return null;
 	}	
 	
-	public DatabaseType valueOfName(String name){
+	public static DatabaseType valueOfName(String name){
 		for (DatabaseType pctValue: DatabaseType.values()){
 			if (pctValue.getName().equals(name)){
 				return pctValue;

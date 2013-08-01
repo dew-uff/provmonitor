@@ -17,10 +17,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import br.uff.ic.provmonitor.cvsmanager.VCSManager;
-import br.uff.ic.provmonitor.cvsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.exceptions.CVSException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
+import br.uff.ic.provmonitor.vcsmanager.VCSManager;
+import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 
 public class CVSManagerTests {
 	public static void main(String[] args) {

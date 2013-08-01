@@ -1,4 +1,4 @@
-package br.uff.ic.provmonitor.cvsmanager;
+package br.uff.ic.provmonitor.vcsmanager;
 
 
 /**
@@ -33,7 +33,7 @@ public enum VCSType {
 	 * @param code <code>Integer</code> The code of the enum searched.
 	 * @return DatabaseType 
 	 * */
-	public VCSType valueOf(Integer code){
+	public static VCSType valueOf(Integer code){
 		for (VCSType pctValue: VCSType.values()){
 			if (pctValue.getCode().equals(code)){
 				return pctValue;
@@ -42,7 +42,7 @@ public enum VCSType {
 		return null;
 	}	
 	
-	public VCSType valueOfName(String name){
+	public static VCSType valueOfName(String name){
 		for (VCSType pctValue: VCSType.values()){
 			if (pctValue.getName().equals(name)){
 				return pctValue;
