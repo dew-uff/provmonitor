@@ -1,11 +1,8 @@
 package br.uff.ic.provmonitor;
 
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.apache.commons.cli.CommandLine;

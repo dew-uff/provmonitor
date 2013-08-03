@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import br.uff.ic.provmonitor.exceptions.CVSException;
+import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 
 /**
  * 
@@ -213,11 +214,21 @@ public class GitManager implements VCSManager {
 	 * */
 	private Repository getRepository(String sourceURI) throws IOException{
 		FileRepositoryBuilder frb = new FileRepositoryBuilder();
-		Repository repository = frb.setGitDir(new File(sourceURI + "\\.git"))
+		String sourceRepositoryURI = new String(sourceURI);
+		
+		ProvMonitorLogger.debug("GitManager", "getRepository", "Verifying OS files and paths separator.");
+		if (sourceRepositoryURI.contains("/")){
+			sourceRepositoryURI = sourceRepositoryURI.concat("/.git");
+			ProvMonitorLogger.debug("GitManager", "getRepository", "Using /.git");
+		}else{
+			sourceRepositoryURI = sourceRepositoryURI.concat("\\.git");
+			ProvMonitorLogger.debug("GitManager", "getRepository", "Using \\.git");
+		}
+		Repository repository = frb.setGitDir(new File(sourceRepositoryURI))
 				  .readEnvironment() // scan environment GIT_* variables
 				  .findGitDir() // scan up the file system tree
 				  .build();
-		
+		ProvMonitorLogger.debug("GitManager", "getRepository", "SourceURI: " + sourceRepositoryURI);
 		return repository;
 	}
 
