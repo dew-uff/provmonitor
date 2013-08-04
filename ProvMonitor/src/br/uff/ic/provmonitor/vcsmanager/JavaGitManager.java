@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 
-import br.uff.ic.provmonitor.exceptions.CVSException;
+import br.uff.ic.provmonitor.exceptions.VCSException;
 import edu.nyu.cs.javagit.api.JavaGitException;
 import edu.nyu.cs.javagit.api.Ref;
 import edu.nyu.cs.javagit.api.WorkingTree;
@@ -20,14 +20,14 @@ import edu.nyu.cs.javagit.api.commands.GitCommitResponse;
 public class JavaGitManager implements VCSManager{
 
 	@Override
-	public void createWorkspace(String workspace) throws CVSException {
+	public void createWorkspace(String workspace) throws VCSException {
 		// TODO Auto-generated method stub
 		//FileRepositoryBuilder frb = new FileRepositoryBuilder();
 	}
 
 	@Override
 	public void cloneRepository(String sourceRepository, String workspacePath)
-			throws CVSException {
+			throws VCSException {
 		String command = "git.exe clone " + sourceRepository + " " + workspacePath;
 		try{
 			Process proc = Runtime.getRuntime().exec(command);
@@ -37,20 +37,20 @@ public class JavaGitManager implements VCSManager{
 			   System.out.println(line);
 			}
 		}catch(IOException e){
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
 	
 	@Override
 	public void cloneRepository(String sourceRepository, String workspacePath,
-			Collection<String> cloneOnlyBranches) throws CVSException {
+			Collection<String> cloneOnlyBranches) throws VCSException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void createBranch(String workspace, String branchName)
-			throws CVSException {
+			throws VCSException {
 		StringBuilder gitBrancBuilder = new StringBuilder();
 		gitBrancBuilder.append("Git.exe branch ")
 					   .append(workspace)
@@ -63,7 +63,7 @@ public class JavaGitManager implements VCSManager{
 			   System.out.println(line);
 			}
 		}catch(IOException e){
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		} 
 	}
 
@@ -91,7 +91,7 @@ public class JavaGitManager implements VCSManager{
 //	}
 
 	@Override
-	public String commit(String workspacePath, String message) throws CVSException {
+	public String commit(String workspacePath, String message) throws VCSException {
 		try{
 			File workingTreePath = new File(workspacePath);
 			//WorkingTree wt = WorkingTree.getInstance(workingTreePath);
@@ -108,36 +108,36 @@ public class JavaGitManager implements VCSManager{
 			return shortName;
 			
 		}catch(JavaGitException e){
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		catch(IOException e){
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
 	
 	
 	@Override
 	public void addPathOrFile(String workspacePath, String pathOrFile)
-			throws CVSException {
+			throws VCSException {
 		// TODO Auto-generated method stub
 		//return null;
 	}
 
 	@Override
-	public String update(String workspacePath) throws CVSException {
+	public String update(String workspacePath) throws VCSException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void pushBack(String workspacePath, String repositoryPath)
-			throws CVSException {
+			throws VCSException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	public void checkout(String workspacePath, String branchName)
-			throws CVSException { 
+			throws VCSException { 
 		StringBuilder gitBrancBuilder = new StringBuilder();
 		gitBrancBuilder.append("Git.exe checkout ")
 					   .append(branchName);
@@ -149,19 +149,19 @@ public class JavaGitManager implements VCSManager{
 			   System.out.println(line);
 			}
 		}catch(IOException e){
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
 
 	@Override
 	public void addPathOrFile(String workspacePath,
-			Collection<String> pathsOrFiles) throws CVSException {
+			Collection<String> pathsOrFiles) throws VCSException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addAllFromPath(String workspacePath) throws CVSException {
+	public void addAllFromPath(String workspacePath) throws VCSException {
 		// TODO Auto-generated method stub
 		
 	}

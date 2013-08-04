@@ -15,7 +15,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import br.uff.ic.provmonitor.exceptions.CVSException;
+import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 
 /**
@@ -28,18 +28,18 @@ import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 public class GitManager implements VCSManager {
 
 	@Override
-	public void createWorkspace(String workspace) throws CVSException {
+	public void createWorkspace(String workspace) throws VCSException {
 		Repository repository;
 		try {
 			repository = getRepository(workspace);
 			repository.create();
 		} catch (IOException e) {
-			throw new CVSException("Could not create repository: " + e.getMessage(), e.getCause());
+			throw new VCSException("Could not create repository: " + e.getMessage(), e.getCause());
 		}
 	}
 	
 	@Override
-	public void cloneRepository(String sourceRepository, String workspacePath) throws CVSException {
+	public void cloneRepository(String sourceRepository, String workspacePath) throws VCSException {
 		try {
 
 			CloneCommand cCom = Git.cloneRepository();
@@ -62,7 +62,7 @@ public class GitManager implements VCSManager {
 			
 			cCom.call();
 		} catch (GitAPIException e) {
-			throw new CVSException("Could not clone repository: " + e.getMessage(), e.getCause());
+			throw new VCSException("Could not clone repository: " + e.getMessage(), e.getCause());
 		}
 		
 		
@@ -76,7 +76,7 @@ public class GitManager implements VCSManager {
 	 * @param cloneOnlyBranches - Collection< String > - Branches to be cloned. Null for Full clone.
 	 * 
 	 * */
-	public void cloneRepository(String sourceRepository, String workspacePath, Collection<String> cloneOnlyBranches) throws CVSException{
+	public void cloneRepository(String sourceRepository, String workspacePath, Collection<String> cloneOnlyBranches) throws VCSException{
 		try {
 		Boolean fullClone = cloneOnlyBranches==null?true:false;
 		
@@ -100,13 +100,13 @@ public class GitManager implements VCSManager {
 		cCom.call();
 		
 		} catch (GitAPIException e) {
-			throw new CVSException("Could not clone repository: " + e.getMessage(), e.getCause());
+			throw new VCSException("Could not clone repository: " + e.getMessage(), e.getCause());
 		}
 	}
 
 	@Override
 	public void createBranch(String workspace, String branchName)
-			throws CVSException {
+			throws VCSException {
 		Repository repository;
 		try {
 			repository = getRepository(workspace);
@@ -119,14 +119,14 @@ public class GitManager implements VCSManager {
 	        co.call();
 	        
 		} catch (IOException | GitAPIException e) {
-			throw new CVSException("Could not create branch: " + e.getMessage(), e.getCause());
+			throw new VCSException("Could not create branch: " + e.getMessage(), e.getCause());
 		}
 		
 	}
 
 	@Override
 	public String commit(String workspacePath, String message)
-			throws CVSException {
+			throws VCSException {
 		try {
 			Repository repository = getRepository(workspacePath);
 			Git git = new Git(repository);
@@ -142,13 +142,13 @@ public class GitManager implements VCSManager {
 			return revisionId;
         
 		} catch (GitAPIException | IOException e) {
-			throw new CVSException("Commit error: " + e.getMessage(), e.getCause());
+			throw new VCSException("Commit error: " + e.getMessage(), e.getCause());
 		}
 	}
 
 	@Override
 	public void addPathOrFile(String workspacePath, String pathOrFile)
-			throws CVSException {
+			throws VCSException {
 		try {
 			Repository repository = getRepository(workspacePath);
 			Git git = new Git(repository);
@@ -158,20 +158,20 @@ public class GitManager implements VCSManager {
 	        add.call();
 	        
 		} catch (IOException | GitAPIException e) {
-			throw new CVSException("Error stagging files or paths: " + e.getMessage(), e.getCause());
+			throw new VCSException("Error stagging files or paths: " + e.getMessage(), e.getCause());
 		}
 	}
 
 	
 	
 	@Override
-	public String update(String workspacePath) throws CVSException {
+	public String update(String workspacePath) throws VCSException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void pushBack(String workspacePath, String repositoryPath) throws CVSException {
+	public void pushBack(String workspacePath, String repositoryPath) throws VCSException {
 		try{
 			
 			Repository repository = getRepository(workspacePath);
@@ -183,14 +183,14 @@ public class GitManager implements VCSManager {
 			pc.call();
 		
 		}catch (IOException | GitAPIException  e){
-			throw new CVSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
+			throw new VCSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
 		}
 		
 		
 	}
 
 	@Override
-	public void checkout(String workspacePath, String branchName) throws CVSException {
+	public void checkout(String workspacePath, String branchName) throws VCSException {
 		
 		Repository repository;
 		try {
@@ -204,7 +204,7 @@ public class GitManager implements VCSManager {
 	        co.call();
 	        
 		} catch (IOException | GitAPIException e) {
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		
 	}
@@ -217,12 +217,12 @@ public class GitManager implements VCSManager {
 		String sourceRepositoryURI = new String(sourceURI);
 		
 		ProvMonitorLogger.debug("GitManager", "getRepository", "Verifying OS files and paths separator.");
-		if (sourceRepositoryURI.contains("/")){
-			sourceRepositoryURI = sourceRepositoryURI.concat("/.git");
-			ProvMonitorLogger.debug("GitManager", "getRepository", "Using /.git");
-		}else{
+		if (sourceRepositoryURI.contains("\\")){
 			sourceRepositoryURI = sourceRepositoryURI.concat("\\.git");
 			ProvMonitorLogger.debug("GitManager", "getRepository", "Using \\.git");
+		}else{
+			sourceRepositoryURI = sourceRepositoryURI.concat("/.git");
+			ProvMonitorLogger.debug("GitManager", "getRepository", "Using /.git");
 		}
 		Repository repository = frb.setGitDir(new File(sourceRepositoryURI))
 				  .readEnvironment() // scan environment GIT_* variables
@@ -234,7 +234,7 @@ public class GitManager implements VCSManager {
 
 	@Override
 	public void addPathOrFile(String workspacePath,
-			Collection<String> pathsOrFiles) throws CVSException {
+			Collection<String> pathsOrFiles) throws VCSException {
 		
 		
 		try {
@@ -252,12 +252,12 @@ public class GitManager implements VCSManager {
 	        add.call();
 			
 		} catch (IOException | GitAPIException e) {
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		
 	}
 	
-	public void addAllFromPath(String workspacePath) throws CVSException{
+	public void addAllFromPath(String workspacePath) throws VCSException{
 		try {
 			Repository repository = getRepository(workspacePath);
 			Git git = new Git(repository);
@@ -271,7 +271,7 @@ public class GitManager implements VCSManager {
 	        add.call();
 	        
 		} catch (IOException | GitAPIException e) {
-			throw new CVSException(e.getMessage(), e.getCause());
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
 

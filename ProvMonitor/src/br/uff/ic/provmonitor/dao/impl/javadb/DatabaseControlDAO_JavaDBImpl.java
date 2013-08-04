@@ -87,6 +87,8 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 			//Process p = pb.start();
 			//p.waitFor(); - As a .bat command it waits forever for the end of execution.
 			//Thread.currentThread();
+			
+			//wait for the thread execution.
 			Thread.sleep(3000);
 
 			//Print text to console
@@ -182,120 +184,4 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 		
 		//Verify and create if needed xxx Database Object
 	}
-	
-//	/**
-//	 * Verify schema objects and create the objects if needed. <br />
-//	 * @throws ProvMonitorExcepion If some irrecoverable exception occurs.<br />
-//	 * @throws DatabaseException <code>Database related problems.</code><br />
-//	 * 		<ul><li><b>ConnectionException: </b><code>Database connection problems.</code><br /></li>
-//	 * 		<li><b>ServerDBException: </b><code>Database server related problems.</code><br /></li></ul>
-//	 * */
-//	private void verifyCreateSchemaObjects() throws ProvMonitorException{
-//		Connection conn = ConnectionManager.getInstance().getConnection();
-//		boolean createObjects = false;
-//		try{
-//			
-//			try{
-//				//Preparing statement
-//				//Statement s = conn.createStatement();
-//
-//				//Transaction control
-//				conn.setAutoCommit(false);
-//				
-//				//s.executeQuery("");
-//				
-//			}catch(SQLException e){
-//				throw new ConnectionException(e.getMessage(), e.getCause(), e.getSQLState());
-//			}
-//			
-//			//Verifying schema
-//			PreparedStatement psInsert = conn.prepareStatement("INSERT INTO WISH_LIST(WISH_ITEM) values (?)");
-//			psInsert.setString(1,"Teste");
-//			psInsert.executeUpdate(); 
-//			conn.rollback();
-//			
-//			
-//		}catch(SQLException e){
-//			//Schema object does not exist
-//			try{
-//				conn.rollback();
-//			}catch(SQLException ex){
-//			}
-//			
-//			//Create schema objects
-//			createObjects = true;
-////			createSchemaObjects();
-//		}
-//		
-//		if (createObjects){
-//			try{
-//				Statement s = null;
-//				try{
-//					//Preparing statement
-//					s = conn.createStatement();
-//
-//					//Transaction control
-//					conn.setAutoCommit(false);
-//					
-//					//s.executeQuery("");
-//					
-//				}catch(SQLException e){
-//					throw new ConnectionException(e.getMessage(), e.getCause(), e.getSQLState());
-//				}
-//				if (s != null){
-//					String createExecutionStatusSQL = "CREATE TABLE EXECUTION_STATUS(id_element int unsigned not null, type_element int unsigned not null, status smallint unsigned not null, start_time bigint unsigned, end_time bigint unsigned, path varchar(255), performers varchar(255));";
-//					s.executeQuery(createExecutionStatusSQL);
-//				}
-//			}catch(Exception e){
-//				//TODO: Tratar adequadamente
-//			}
-//		}
-//	}
-	
-//	private void createSchemaObjects() throws ProvMonitorException{
-//		//Preparing statement
-//		//Statement s = conn.createStatement();
-//	}
-	
-//	private void verifyCreateSchemaTest() throws ConnectionException, SQLException{
-//		Connection conn = ConnectionManager.getInstance().getConnection();
-//		String createString = "CREATE TABLE WISH_LIST  "
-//		        +  "(WISH_ID INT NOT NULL GENERATED ALWAYS AS IDENTITY " 
-//		        +  "   CONSTRAINT WISH_PK PRIMARY KEY, " 
-//		        +  " ENTRY_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-//		        +  " WISH_ITEM VARCHAR(32) NOT NULL) " ;
-//		
-//		Statement s = conn.createStatement();
-//        // Call utility method to check if table exists.
-//        //      Create the table if needed
-//        //if (! WwdUtils.wwdChk4Table(conn))
-////        {  
-////             System.out.println (" . . . . creating table WISH_LIST");
-//             s.execute(createString);
-////         }
-//        //  Prepare the insert statement to use 
-//       PreparedStatement psInsert = conn.prepareStatement("insert into WISH_LIST(WISH_ITEM) values (?)");
-//       psInsert.setString(1,"Teste");
-//       psInsert.executeUpdate(); 
-//		
-//       
-//       //   Select all records in the WISH_LIST table
-//       ResultSet myWishes = s.executeQuery("select ENTRY_DATE, WISH_ITEM from WISH_LIST order by ENTRY_DATE");
-//
-//       //  Loop through the ResultSet and print the data 
-//       String printLine = "  __________________________________________________";
-//       System.out.println(printLine);
-//       while (myWishes.next()){
-//    	   System.out.println("On " + myWishes.getTimestamp(1) + " I wished for " + myWishes.getString(2));
-//       }
-//       System.out.println(printLine);
-//       //  Close the resultSet 
-//       myWishes.close();
-//       
-//       // Release the resources (clean up )
-//       psInsert.close();
-//       s.close();
-//       conn.close();
-//	}
-
 }

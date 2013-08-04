@@ -8,9 +8,14 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 
 /**
+ * Singleton output manager of ProvMonitor. 
+ * <br />The purpose is to make possible to redirect output messages to a chosen output channel/stream.
+ * <br /><br />
+ * <b>To see current supported output options:</b> {@link ProvMonitorOutputType}
  * 
- * @author Vitor
- *
+ * @see ProvMonitorOutputType
+ * 
+ * @author Vitor C. Neves - vcneves@ic.uff.br
  */
 public class ProvMonitorOutputManager {
 	private static ProvMonitorOutputManager myInstance;
@@ -32,6 +37,10 @@ public class ProvMonitorOutputManager {
 		}
 	}
 	
+	/**
+	 * Get the ProvMonitorOutputManager instance to be used.
+	 * @return ProvMonitorOutputManager instance.
+	 */
 	public synchronized static ProvMonitorOutputManager getInstance(){
 		if (myInstance == null){
 			myInstance = new ProvMonitorOutputManager();
@@ -59,7 +68,7 @@ public class ProvMonitorOutputManager {
 	}
 	
 	/**
-	 * Flush the output.
+	 * Flush the output to the selected type output.
 	 */
 	public void flush() throws ProvMonitorException{
 		switch (getInstance().instanceType){

@@ -17,12 +17,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import br.uff.ic.provmonitor.exceptions.CVSException;
+import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 
-public class CVSManagerTests {
+public class VCSManagerTests {
 	public static void main(String[] args) {
 		//basicCVSFunctionalitiesTests();
 		try {
@@ -78,7 +78,7 @@ public class CVSManagerTests {
 			//Repository checkOut
 			//cvsManager.checkout(workspacePath, "trunk");
 			
-		}catch(CVSException e){
+		}catch(VCSException e){
 			e.printStackTrace();
 		}
 	}
@@ -156,7 +156,7 @@ public class CVSManagerTests {
 		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		try{
 			cvsManager.createWorkspace(workspacePath);
-		}catch (CVSException e) {
+		}catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}
@@ -165,7 +165,7 @@ public class CVSManagerTests {
 		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		try{
 			cvsManager.checkout(workspacePath, "head");
-		}catch (CVSException e) {
+		}catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}
@@ -175,7 +175,7 @@ public class CVSManagerTests {
 		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.addPathOrFile(workspacePath, filePathList);
-		} catch (CVSException e) {
+		} catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}
@@ -184,7 +184,7 @@ public class CVSManagerTests {
 		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.addAllFromPath(workspacePath);
-		} catch (CVSException e) {
+		} catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}
@@ -193,7 +193,7 @@ public class CVSManagerTests {
 		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.commit(workspacePath, message);
-		} catch (CVSException e) {
+		} catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}
@@ -202,7 +202,7 @@ public class CVSManagerTests {
 		VCSManager cvsMan = VCSManagerFactory.getInstance();
 		try {
 			cvsMan.cloneRepository(sourceUri, destinationFolder);
-		} catch (CVSException e) {
+		} catch (VCSException e) {
 			e.printStackTrace();
 		}
 	}

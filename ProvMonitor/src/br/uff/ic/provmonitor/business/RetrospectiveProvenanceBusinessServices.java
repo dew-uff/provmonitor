@@ -8,37 +8,42 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
+import org.eclipse.jgit.util.StringUtils;
+
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
+import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
 import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
+import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.workspaceWatcher.AccessedPath;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspaceAccessReader;
 
-//TODO: Translate comments and Javadocs
+/**
+ * ProvMonitor retrospective business services.
+ * 
+ * Class responsible to manage the retrospective provenance information gathering and register.
+ * 
+ * @author Vitor C. Neves - vcneves@ic.uff.br
+ *
+ */
 public class RetrospectiveProvenanceBusinessServices {
 		
-	//private Repository repository;
-	
-	//public RetrospectiveProvenanceServices() {
-		//repository = Repository.getInstance();
-	//}
-	
 	/**
-	 * Inicializa uma nova execução de um experimento.
-	 * @param experimentId Identificador do experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Experiment execution initialization.
+	 * @param experimentId Experiment identifier.
+	 * @throws ProvMonitorException ProvMonitor base exception if problems occurs.
+	 * <br /><br />
+	 * <b>Update - Instead Use:</b> public static String initializeExperimentExecution(String experimentId, String experimentInstanceId, String sourceRepository, String workspacePath) throws ProvMonitorException.
+	 *
 	 */
-	//public String initializeExperimentExecution(String experimentId) throws CharonException{
-		//return repository.getCharon().getCharonAPI().initializeExperimentExecution(experimentId);
-	//}
+	@Deprecated
 	public static void initializeExperimentExecution(String experimentId) throws ProvMonitorException{
-		//System.out.println("initializeExperimentExecution start execution...");
 		
 		//Record Timestamp
 		Date timeStampInitExecute = Calendar.getInstance().getTime();
@@ -47,8 +52,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		String experimentInstanceId = experimentId + nonce;
 		
 		//Printing Generated Values
-		System.out.println("ExperimentInstanceId: " + experimentInstanceId);
-		System.out.println("BranchName: Branch_" + experimentInstanceId);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("BranchName: " + experimentInstanceId);
 		
 		//Initialize DB
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
@@ -60,35 +65,35 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//System.out.println("initializeExperimentExecution end execution.");
 	}
-	
 	/**
-	 * Inicializa uma nova execução de um experimento.
-	 * @param experimentId Identificador do experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Experiment execution initialization.
+	 * <br /><br /><strong>Description:</strong>
+	 * Responsible to clone central repository, prepare the workspace, prepare the needed infrastructure (database tables, embedded database services initialization, etc.) and when applied generate experiment instance id.
+	 *  
+	 * @param experimentId Experiment identifier.
+	 * @param experimentInstanceId Experiment execution/trial identifier. Optional parameter. If Null or Empty is informed, this will be auto generated and returned at the end of the method execution.
+	 * @param sourceRepository Central repository URI path. Repository from workspace will be cloned.
+	 * @param workspacePath Experiment workspace URI path.
+	 * 
+	 * @return ExperimentInstanceId Auto generated when the parameter is null or empty, otherwise the same inputed value.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
+	 * @throws ServerDBException Database server related problems.
 	 */
-	//public String initializeExperimentExecution(String experimentId) throws CharonException{
-		//return repository.getCharon().getCharonAPI().initializeExperimentExecution(experimentId);
-	//}
 	public static String initializeExperimentExecution(String experimentId, String experimentInstanceId, String sourceRepository, String workspacePath) throws ProvMonitorException{
-		//System.out.println("initializeExperimentExecution start execution...");
 		
-		//Record Timestamp
-//		Date timeStampInitExecute = Calendar.getInstance().getTime();
-//		SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
-//		String nonce = sf.format(timeStampInitExecute);
-//		String experimentInstanceId = experimentId + nonce;
-		
-		//If Experiment Id is not informed, generate it.
-		if (experimentInstanceId == null || !(experimentInstanceId.length() > 0) ){
+		//If experimentInstanceId is not informed, generate it.
+		if (StringUtils.isEmptyOrNull(experimentInstanceId)){
 			experimentInstanceId = ProvMonitorBusinessHelper.generateExperimentInstanceId(experimentId);
 		}
 
-		//Printing Generated Values
-		System.out.println("ExperimentInstanceId: " + experimentInstanceId);
-		System.out.println("BranchName: Branch_" + experimentInstanceId);
-		
-		System.out.println("Workspace: " + workspacePath);
-		System.out.println("CentralRepository: " + sourceRepository);
+		//Printing Generated/received/considered values
+		ProvMonitorOutputManager.getInstance().appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("BranchName: " + experimentInstanceId);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Workspace: " + workspacePath);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("CentralRepository: " + sourceRepository);
 		
 		//Initialize DB
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
@@ -109,38 +114,59 @@ public class RetrospectiveProvenanceBusinessServices {
 		return experimentInstanceId;
 	}
 	
-	public static void FinalizeExperimentExecution(String experimentInstanceId, String centralRepository, String workspacePath, Date endDateTime) throws ProvMonitorException{
+	/**
+	 * Experiment execution finalization. 
+	 * <br /><br /><strong>Description:</strong>
+	 * Responsible to register the end of the experiment execution, push back workspace to the central repository, and shut down the used infrastructure.
+	 * 
+	 * @param experimentInstanceId Experiment execution/trial identifier.
+	 * @param sourceRepository Central repository URI path. Repository from workspace will be cloned.
+	 * @param workspacePath Experiment workspace URI path.
+	 * @param endDateTime Experiment end date time execution.
+	 * 
+	 * @return ExperimentInstanceId - Auto generated when the parameter is null or empty, otherwise the same inputed value.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws VCSException Version control system related problems.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
+	 * @throws ServerDBException Database server related problems.
+	 */
+	public static void FinalizeExperimentExecution(String experimentInstanceId, String sourceRepository, String workspacePath, Date endDateTime) throws ProvMonitorException{
 		//Stop DB infra
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
 		daoFactory.getDatabaseControlDAO().dbFinalize();
 		
 		//Pushback Repository
-		VCSManager cvsManager = VCSManagerFactory.getInstance();
-		cvsManager.pushBack(workspacePath, centralRepository);
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		vcsManager.pushBack(workspacePath, sourceRepository);
 		
 	}
 	
 	/**
-	 * Notifica o início de execução de uma instância de uma atividade simples.
-	 * @param activityInstanceId Identificador da instância da atividade simples que foi inicializada.
-	 * @param context Sequência de indentificadores que define a localização da atividade simples no experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Notify startup of a simple activity instance execution.
+	 * <br /><br />
+	 * <b>Update - Instead Use:</b> <br />
+	 * public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException.
 	 */
-	//public boolean notifyActivityExecutionStartup(String activityInstanceId, String[] context) throws CharonException{
-		//return repository.getCharon().getCharonAPI().notifyActivityExecutionStartup(activityInstanceId, context);
-	//}
-	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context){
+	@Deprecated
+	public static boolean notifyActivityExecutionStartup(String activityInstanceId, String[] context){
 		//Record Timestamp
-		
+		return false;
 	}
 	
 	/**
-	 * Notifica o início de execução de uma instância de uma atividade simples.
-	 * @param activityInstanceId Identificador da instância da atividade simples que foi inicializada.
-	 * @param context Sequência de indentificadores que define a localização da atividade simples no experimento.
-	 * @param activityStartDateTime
-	 * @return resposta de sucesso de operação (true|false).'
-	 * @throws ProvMonitorException
+	 * Notify startup of a simple activity instance execution.
+	 *
+	 * @param activityInstanceId Activity instance identifier. 
+	 * @param context Sequence of identifiers that defines a simple activity instance location in the experiment. (path, i.e.: Sub workflows that wraps the simple activity instance) 
+	 * @param activityStartDateTime Activity instance date time of startup execution.
+	 * @param workspacePath Experiment workspace path.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws VCSException Version control system related problems.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
 		try{
@@ -153,7 +179,7 @@ public class RetrospectiveProvenanceBusinessServices {
 			StringBuilder elementPath = new StringBuilder();
 			for (String path: context){
 				if (elementPath.length()>0){
-					elementPath.append("\\");
+					elementPath.append("/");
 				}
 				elementPath.append(path);
 			}
@@ -201,8 +227,6 @@ public class RetrospectiveProvenanceBusinessServices {
 			//Recording Commit ID
 			elementExecStatus.setCommitId(commitId);
 			
-			
-			
 			//TODO: Implementar controle de transação e atomicidade para os casos de atributos multivalorados
 			
 			ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
@@ -223,59 +247,64 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 	/**
-	 * Notifica o início de execução de uma instância de uma atividade composta.
-	 * @param processInstanceId Identificador da instância da atividade composta que foi inicializada.
-	 * @param context Sequência de indentificadores que define a localização da atividade composta no experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Notify startup of a composite activity instance execution.
+	 * <br /><br />
+	 * <b>Update - Instead Use:</b> <br />
+	 * public static void notifyProcessExecutionStartup(String processInstanceId, String[] context, Date processStartDateTime, String workspacePath) throws ProvMonitorException.
 	 */
-	//public boolean notifyProcessExecutionStartup(String processInstanceId, String[] context) throws CharonException{
-		//return repository.getCharon().getCharonAPI().notifyProcessExecutionStartup(processInstanceId, context);
-	//}
-	public static void notifyProcessExecutionStartup(String processInstanceId, String[] context){
+	@Deprecated
+	public static boolean notifyProcessExecutionStartup(String processInstanceId, String[] context){
+		return false;
 	}
 	
 	/**
-	 * Notifica o início de execução de uma instância de uma atividade composta.
-	 * @param processInstanceId Identificador da instância da atividade composta que foi inicializada.
-	 * @param context Sequência de indentificadores que define a localização da atividade composta no experimento.
-	 * @param processStartDateTime
-	 * @throws ProvMonitorException
+	 * Notify startup of a composite activity instance execution.
+	 *
+	 * @param processInstanceId Process (composite activity) instance identifier. 
+	 * @param context Sequence of identifiers that defines a process instance location in the experiment. (path, i.e.: Sub workflows that wraps the simple activity instance) 
+	 * @param processStartDateTime Process instance date time of startup execution.
+	 * @param workspacePath Experiment workspace path.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws VCSException Version control system related problems.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	public static void notifyProcessExecutionStartup(String processInstanceId, String[] context, Date processStartDateTime, String workspacePath) throws ProvMonitorException{
 		notifyActivityExecutionStartup(processInstanceId, context, processStartDateTime, workspacePath);
 	}
 	
 	/**
-	 * Notifica o fim de execução de uma instância de uma atividade simples.
-	 * @param activityInstanceId Identificador da instância da atividade simples que foi finalizada.
-	 * @param context Sequência de indentificadores que define a localização da atividade simples no experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Notify ending of a simple activity instance execution.
+	 * <br /><br />
+	 * <b>Update - Instead Use:</b> <br />
+	 * public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date startActivityDateTime, Date endActiviyDateTime, String workspacePath) throws ProvMonitorException.
 	 */
-	//public boolean notifyActivityExecutionEnding(String activityInstanceId, String[] context) throws CharonException{
-		//return repository.getCharon().getCharonAPI().notifyActivityExecutionEnding(activityInstanceId, context);
-	//}
-	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context){
-		//Record Timestamp
-		
-		//Verify accessed files
-		
-		//Commit changed files
+	@Deprecated
+	public static boolean notifyActivityExecutionEnding(String activityInstanceId, String[] context){
+		return false;
 	}
 	
 	/**
-	 * Notifica o fim de execução de uma instância de uma atividade simples.
-	 * @param activityInstanceId Identificador da instância da atividade simples que foi finalizada.
-	 * @param context Sequência de indentificadores que define a localização da atividade simples no experimento.
-	 * @param startActivityDateTime
-	 * @param endActiviyDateTime
-	 * @throws ProvMonitorException
+	 * Notify ending of a simple activity instance execution.
+	 *
+	 * @param activityInstanceId Activity instance identifier. 
+	 * @param context Sequence of identifiers that defines a simple activity instance location in the experiment. (path, i.e.: Sub workflows that wraps the simple activity instance) 
+	 * @param activityStartDateTime Activity instance date time of startup execution.
+	 * @param endActiviyDateTime Activity instance date time of ending execution.
+	 * @param workspacePath Experiment workspace path.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws VCSException Version control system related problems.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date startActivityDateTime, Date endActiviyDateTime, String workspacePath) throws ProvMonitorException{
 		//Mounting context
 		StringBuilder elementPath = new StringBuilder();
 		for (String path: context){
 			if (elementPath.length()>0){
-				elementPath.append("\\");
+				elementPath.append("/");
 			}
 			elementPath.append(path);
 		}
@@ -319,10 +348,10 @@ public class RetrospectiveProvenanceBusinessServices {
 				
 		
 		//Recover executionStatus element
-		System.out.println("Starting ActivityExecutionEnding Method...");
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Starting ActivityExecutionEnding Method...");
 		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
 		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
-		System.out.println("Getting activity by id: " + activityInstanceId);
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Getting activity by id: " + activityInstanceId);
 		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementPath.toString());
 		
 		if (elemExecutionStatus == null){
@@ -330,19 +359,19 @@ public class RetrospectiveProvenanceBusinessServices {
 		}
 		
 		//update execution element
-		System.out.println("Updating Activity properties: End DateTime....");
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Updating Activity properties: End DateTime....");
 		elemExecutionStatus.setEndTime(endActiviyDateTime);
 		
-		System.out.println("Updating Activity properties: Status....");
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Updating Activity properties: Status....");
 		elemExecutionStatus.setStatus("ended");
 		
 		//Recording Commit ID
 		elemExecutionStatus.setCommitId(commitId);
 		
 		//persist updated element
-		System.out.println("Persisting Activity....");
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Persisting Activity....");
 		execStatusDAO.update(elemExecutionStatus);
-		System.out.println("Activity Persisted.");
+		ProvMonitorOutputManager.getInstance().appendMessageLine("Activity Persisted.");
 		
 		//Persist acessed files
 		for (ExecutionFilesStatus executionFileStatus: execFiles){
@@ -352,12 +381,18 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 	/**
-	 * Notifica o fim de execução de uma instância de uma atividade composta.
-	 * @param processInstanceId Identificador da instância da atividade composta que foi finalizada.
-	 * @param context Sequência de indentificadores que define a localização da atividade composta no experimento.
-	 * @param startProcessDateTime
-	 * @param endProcessDateTime
-	 * @throws ProvMonitorException
+	 * Notify ending of a Process (composite activity) instance execution.
+	 *
+	 * @param processInstanceId Process (composite activity) instance identifier. 
+	 * @param context Sequence of identifiers that defines a composite activity instance location in the experiment. (path, i.e.: Sub workflows that wraps the composite activity instance) 
+	 * @param startProcessDateTime Process instance date time of startup execution.
+	 * @param endProcessDateTime Process instance date time of ending execution.
+	 * @param workspacePath Experiment workspace path.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws VCSException Version control system related problems.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	public static void notifyProcessExecutionEnding(String processInstanceId, String[] context, Date startProcessDateTime, Date endProcessDateTime, String workspacePath) throws ProvMonitorException{
 		//Record Timestamp
@@ -367,41 +402,40 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 	/**
-	 * Notifica o fim de execução de uma instância de uma atividade composta.
-	 * @param processInstanceId Identificador da instância da atividade composta que foi finalizada.
-	 * @param context Sequência de indentificadores que define a localização da atividade composta no experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Notify ending of a Process (composite activity) instance execution.
+	 * <br /><br />
+	 * <b>Update - Instead Use:</b> <br />
+	 * public static void notifyProcessExecutionEnding(String processInstanceId, String[] context, Date startProcessDateTime, Date endProcessDateTime, String workspacePath) throws ProvMonitorException.
 	 */
-	//public boolean notifyProcessExecutionEnding(String processInstanceId, String[] context) throws CharonException{
-		//return repository.getCharon().getCharonAPI().notifyProcessExecutionEnding(processInstanceId, context);
-	//}
-	public static void notifyProcessExecutionEnding(String processInstanceId, String[] context){
+	@Deprecated
+	public static boolean notifyProcessExecutionEnding(String processInstanceId, String[] context){
 		//Record Timestamp
-		
 		//Verify accessed files
-		
 		//Commit changed files
+		return false;
 	}
 	
 	/**
-	 * Notifica o fim de execução de um ponto de decisão.
-	 * @param decisionPointId Identificador do ponto de decisão que foi finalizado.
-	 * @param optionValue Opção selecionada para o ponto de decisão.
-	 * @param context Sequência de indentificadores que define a localização do ponto de decisão no experimento.
-	 * @return resposta de sucesso de operação (true|false).
+	 * <strong>NOT YET IMPLEMENTED</strong><br /><br />
+	 * Notify a decision point execution. 
+	 * @param decisionPointId Decision point identifier.
+	 * @param optionValue Option value used on the decision.
+	 * @param context Sequence of identifiers that defines a decision point location in the experiment. (path, i.e.: Sub workflows that wraps the decision point)
+	 * @return if the operation was successful.
+	 * 
 	 */
-	//public boolean notifyDecisionPointEnding(String decisionPointId, String optionValue, String[] context) throws CharonException{
-		//return repository.getCharon().getCharonAPI().notifyDecisionPointEnding(decisionPointId, optionValue, context);
-	//}
-	public static void notifyDecisionPointEnding(String decisionPointId, String optionValue, String[] context){
+	public static boolean notifyDecisionPointEnding(String decisionPointId, String optionValue, String[] context){
+		return false;
 	}
 
 	/**
-	 * Publica os dados do artefato.
-	 * @param artifactId Identificador do artefato.
-	 * @param context Sequência de indentificadores que define a localização do artefato no experimento.
-	 * @param value Valor do artefato.
-	 * @throws ProvMonitorException
+	 * Publish artifact values. 
+	 * @param artifactId Artifact identifier.
+	 * @param context context Sequence of identifiers that defines an artifact location in the experiment.
+	 * @param value Artifact value.
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	//public boolean setArtifactValue(String artifactId, String[] context, String value) throws CharonException{
 		//return repository.getCharon().getCharonAPI().setArtifactValue(artifactId, context, value);
@@ -410,7 +444,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		StringBuilder elementPath = new StringBuilder();
 		for (String path: context){
 			if (elementPath.length()>0){
-				elementPath.append("\\");
+				elementPath.append("/");
 			}
 			elementPath.append(path);
 		}
@@ -428,12 +462,17 @@ public class RetrospectiveProvenanceBusinessServices {
 	
 	
 	/**
-	 * Publica a localização dos dados do artefato.
-	 * @param artifactId Identificador do experimento.
-	 * @param context Sequência de indentificadores que define a localização do artefato no experimento.
-	 * @param hostURL URL da máquina onde o artefato está localizado.
-	 * @param hostLocalPath Diretório local da máquina onde o artefato está localizado.
-	 * @return resposta de sucesso de operação (true|false).
+	 * Publish an artifact value location.
+	 * 
+	 * @param artifactId Artifact identifier.
+	 * @param context context Sequence of identifiers that defines an artifact location in the experiment.
+	 * @param value Artifact value.
+	 * @param hostURL URL of artifact location host.
+	 * @param hostLocalPath Path of the artifact location inside the host.
+	 * 
+	 * @throws ProvMonitorException ProvMonitor base exception if some irrecoverable or runtime exception occurs.
+	 * @throws DatabaseException Database related problems.
+	 * @throws ConnectionException Database connection problems.
 	 */
 	//public boolean publishArtifactValueLocation(String artifactId, String[] context, String hostURL, String hostLocalPath) throws CharonException{
 		//return repository.getCharon().getCharonAPI().publishArtifactValueLocation(artifactId, context, hostURL, hostLocalPath);
