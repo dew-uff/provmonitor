@@ -15,6 +15,7 @@ import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
 import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
@@ -52,8 +53,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		String experimentInstanceId = experimentId + nonce;
 		
 		//Printing Generated Values
-		ProvMonitorOutputManager.getInstance().appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
-		ProvMonitorOutputManager.getInstance().appendMessageLine("BranchName: " + experimentInstanceId);
+		ProvMonitorOutputManager.appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
+		ProvMonitorOutputManager.appendMessageLine("BranchName: " + experimentInstanceId);
 		
 		//Initialize DB
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
@@ -90,10 +91,10 @@ public class RetrospectiveProvenanceBusinessServices {
 		}
 
 		//Printing Generated/received/considered values
-		ProvMonitorOutputManager.getInstance().appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
-		ProvMonitorOutputManager.getInstance().appendMessageLine("BranchName: " + experimentInstanceId);
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Workspace: " + workspacePath);
-		ProvMonitorOutputManager.getInstance().appendMessageLine("CentralRepository: " + sourceRepository);
+		ProvMonitorOutputManager.appendMessageLine("ExperimentInstanceId: " + experimentInstanceId);
+		ProvMonitorOutputManager.appendMessageLine("BranchName: " + experimentInstanceId);
+		ProvMonitorOutputManager.appendMessageLine("Workspace: " + workspacePath);
+		ProvMonitorOutputManager.appendMessageLine("CentralRepository: " + sourceRepository);
 		
 		//Initialize DB
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
@@ -195,20 +196,25 @@ public class RetrospectiveProvenanceBusinessServices {
 			
 			//Reading accessedFiles
 			ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
-			Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), activityStartDateTime, true);
-			if (accessedFiles != null && !accessedFiles.isEmpty()){
-				for (AccessedPath acFile: accessedFiles){
-					
-					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
-					execFileStatus.setFileAccessDateTime(acFile.getAccessedDateTime());
-					execFileStatus.setFilePath(acFile.getAccessedPathName());
-					execFileStatus.setElementId(activityInstanceId);
-					execFileStatus.setElementPath(elementPath.toString());
-					execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
-					
-					execFiles.add(execFileStatus);
-					
+			try{
+				Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), activityStartDateTime, true);
+				if (accessedFiles != null && !accessedFiles.isEmpty()){
+					for (AccessedPath acFile: accessedFiles){
+						
+						ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+						execFileStatus.setFileAccessDateTime(acFile.getAccessedDateTime());
+						execFileStatus.setFilePath(acFile.getAccessedPathName());
+						execFileStatus.setElementId(activityInstanceId);
+						execFileStatus.setElementPath(elementPath.toString());
+						execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
+						
+						execFiles.add(execFileStatus);
+						
+					}
 				}
+			}catch(Exception e){
+				ProvMonitorLogger.warning("RetrospectiveProvenanceBusinessServices", "notifyActivityExecutionStartup", e.getMessage());
+				ProvMonitorOutputManager.appendMenssage("WARNING: RetrospectiveProvenanceBusinessServices: notifyActivityExecutionStartup" + e.getMessage());
 			}
 			
 			
@@ -240,7 +246,7 @@ public class RetrospectiveProvenanceBusinessServices {
 			}
 			
 			
-		}catch(IOException e){
+		}catch(Exception e){
 			throw new ProvMonitorException(e.getMessage(), e.getCause());
 		}
 		
@@ -348,10 +354,10 @@ public class RetrospectiveProvenanceBusinessServices {
 				
 		
 		//Recover executionStatus element
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Starting ActivityExecutionEnding Method...");
+		ProvMonitorOutputManager.appendMessageLine("Starting ActivityExecutionEnding Method...");
 		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
 		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Getting activity by id: " + activityInstanceId);
+		ProvMonitorOutputManager.appendMessageLine("Getting activity by id: " + activityInstanceId);
 		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementPath.toString());
 		
 		if (elemExecutionStatus == null){
@@ -359,21 +365,21 @@ public class RetrospectiveProvenanceBusinessServices {
 		}
 		
 		//update execution element
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Updating Activity properties: End DateTime....");
+		ProvMonitorOutputManager.appendMessageLine("Updating Activity properties: End DateTime....");
 		elemExecutionStatus.setEndTime(endActiviyDateTime);
 		
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Updating Activity properties: Status....");
+		ProvMonitorOutputManager.appendMessageLine("Updating Activity properties: Status....");
 		elemExecutionStatus.setStatus("ended");
 		
 		//Recording Commit ID
 		elemExecutionStatus.setCommitId(commitId);
 		
 		//persist updated element
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Persisting Activity....");
+		ProvMonitorOutputManager.appendMessageLine("Persisting Activity....");
 		execStatusDAO.update(elemExecutionStatus);
-		ProvMonitorOutputManager.getInstance().appendMessageLine("Activity Persisted.");
+		ProvMonitorOutputManager.appendMessageLine("Activity Persisted.");
 		
-		//Persist acessed files
+		//Persist accessed files
 		for (ExecutionFilesStatus executionFileStatus: execFiles){
 			factory.getExecutionFileStatusDAO().persist(executionFileStatus);
 		}

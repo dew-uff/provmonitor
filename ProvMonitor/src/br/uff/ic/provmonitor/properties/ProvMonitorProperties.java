@@ -39,6 +39,11 @@ public class ProvMonitorProperties {
 		this.loadPropertiesDefaultValues();
 	}
 	
+	private ProvMonitorProperties (String propertiesPath){
+		this.loadProperties(propertiesPath);
+		this.loadPropertiesDefaultValues();
+	}
+	
 	/**
 	 * Public instance
 	 * */
@@ -48,6 +53,13 @@ public class ProvMonitorProperties {
 		}
 		return myInstance;
 	}
+	
+	public synchronized static ProvMonitorProperties getInstance(String propertiesPath){
+		if (myInstance == null){
+			myInstance = new ProvMonitorProperties(propertiesPath);
+		}
+		return myInstance;
+	} 
 	
 	public DatabaseType getDataBaseType() {
 		return dataBaseType;
@@ -112,10 +124,14 @@ public class ProvMonitorProperties {
 	}
 	
 	private void loadProperties(){
+		loadProperties("provMonitor.properties");
+	}
+	
+	private void loadProperties(String propertiesPath){
 		try {
 			// create and load default properties
 			Properties defaultProps = new Properties();
-			FileInputStream in = new FileInputStream("provMonitor.properties");
+			FileInputStream in = new FileInputStream(propertiesPath);
 			
 			defaultProps.load(in);
 			in.close();

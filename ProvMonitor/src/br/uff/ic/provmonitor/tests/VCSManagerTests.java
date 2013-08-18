@@ -26,7 +26,9 @@ public class VCSManagerTests {
 	public static void main(String[] args) {
 		//basicCVSFunctionalitiesTests();
 		try {
-			cloneParcialAndFullTest();
+			//cloneParcialAndFullTest();
+			
+			cloneToExistingDirecgtoryTest();
 		} catch (ProvMonitorException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -314,7 +316,7 @@ public class VCSManagerTests {
 	}
 	
 	
-	
+	@SuppressWarnings("unused")
 	private static void cloneParcialAndFullTest() throws ProvMonitorException{
 		
 		String centralRepository = "C:\\Testes\\CentralRepo\\Repo1";
@@ -328,6 +330,18 @@ public class VCSManagerTests {
 		//System.out.println("Cloning to: " + workspacePath);
 		cvsManager.cloneRepository(centralRepository, workspacePathFull);
 		cvsManager.cloneRepository(centralRepository, workspacePath, branchesToBeCloned);
+	}
+	
+	private static void cloneToExistingDirecgtoryTest() throws ProvMonitorException{
+		String centralRepository = "C:/Testes/CentralRepo/Repo1";
+		String workspacePath = "C:/Testes/workspaces/WorkspaceExistente";
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
+		//System.out.println("Cloning to: " + workspacePath);
+		cvsManager.cloneRepository(centralRepository, workspacePath);
+		cvsManager.addAllFromPath(workspacePath);
+		String commiId = cvsManager.commit(workspacePath, "Teste de Commit em Workspace Pre-preenchido.");
+		System.out.println("Commit ID: " + commiId);
+		
 	}
 	
 

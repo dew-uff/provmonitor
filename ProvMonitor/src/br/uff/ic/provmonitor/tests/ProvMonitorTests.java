@@ -20,7 +20,26 @@ public class ProvMonitorTests {
 		Date startDateTime = Calendar.getInstance().getTime();
 		//completeProcessTest();
 		try {
-			initializeExperimentTest("Scicumulus", "ScicumulusTeste1", "C:\\Testes\\CentralRepo\\exp_ProvMonitor", "C:\\Testes\\workspaces\\SciCumulusWksp1", startDateTime);
+			//String centralRepository = "C:/Testes/CentralRepo/exp_ProvMonitor";
+			//String workspacePath = "C:/Testes/workspaces/SciCumulusWksp1";
+			String centralRepository = "C:/Testes/CentralRepo/Repo1";
+			String workspacePath = "C:/Testes/workspaces/WorkspaceExistente";
+			String activity1InstanceId = "Activity1Instance1";
+			String[] context = {"root","Activity1Instance1"};
+			
+			//Initializing Experiment
+			initializeExperimentTest("Scicumulus", "ScicumulusTeste1", centralRepository, workspacePath, startDateTime);
+			//Starting Activity 1 - Instance 1
+			Date activityStartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, workspacePath);
+			//Changing file's content.
+			createFileContent(workspacePath + "/file.html");
+			//Ending Activity 1 - Instance 1
+			Date endActiviyDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspacePath);
+			//Finalizing Experiment
+			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution("ScicumulusTeste1", centralRepository, workspacePath, endActiviyDateTime);
+			
 		} catch (ProvMonitorException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

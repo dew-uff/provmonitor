@@ -52,18 +52,22 @@ public class ProvMonitorOutputManager {
 	 * Append a message line in the output.
 	 * @param message String - Message line to be appended in output. 
 	 */
-	public void appendMessageLine(String message){
-		if (getInstance().outputMessage.length() > 0){
-			getInstance().outputMessage.append("\n");
+	public static void appendMessageLine(String message){
+		if (getInstance().instanceType.equals(ProvMonitorOutputType.CONSOLE)){
+			System.out.println(message);
+		}else{
+			if (getInstance().outputMessage.length() > 0){
+				getInstance().outputMessage.append("\n");
+			}
+			appendMenssage(message);
 		}
-		appendMenssage(message);
 	}
 	
 	/**
 	 * Append a message in the output.
 	 * @param message String - Message to be appended in output.
 	 */
-	public void appendMenssage(String message){
+	public static void appendMenssage(String message){
 		getInstance().outputMessage.append(message);
 	}
 	

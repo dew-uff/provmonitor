@@ -13,10 +13,10 @@ public class SciCumulusBusinessHelper {
 	public static String workspaceUpdate(String workspacePath, String sciCumulusExtendedContext){
 		StringBuilder sb = new StringBuilder();
 		sb.append(workspacePath);
-		String[] parsedScContext = sciCumulusExtendedContext.split("\\");
+		String[] parsedScContext = sciCumulusExtendedContext.split("/");
 		
 		if (parsedScContext != null && parsedScContext.length > 0){
-			sb.append("\\");
+			sb.append("/");
 			sb.append(parsedScContext[parsedScContext.length - 1]);
 		}
 		

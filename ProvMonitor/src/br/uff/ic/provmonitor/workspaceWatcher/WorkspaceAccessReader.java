@@ -126,6 +126,10 @@ public class WorkspaceAccessReader {
 	public static final Collection<AccessedPath> readAccessedPathsAndAccessTime (Path rootPath, Date startDate, boolean onlyFiles) throws IOException{
 		ArrayList<AccessedPath> result = new ArrayList<AccessedPath>();
 		
+		if (rootPath == null || rootPath.toFile()== null){
+			return result;
+		}
+		
 		//If the rootPath is not a Directory, verify accessTime. Else iterate recursively inside it's structure. 
 		if (!rootPath.toFile().isDirectory()){
 			BasicFileAttributes attributes = Files.readAttributes(rootPath, BasicFileAttributes.class);

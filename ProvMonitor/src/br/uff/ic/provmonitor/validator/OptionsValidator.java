@@ -70,9 +70,6 @@ public class OptionsValidator {
 					if(!cmd.hasOption("wp")){
 						throw new ValidateException("The workspace path must be informed: -wp parameter");
 					}
-					if(!cmd.hasOption("cR")){
-						throw new ValidateException("The central repository path must be informed: -cR parameter");
-					}
 				}
 				break;
 			case NOTIFY_DECISION_POINT_ENDING:

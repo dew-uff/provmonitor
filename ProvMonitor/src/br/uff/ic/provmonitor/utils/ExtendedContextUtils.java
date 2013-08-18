@@ -17,7 +17,7 @@ public class ExtendedContextUtils {
 		
 		this.extendedContextString = extendedContextURL;
 		
-		String [] parsedString = extendedContextURL.split("\\");
+		String [] parsedString = extendedContextURL.split("/");
 		Integer parsedLength = parsedString.length;
 		if (parsedLength > 2){
 			this.activityInstanceActivationId = parsedString[parsedLength - 1];
