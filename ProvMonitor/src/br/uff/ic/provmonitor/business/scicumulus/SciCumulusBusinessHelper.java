@@ -16,7 +16,9 @@ public class SciCumulusBusinessHelper {
 		String[] parsedScContext = sciCumulusExtendedContext.split("/");
 		
 		if (parsedScContext != null && parsedScContext.length > 0){
-			sb.append("/");
+			if (workspacePath != null && workspacePath.length() > 0 && !workspacePath.endsWith("/")){
+				sb.append("/");
+			}
 			sb.append(parsedScContext[parsedScContext.length - 1]);
 		}
 		
