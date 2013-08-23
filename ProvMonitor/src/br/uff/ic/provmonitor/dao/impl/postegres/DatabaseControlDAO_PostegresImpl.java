@@ -3,6 +3,7 @@ package br.uff.ic.provmonitor.dao.impl.postegres;
 import java.io.IOException;
 
 import br.uff.ic.provmonitor.dao.DatabaseControlDAO;
+import br.uff.ic.provmonitor.dao.ExecutionCommitDAO;
 import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
@@ -137,6 +138,12 @@ public class DatabaseControlDAO_PostegresImpl implements DatabaseControlDAO{
 		ExecutionStatusDAO executionStatusDAO = daoFactory.getExecutionStatusDAO();
 		if (!executionStatusDAO.isTableCreated()){
 			executionStatusDAO.createTable();
+		}
+		
+		//Verify and create if needed ExecutionStatus Database Object
+		ExecutionCommitDAO executionCommitDAO = daoFactory.getExecutionCommitDAO();
+		if (!executionCommitDAO.isTableCreated()){
+			executionCommitDAO.createTable();
 		}
 		
 		//Verify and create if needed ExecutionFilesStatus Database Object

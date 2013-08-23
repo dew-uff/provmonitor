@@ -5,6 +5,7 @@ import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactValueLocaltionDAO;
 import br.uff.ic.provmonitor.dao.DatabaseControlDAO;
+import br.uff.ic.provmonitor.dao.ExecutionCommitDAO;
 import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.ProcessInstanceDAO;
@@ -13,10 +14,12 @@ import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactPortActivityInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactValueLocaltionDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.DatabaseControlDAO_JavaDBImpl;
+import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionCommitDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionFilesStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ProcessInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.DatabaseControlDAO_PostegresImpl;
+import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionCommitDAO_PostegresImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionFilesStatusDAO_PostegresImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionStatusDAO_PostegresImpl;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
@@ -63,6 +66,26 @@ public class ProvMonitorDAOFactory {
 		}
 	}
 	
+	/**
+	 * Get the Execution Commit DAO Implementation.
+	 * @return ExecutionCommitDAO
+	 */
+	public ExecutionCommitDAO getExecutionCommitDAO(){
+		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
+			case POSTGRES:
+				return new ExecutionCommitDAO_PostegresImpl();
+			case MYSQL:
+			case JAVADB:
+			default:
+				return new ExecutionCommitDAO_JavaDBImpl();
+		}
+		
+	}
+	
+	/**
+	 * Get the Execution Files Status DAO Implementation.
+	 * @return ExecutionFilesStatusDAO
+	 */
 	public ExecutionFilesStatusDAO getExecutionFileStatusDAO(){
 		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
 			case POSTGRES:

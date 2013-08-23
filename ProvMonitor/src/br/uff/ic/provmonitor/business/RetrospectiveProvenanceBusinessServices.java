@@ -17,6 +17,7 @@ import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
+import br.uff.ic.provmonitor.model.ExecutionCommit;
 import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
@@ -231,7 +232,13 @@ public class RetrospectiveProvenanceBusinessServices {
 			String commitId = cvsManager.commit(workspacePath, message.toString());
 			
 			//Recording Commit ID
-			elementExecStatus.setCommitId(commitId);
+			//elementExecStatus.setCommitId(commitId);
+			ExecutionCommit execCommit = new ExecutionCommit();
+			execCommit.setCommitId(commitId);
+			execCommit.setCommitTime(activityStartDateTime);
+			execCommit.setStatus("ActivityStart");
+			execCommit.setElementId(elementExecStatus.getElementId());
+			execCommit.setElementPath(elementExecStatus.getElementPath());
 			
 			//TODO: Implementar controle de transação e atomicidade para os casos de atributos multivalorados
 			
@@ -239,6 +246,7 @@ public class RetrospectiveProvenanceBusinessServices {
 			
 			//factory.getActivityInstanceDAO().persist(activityInstance);
 			factory.getExecutionStatusDAO().persist(elementExecStatus);
+			factory.getExecutionCommitDAO().persist(execCommit);
 			
 			//Persist acessed files
 			for (ExecutionFilesStatus executionFileStatus: execFiles){
@@ -372,11 +380,20 @@ public class RetrospectiveProvenanceBusinessServices {
 		elemExecutionStatus.setStatus("ended");
 		
 		//Recording Commit ID
-		elemExecutionStatus.setCommitId(commitId);
+		//elemExecutionStatus.setCommitId(commitId);
+		ExecutionCommit execCommit = new ExecutionCommit();
+		execCommit.setCommitId(commitId);
+		execCommit.setCommitTime(endActiviyDateTime);
+		execCommit.setStatus("ActivityEnd");
+		execCommit.setElementId(elemExecutionStatus.getElementId());
+		execCommit.setElementPath(elemExecutionStatus.getElementPath());
 		
 		//persist updated element
 		ProvMonitorOutputManager.appendMessageLine("Persisting Activity....");
 		execStatusDAO.update(elemExecutionStatus);
+		
+		factory.getExecutionCommitDAO().persist(execCommit);
+		
 		ProvMonitorOutputManager.appendMessageLine("Activity Persisted.");
 		
 		//Persist accessed files

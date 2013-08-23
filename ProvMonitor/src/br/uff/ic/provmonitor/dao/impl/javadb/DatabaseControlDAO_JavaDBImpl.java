@@ -7,6 +7,7 @@ import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactValueLocaltionDAO;
 import br.uff.ic.provmonitor.dao.DatabaseControlDAO;
+import br.uff.ic.provmonitor.dao.ExecutionCommitDAO;
 import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.ProcessInstanceDAO;
@@ -144,6 +145,12 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 		ExecutionStatusDAO executionStatusDAO = daoFactory.getExecutionStatusDAO();
 		if (!executionStatusDAO.isTableCreated()){
 			executionStatusDAO.createTable();
+		}
+		
+		//Verify and create if needed ExecutionStatus Database Object
+		ExecutionCommitDAO executionCommitDAO = daoFactory.getExecutionCommitDAO();
+		if (!executionCommitDAO.isTableCreated()){
+			executionCommitDAO.createTable();
 		}
 		
 		//Verify and create if needed ExecutionFilesStatus Database Object

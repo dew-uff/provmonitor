@@ -120,7 +120,7 @@ public class ExecutionStatusDAO_PostegresImpl implements ExecutionStatusDAO{
 																						  ",PATH = ? " +
 																						  ",PERFORMERS = ? " +
 																						  ",ID_COMMIT = ? " +
-																" WHERE ID_ELEMENT = ? AND PATH = ? " );
+																" WHERE ID_ELEMENT = ? AND PATH = ? AND END_TIME IS NULL " );
 			psInsert.setString(1, executionStatus.getElementId());
 			psInsert.setString(2, executionStatus.getElementType());
 			psInsert.setString(3, executionStatus.getStatus());
