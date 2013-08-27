@@ -23,7 +23,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -400,9 +399,11 @@ public class GitManager implements VCSManager {
 	        
 	        //add.addFilepattern(".txt");
 	        
-	        DirCache dir = add.call();
+			add.call();
+			
+	        //DirCache dir = add.call();
 	        
-	        dir.getEntryCount();
+	        //dir.getEntryCount();
 	        
 	        
 		} catch (IOException | GitAPIException e) {

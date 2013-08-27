@@ -12,7 +12,6 @@ import org.apache.commons.cli.PosixParser;
 
 import br.uff.ic.provmonitor.business.ProvMonitorBusinessHelper;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
-import br.uff.ic.provmonitor.business.scicumulus.SciCumulusBusinessHelper;
 import br.uff.ic.provmonitor.enums.MethodType;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ValidateException;
@@ -23,7 +22,6 @@ import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 import br.uff.ic.provmonitor.tests.ProvMonitorTests;
 import br.uff.ic.provmonitor.utils.DateUtils;
-import br.uff.ic.provmonitor.utils.ExtendedContextUtils;
 import br.uff.ic.provmonitor.validator.OptionsValidator;
 
 public class ProvMonitor {
@@ -159,15 +157,15 @@ public class ProvMonitor {
 					Date endDateTime = DateUtils.dateParse(endDate);
 					String workspacePath = cmd.getOptionValue("wp");
 					
-					String extendedContext = cmd.getOptionValue("sceContext");
-					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
-						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
-						String[] context2 = exCUtil.appendContext(context);
-						
-						//Invoking BusinessServices
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context2, starDateTime, endDateTime, workspacePath);
-					}
+//					String extendedContext = cmd.getOptionValue("sceContext");
+//					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+//						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
+//						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+//						String[] context2 = exCUtil.appendContext(context);
+//						
+//						//Invoking BusinessServices
+//						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context2, starDateTime, endDateTime, workspacePath);
+//					}
 					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
@@ -185,15 +183,15 @@ public class ProvMonitor {
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
 					
-					String extendedContext = cmd.getOptionValue("sceContext");
-					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
-						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
-						String[] context2 = exCUtil.appendContext(context);
-						
-						//Invoking BusinessServices
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
-					}
+//					String extendedContext = cmd.getOptionValue("sceContext");
+//					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+//						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
+//						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+//						String[] context2 = exCUtil.appendContext(context);
+//						
+//						//Invoking BusinessServices
+//						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
+//					}
 					
 					//Invoking BusinessServices
 					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
