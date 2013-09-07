@@ -333,8 +333,9 @@ public class VCSManagerTests {
 	}
 	
 	private static void cloneToExistingDirecgtoryTest() throws ProvMonitorException{
-		String centralRepository = "C:/Testes/CentralRepo/Repo1";
-		String workspacePath = "C:/Testes/workspaces/WorkspaceExistente";
+		//String centralRepository = "C:/Testes/CentralRepo/Repo1";
+		String centralRepository = "C:/experimentos/exp_SciPhy"; 
+		String workspacePath = "C:/Testes/workspaces/WorkspaceSciPhy1";
 		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
 		cvsManager.cloneRepository(centralRepository, workspacePath);

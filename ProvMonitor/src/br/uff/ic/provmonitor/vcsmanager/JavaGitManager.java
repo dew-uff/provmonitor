@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Set;
 
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import edu.nyu.cs.javagit.api.JavaGitException;
@@ -165,5 +166,18 @@ public class JavaGitManager implements VCSManager{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	/**
+	 * Return Set of paths removed from the workspace
+	 * @param workspacePath - path of the observed workspace.
+	 * @return Set<String> - paths of removed files.
+	 * @throws VCSException - If one of NoWorkTreeException | GitAPIException | IOException occurs.
+	 */
+	public Set<String> getRemovedFiles(String workspacePath) throws VCSException{
+		return null;
+	}
 
+	public Set<String> removeAllFromPath(String workspacePath) throws VCSException{
+		return null;
+	}
 }

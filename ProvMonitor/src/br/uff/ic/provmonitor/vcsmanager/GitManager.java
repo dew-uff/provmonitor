@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Set;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand;
@@ -22,7 +23,10 @@ import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -400,6 +404,10 @@ public class GitManager implements VCSManager {
 	        //add.addFilepattern(".txt");
 	        
 			add.call();
+
+			//StatusCommand sc = git.status();
+			//Status status = sc.call();
+			//status.getAdded();
 			
 	        //DirCache dir = add.call();
 	        
@@ -408,6 +416,71 @@ public class GitManager implements VCSManager {
 	        
 		} catch (IOException | GitAPIException e) {
 			throw new VCSException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	public Set<String> removeAllFromPath(String workspacePath) throws VCSException{
+		try {
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			
+			AddCommand add = git.add();
+	
+			add.addFilepattern(".");
+			add.setUpdate(true);
+	        
+	        //add.addFilepattern(".txt");
+	        
+			add.call();
+
+			StatusCommand sc = git.status();
+			Status status = sc.call();
+			return status.getRemoved();
+			
+	        //DirCache dir = add.call();
+	        
+	        //dir.getEntryCount();
+	        
+	        
+		} catch (IOException | GitAPIException e) {
+			throw new VCSException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	public Set<String> getRemovedFiles(String workspacePath) throws VCSException{
+		try {	
+			Repository repo = getRepository(workspacePath);
+			Git git = new Git(repo);
+			
+			StatusCommand sc = git.status();
+			Status status;
+			
+			status = sc.call();
+			return status.getRemoved();
+			
+		} catch (NoWorkTreeException | GitAPIException | IOException e) {
+			throw new VCSException(e.getMessage(), e.getCause());
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	public void getStatus(String workspacePath){
+		try {	
+			Repository repo = getRepository(workspacePath);
+			Git git = new Git(repo);
+			
+			StatusCommand sc = git.status();
+			Status status;
+			
+			status = sc.call();
+			Set<String> untracked = status.getUntracked();
+			Set<String> added = status.getAdded();
+			Set<String> modified = status.getModified();
+			Set<String> changed = status.getChanged();
+			
+		} catch (NoWorkTreeException | GitAPIException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package br.uff.ic.provmonitor.utils;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,6 +33,21 @@ public class DateUtils {
 		}
 		
 		return returnDate;
+	}
+	
+	/**
+	 * Converts from <code>java.util.Date</code> to <code>java.sql.Timestamp</code>
+	 * @param date2BeConverted - Date that will be converted.
+	 * @return java.sql.Timestamp - Corresponding Timestamp
+	 */
+	public static Timestamp utilsDate2SqlTimeStamp(Date date2BeConverted){
+		Timestamp returnTimeStamp = null;
+		
+		if (date2BeConverted !=null){
+			returnTimeStamp = new Timestamp(date2BeConverted.getTime());
+		}
+		
+		return returnTimeStamp;
 	}
 	
 	

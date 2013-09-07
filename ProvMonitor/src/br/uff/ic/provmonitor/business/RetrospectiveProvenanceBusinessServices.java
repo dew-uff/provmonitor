@@ -7,13 +7,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 import org.eclipse.jgit.util.StringUtils;
 
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.factory.ProvMonitorDAOFactory;
+import br.uff.ic.provmonitor.exceptions.ConnectionException;
+import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
+import br.uff.ic.provmonitor.exceptions.ServerDBException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
@@ -23,8 +27,9 @@ import br.uff.ic.provmonitor.model.ExecutionStatus;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
-import br.uff.ic.provmonitor.workspaceWatcher.AccessedPath;
+import br.uff.ic.provmonitor.workspaceWatcher.PathAccessType;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspaceAccessReader;
+import br.uff.ic.provmonitor.workspaceWatcher.WorkspacePathStatus;
 
 /**
  * ProvMonitor retrospective business services.
@@ -198,16 +203,18 @@ public class RetrospectiveProvenanceBusinessServices {
 			//Reading accessedFiles
 			ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
 			try{
-				Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), activityStartDateTime, true);
+				//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
+				Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), activityStartDateTime, true);
 				if (accessedFiles != null && !accessedFiles.isEmpty()){
-					for (AccessedPath acFile: accessedFiles){
+					for (WorkspacePathStatus acFile: accessedFiles){
 						
 						ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
-						execFileStatus.setFileAccessDateTime(acFile.getAccessedDateTime());
-						execFileStatus.setFilePath(acFile.getAccessedPathName());
+						execFileStatus.setFileAccessDateTime(acFile.getStatusDateTime());
+						execFileStatus.setFilePath(acFile.getPathName().replaceFirst("/", ""));
 						execFileStatus.setElementId(activityInstanceId);
 						execFileStatus.setElementPath(elementPath.toString());
-						execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
+						execFileStatus.setFiletAccessType(acFile.getPathStatusType().name());
+						//execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
 						
 						execFiles.add(execFileStatus);
 						
@@ -228,8 +235,25 @@ public class RetrospectiveProvenanceBusinessServices {
 				   .append("; StartActivityCommit");
 			
 			VCSManager cvsManager = VCSManagerFactory.getInstance();
+			//((GitManager)cvsManager).getStatus(workspacePath);
+			//Set<String> removed = cvsManager.getRemovedFiles(workspacePath);
 			cvsManager.addAllFromPath(workspacePath);
+			Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
 			String commitId = cvsManager.commit(workspacePath, message.toString());
+			
+			//Registering removed files
+			if (removed != null && !removed.isEmpty()){
+				for (String removedPath: removed){
+					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+					execFileStatus.setFileAccessDateTime(activityStartDateTime);
+					execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+					execFileStatus.setElementId(activityInstanceId);
+					execFileStatus.setElementPath(elementPath.toString());
+					execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
+					
+					execFiles.add(execFileStatus);
+				}
+			}
 			
 			//Recording Commit ID
 			//elementExecStatus.setCommitId(commitId);
@@ -328,16 +352,18 @@ public class RetrospectiveProvenanceBusinessServices {
 		//Verify accessed files
 		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
 		try{
-			Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
+			//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
+			Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), startActivityDateTime, true);
 			if (accessedFiles != null && !accessedFiles.isEmpty()){
-				for (AccessedPath acFile: accessedFiles){
+				for (WorkspacePathStatus acFile: accessedFiles){
 					
 					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
-					execFileStatus.setFileAccessDateTime(acFile.getAccessedDateTime());
-					execFileStatus.setFilePath(acFile.getAccessedPathName());
+					execFileStatus.setFileAccessDateTime(acFile.getStatusDateTime());
+					execFileStatus.setFilePath(acFile.getPathName().replaceFirst("/", ""));
 					execFileStatus.setElementId(activityInstanceId);
 					execFileStatus.setElementPath(elementPath.toString());
-					execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
+					execFileStatus.setFiletAccessType(acFile.getPathStatusType().name());
+					//execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
 					
 					execFiles.add(execFileStatus);
 					
@@ -357,7 +383,9 @@ public class RetrospectiveProvenanceBusinessServices {
 			   .append("; EndActivityCommit");
 		
 		VCSManager cvsManager = VCSManagerFactory.getInstance();
+		//((GitManager)cvsManager).getStatus(workspacePath);
 		cvsManager.addAllFromPath(workspacePath);
+		Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
 		String commitId = cvsManager.commit(workspacePath, message.toString());
 				
 		
@@ -387,6 +415,20 @@ public class RetrospectiveProvenanceBusinessServices {
 		execCommit.setStatus("ActivityEnd");
 		execCommit.setElementId(elemExecutionStatus.getElementId());
 		execCommit.setElementPath(elemExecutionStatus.getElementPath());
+		
+		//Registering removed files
+		if (removed != null && !removed.isEmpty()){
+			for (String removedPath: removed){
+				ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+				execFileStatus.setFileAccessDateTime(endActiviyDateTime);
+				execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+				execFileStatus.setElementId(activityInstanceId);
+				execFileStatus.setElementPath(elementPath.toString());
+				execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
+				
+				execFiles.add(execFileStatus);
+			}
+		}
 		
 		//persist updated element
 		ProvMonitorOutputManager.appendMessageLine("Persisting Activity....");

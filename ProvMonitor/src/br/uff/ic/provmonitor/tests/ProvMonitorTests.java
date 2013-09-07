@@ -3,16 +3,23 @@ package br.uff.ic.provmonitor.tests;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
+import br.uff.ic.provmonitor.business.scicumulus.SciCumulusBusinessHelper;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
+import br.uff.ic.provmonitor.utils.ExtendedContextUtils;
 
 public class ProvMonitorTests {
 	public static void main(String[] args) {
@@ -23,17 +30,32 @@ public class ProvMonitorTests {
 			//String centralRepository = "C:/Testes/CentralRepo/exp_ProvMonitor";
 			//String workspacePath = "C:/Testes/workspaces/SciCumulusWksp1";
 			String centralRepository = "C:/Testes/CentralRepo/Repo1";
-			String workspacePath = "C:/Testes/workspaces/WorkspaceExistente";
+			String workspacePath = "C:/Testes/workspaces/WorkspaceExistente8";
 			String activity1InstanceId = "Activity1Instance1";
 			String[] context = {"root","Activity1Instance1"};
+			//String extendedContext = "C:/Testes/Workspace/WorkspaceExistente/1/";
 			
 			//Initializing Experiment
+			//String newWorkspacePath = util(workspacePath, context, extendedContext);
 			initializeExperimentTest("Scicumulus", "ScicumulusTeste1", centralRepository, workspacePath, startDateTime);
 			//Starting Activity 1 - Instance 1
 			Date activityStartDateTime = Calendar.getInstance().getTime();
+			
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, workspacePath);
-			//Changing file's content.
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, newWorkspacePath);
 			createFileContent(workspacePath + "/file.html");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Changing file's content.
+			changeFileContent(workspacePath + "/teste1.html");
+			
+			//Remove File
+			deleteFile(workspacePath + "/Folder1/teste2.html");
+			
 			//Ending Activity 1 - Instance 1
 			Date endActiviyDateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspacePath);
@@ -45,6 +67,17 @@ public class ProvMonitorTests {
 			e.printStackTrace();
 		}
 	
+	}
+	
+	@SuppressWarnings("unused")
+	private static String util(String workspacePath, String[] context, String extendedContext){
+		
+		if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+			workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
+			ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+			String[] context2 = exCUtil.appendContext(context);
+		}
+		return workspacePath;
 	}
 	
 	
@@ -86,6 +119,41 @@ public class ProvMonitorTests {
 		}
 	}
 	
+	private static void changeFileContent(String filePath){
+		File exampleHtml = new File(filePath);
+		try {
+			FileWriter out = new FileWriter(exampleHtml);
+			
+			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+			String nonce = sf.format(Calendar.getInstance().getTime());
+			
+			out.write("<html>");
+			out.write("<table>");
+			out.write("<tr><td>line1</td><td>");
+			out.write(nonce);
+			out.write("</td><tr>");
+			out.write("</table>");
+			out.write("</html>");
+			out.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void deleteFile(String filePath){
+		try {
+			Path path = Paths.get(filePath);
+		    Files.delete(path);
+		} catch (NoSuchFileException x) {
+		    System.err.format("%s: no such" + " file or directory%n", filePath);
+		} catch (DirectoryNotEmptyException x) {
+		    System.err.format("%s not empty%n", filePath);
+		} catch (IOException x) {
+		    // File permission problems are caught here.
+		    System.err.println(x);
+		}
+	}
 	
 	@SuppressWarnings("unused")
 	private static void processTestWithLog1(){

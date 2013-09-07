@@ -48,8 +48,8 @@ public class ExecutionFilesStatusDAO_PostegresImpl implements ExecutionFilesStat
 			psInsert.setString(2, executionFileStatus.getElementPath());
 			psInsert.setString(3, executionFileStatus.getFilePath());
 			psInsert.setString(4, executionFileStatus.getFiletAccessType());
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
-			
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionFileStatus.getFileAccessDateTime()));
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
 			psInsert.executeUpdate(); 
 			
 			conn.commit();
@@ -120,7 +120,8 @@ public class ExecutionFilesStatusDAO_PostegresImpl implements ExecutionFilesStat
 			psInsert.setString(2, executionFileStatus.getElementPath());
 			psInsert.setString(3, executionFileStatus.getFilePath());
 			psInsert.setString(4, executionFileStatus.getFiletAccessType());
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionFileStatus.getFileAccessDateTime()));
 			
 			psInsert.setString(6, executionFileStatus.getElementId());
 			psInsert.setString(7, executionFileStatus.getElementPath());
@@ -160,7 +161,8 @@ public class ExecutionFilesStatusDAO_PostegresImpl implements ExecutionFilesStat
 			psInsert.setString(2,"TesteParam2");
 			psInsert.setString(3,"TesteParam3");
 			psInsert.setString(4,"TesteParam4");
-			psInsert.setDate(5, (DateUtils.utilsDate2SqlDate(Calendar.getInstance().getTime())));
+			//psInsert.setDate(5, (DateUtils.utilsDate2SqlDate(Calendar.getInstance().getTime())));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(Calendar.getInstance().getTime()));
 			
 			psInsert.executeUpdate(); 
 			

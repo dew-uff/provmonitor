@@ -48,7 +48,8 @@ public class ExecutionFilesStatusDAO_JavaDBImpl implements ExecutionFilesStatusD
 			psInsert.setString(2, executionFileStatus.getElementPath());
 			psInsert.setString(3, executionFileStatus.getFilePath());
 			psInsert.setString(4, executionFileStatus.getFiletAccessType());
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionFileStatus.getFileAccessDateTime()));
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
 			
 			psInsert.executeUpdate(); 
 			
@@ -120,7 +121,8 @@ public class ExecutionFilesStatusDAO_JavaDBImpl implements ExecutionFilesStatusD
 			psInsert.setString(2, executionFileStatus.getElementPath());
 			psInsert.setString(3, executionFileStatus.getFilePath());
 			psInsert.setString(4, executionFileStatus.getFiletAccessType());
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionFileStatus.getFileAccessDateTime()));
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionFileStatus.getFileAccessDateTime()));
 			
 			psInsert.setString(6, executionFileStatus.getElementId());
 			psInsert.setString(7, executionFileStatus.getElementPath());
