@@ -1,3 +1,3 @@
 Manifest-Version: 1.0.0
 Main-Class: br.uff.ic.provmonitor.ProvMonitor
-ProvMonior-Version: 1.0.201308251647 SciCumulus Alpha Version
+ProvMonior-Version: 1.0.201309180539 SciCumulus Alpha Version

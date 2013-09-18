@@ -243,6 +243,14 @@ public class WorkspaceAccessReader {
 			//Date compare
 			if (startDate.compareTo(fileCreateDate) < 0){
 				result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CREATE, fileCreateDate));
+				if (fileCreateDate.compareTo(fileChangeDate) < 0){
+					result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CHANGE, fileCreateDate));
+					if(fileChangeDate.compareTo(fileAccessDate) < 0){
+						result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileCreateDate));
+					}
+				}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+					result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileCreateDate));
+				}
 			}
 			else if (startDate.compareTo(fileChangeDate) < 0){
 				result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CHANGE, fileChangeDate));
@@ -292,6 +300,14 @@ public class WorkspaceAccessReader {
 						//Date compare
 						if (startDate.compareTo(fileCreateDate) < 0){
 							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE, fileCreateDate));
+							if (fileCreateDate.compareTo(fileChangeDate) < 0){
+								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileCreateDate));
+								if(fileChangeDate.compareTo(fileAccessDate) < 0){
+									result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+								}
+							}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+							}
 						}
 						else if (startDate.compareTo(fileChangeDate) < 0){
 							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
@@ -317,7 +333,7 @@ public class WorkspaceAccessReader {
 						Date fileCreateDate = new Date(attributes.creationTime().toMillis());
 						Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
 						
-						//If the path is a file put it on the Queue to recursively navigation.
+						//If the path is a directory put it on the Queue to recursively navigation.
 						if (childrenPassName.isDirectory()){
 							//Date compare
 							if (startDate.compareTo(fileCreateDate) < 0){
@@ -342,6 +358,14 @@ public class WorkspaceAccessReader {
 							//Date compare
 							if (startDate.compareTo(fileCreateDate) < 0){
 								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE, fileCreateDate));
+								if (fileCreateDate.compareTo(fileChangeDate) < 0){
+									result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileCreateDate));
+									if(fileChangeDate.compareTo(fileAccessDate) < 0){
+										result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+									}
+								}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+									result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+								}
 							}
 							else if (startDate.compareTo(fileChangeDate) < 0){
 								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
