@@ -24,6 +24,76 @@ import br.uff.ic.provmonitor.utils.ExtendedContextUtils;
 public class ProvMonitorTests {
 	public static void main(String[] args) {
 
+		experimentWithTwoScicumulusActivitiesTest();
+	
+	}
+	
+	private static void experimentWithTwoScicumulusActivitiesTest(){
+		Date startDateTime = Calendar.getInstance().getTime();
+		try {
+			String experimentInstanceId = "ScicumulusTeste2";
+			String centralRepository = "C:/Testes/CentralRepo/Repo1";
+			String workspacePath = "C:/Testes/workspaces/WorkspaceExistente8";
+			String activity1InstanceId = "Activity1Instance1";
+			String[] context = {"root","Activity1Instance1"};
+			String extendedContext = workspacePath + "/Activity1/1/";
+			
+			//Initializing Experiment
+			initializeExperimentTest("Scicumulus", experimentInstanceId, centralRepository, workspacePath, startDateTime);
+			
+			//Starting Activity 1 - Instance 1
+			Date activityStartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, workspacePath, extendedContext);
+			createFileContent(workspacePath + "/file.html");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Changing file's content.
+			changeFileContent(workspacePath + "/teste1.html");
+			//Remove File
+			deleteFile(workspacePath + "/Folder1/teste2.html");
+			//Ending Activity 1 - Instance 1
+			Date endActiviyDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspacePath, extendedContext);
+			
+			
+			//Activity 2 - Instance 1
+			String activity2InstanceId = "Activity2Instance1";
+			String[] context2 = {"root","Activity2Instance1"};
+			String extendedContext2 = workspacePath + "/Activity2/1/";
+			//Activity Start
+			Date activity2StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspacePath, extendedContext2);
+			createFileContent(workspacePath + "/file.html");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Changing file's content.
+			changeFileContent(workspacePath + "/teste1.html");
+			//Remove File
+			//deleteFile(workspacePath + "/Folder1/teste2.html");
+			//Ending Activity 1 - Instance 1
+			Date endActiviy2DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2, activity2StartDateTime, endActiviy2DateTime, workspacePath, extendedContext2);
+			
+			
+			//Finalizing Experiment
+			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspacePath, endActiviyDateTime);
+			
+		} catch (ProvMonitorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private static void experimentWithOneActivityTest(){
 		Date startDateTime = Calendar.getInstance().getTime();
 		//completeProcessTest();
 		try {
@@ -66,7 +136,6 @@ public class ProvMonitorTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
 	}
 	
 	@SuppressWarnings("unused")

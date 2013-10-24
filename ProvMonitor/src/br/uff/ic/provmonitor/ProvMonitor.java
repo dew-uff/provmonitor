@@ -12,6 +12,7 @@ import org.apache.commons.cli.PosixParser;
 
 import br.uff.ic.provmonitor.business.ProvMonitorBusinessHelper;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
+import br.uff.ic.provmonitor.business.scicumulus.SciCumulusBusinessHelper;
 import br.uff.ic.provmonitor.enums.MethodType;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ValidateException;
@@ -146,6 +147,42 @@ public class ProvMonitor {
 					RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspacePath, endDateTime);
 				}
 				break;
+			case NOTIFY_ACTIVITY_EXECUTION_STARTUP:
+				{
+					//Getting parameters
+					String activityInstanceId = cmd.getOptionValue("aii");
+					String[] context = cmd.getOptionValues("context");
+					String startDate = cmd.getOptionValue("stDt");
+					Date starDateTime = DateUtils.dateParse(startDate);
+					String workspacePath = cmd.getOptionValue("wp");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
+	//				String extendedContext = cmd.getOptionValue("sceContext");
+	//				if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+	//					workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
+	//					ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
+	//					String[] context2 = exCUtil.appendContext(context);
+	//					
+	//					//Invoking BusinessServices
+	//					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
+	//				}
+					
+					String extendedContext = cmd.getOptionValue("sceContext");
+					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath, extendedContext);
+					}else{
+						//Invoking BusinessServices
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
+					}
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
+					
+				}
+				break;
 			case NOTIFY_ACTIVITY_EXECUTION_ENDING:
 				{
 					//Getting parameters
@@ -167,39 +204,13 @@ public class ProvMonitor {
 //						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context2, starDateTime, endDateTime, workspacePath);
 //					}
 					
-					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
-				}
-				break;
-			case NOTIFY_ACTIVITY_EXECUTION_STARTUP:
-				{
-					//Getting parameters
-					String activityInstanceId = cmd.getOptionValue("aii");
-					String[] context = cmd.getOptionValues("context");
-					String startDate = cmd.getOptionValue("stDt");
-					Date starDateTime = DateUtils.dateParse(startDate);
-					String workspacePath = cmd.getOptionValue("wp");
-					
-					Date methodInit = Calendar.getInstance().getTime();
-					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
-					
-//					String extendedContext = cmd.getOptionValue("sceContext");
-//					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-//						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
-//						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
-//						String[] context2 = exCUtil.appendContext(context);
-//						
-//						//Invoking BusinessServices
-//						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
-//					}
-					
-					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
-					
-					Date methodEnd = Calendar.getInstance().getTime();
-					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
-					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
-					
+					String extendedContext = cmd.getOptionValue("sceContext");
+					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath, extendedContext);
+					}else{
+						//Invoking BusinessServices
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
+					}
 				}
 				break;
 			case NOTIFY_DECISION_POINT_ENDING:
@@ -218,6 +229,26 @@ public class ProvMonitor {
 					Date methodEnd = Calendar.getInstance().getTime();
 					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyDecisionPointEnding", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
+				}
+				break;
+			case NOTIFY_PROCESS_EXECUTION_STARTUP:
+				{
+					//Getting parameters
+					String processInstanceId = cmd.getOptionValue("pii");
+					String[] context = cmd.getOptionValues("context");
+					String startDate = cmd.getOptionValue("stDt");
+					Date starDateTime = DateUtils.dateParse(startDate);
+					String workspacePath = cmd.getOptionValue("wp");
+					
+					Date methodInit = Calendar.getInstance().getTime();
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
+					
+					//Invoking BusinessServices
+					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionStartup(processInstanceId, context, starDateTime, workspacePath);
+					
+					Date methodEnd = Calendar.getInstance().getTime();
+					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
+					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case NOTIFY_PROCESS_EXECUTION_ENDING:
@@ -240,26 +271,6 @@ public class ProvMonitor {
 					Date methodEnd = Calendar.getInstance().getTime();
 					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionEnding", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
-				}
-				break;
-			case NOTIFY_PROCESS_EXECUTION_STARTUP:
-				{
-					//Getting parameters
-					String processInstanceId = cmd.getOptionValue("pii");
-					String[] context = cmd.getOptionValues("context");
-					String startDate = cmd.getOptionValue("stDt");
-					Date starDateTime = DateUtils.dateParse(startDate);
-					String workspacePath = cmd.getOptionValue("wp");
-					
-					Date methodInit = Calendar.getInstance().getTime();
-					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
-					
-					//Invoking BusinessServices
-					RetrospectiveProvenanceBusinessServices.notifyProcessExecutionStartup(processInstanceId, context, starDateTime, workspacePath);
-					
-					Date methodEnd = Calendar.getInstance().getTime();
-					Long methodDiffTime = ((methodEnd.getTime() - methodInit.getTime())/1000);
-					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyProcessExecutionStartup", LogMessages.END_METHOD_EXECUTION_TIME_WITH_DIFF, new Object[]{sdf.format(methodEnd), methodDiffTime});
 				}
 				break;
 			case PUBLISH_ARTIFACT_VALUE_LOCATION:

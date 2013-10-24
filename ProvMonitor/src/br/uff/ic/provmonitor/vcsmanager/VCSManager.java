@@ -10,6 +10,8 @@ import br.uff.ic.provmonitor.exceptions.VCSException;
  */
 public interface VCSManager {
 	
+	public boolean isWorkspaceCreated(String workspace) throws VCSException;
+	
 	/**
 	 * Create a workspace in the specified path.
 	 * @param workspace - path of the workspace to be created.

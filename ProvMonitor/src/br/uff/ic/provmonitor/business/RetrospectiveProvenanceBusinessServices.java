@@ -106,9 +106,13 @@ public class RetrospectiveProvenanceBusinessServices {
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
 		daoFactory.getDatabaseControlDAO().dbInitialize();
 		
-		//Repository clone
+		//Workspace preparation
 		VCSManager cvsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
+		
+		//Verify if Workspace already exists. If not, clone it.
+		
+		//Repository clone
 		cvsManager.cloneRepository(sourceRepository, workspacePath);
 		
 		//Repository branch
@@ -162,6 +166,169 @@ public class RetrospectiveProvenanceBusinessServices {
 		return false;
 	}
 	
+	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace) throws ProvMonitorException{
+		//Prepare ActivityObject to be persisted
+		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
+		
+		
+		//Activity start clone
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
+		cvsManager.cloneRepository(workspaceInput, activationWorkspace);
+		
+		//TODO: Implement transaction control and atomicity for multivalued attributes.
+		
+		//Persisting
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		//factory.getActivityInstanceDAO().persist(activityInstance);
+		factory.getExecutionStatusDAO().persist(elementExecStatus);
+		
+	}
+	
+	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date activityStartDateTime, Date endActiviyDateTime, String workspaceRoot, String activationWorkspace) throws ProvMonitorException{
+		//Mounting context
+		//Prepare ActivityObject to be persisted
+		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, endActiviyDateTime);
+		
+		//Record Timestamp
+		
+		//Verify accessed files
+		Collection<ExecutionFilesStatus> execFiles = getAccessedFiles(elementExecStatus, activationWorkspace);
+						
+						
+		//Commit changed files
+		StringBuilder message = new StringBuilder();
+		message.append("ActivityInstanceId:")
+			   .append(activityInstanceId)
+			   .append("; context:")
+			   .append(elementExecStatus.getElementPath())
+			   .append("; EndActivityCommit");
+		
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		//((GitManager)cvsManager).getStatus(workspacePath);
+		vcsManager.addAllFromPath(activationWorkspace);
+		Set<String> removed = vcsManager.removeAllFromPath(activationWorkspace);
+		String commitId = vcsManager.commit(activationWorkspace, message.toString());
+				
+		
+		//Recover executionStatus element
+		ProvMonitorOutputManager.appendMessageLine("Starting ActivityExecutionEnding Method...");
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
+		ProvMonitorOutputManager.appendMessageLine("Getting activity by id: " + activityInstanceId);
+		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementExecStatus.getElementPath());
+		
+		if (elemExecutionStatus == null){
+			throw new ProvMonitorException("Element: " + activityInstanceId + " not found exception. Activity could not be finished if it was not started." );
+		}
+		
+		//update execution element
+		ProvMonitorOutputManager.appendMessageLine("Updating Activity properties: End DateTime....");
+		elemExecutionStatus.setEndTime(endActiviyDateTime);
+		
+		ProvMonitorOutputManager.appendMessageLine("Updating Activity properties: Status....");
+		elemExecutionStatus.setStatus("ended");
+		
+		//Recording Commit ID
+		//elemExecutionStatus.setCommitId(commitId);
+		ExecutionCommit execCommit = new ExecutionCommit();
+		execCommit.setCommitId(commitId);
+		execCommit.setCommitTime(endActiviyDateTime);
+		execCommit.setStatus("ActivityEnd");
+		execCommit.setElementId(elemExecutionStatus.getElementId());
+		execCommit.setElementPath(elemExecutionStatus.getElementPath());
+		
+		//Joining all files changes to be persisted.
+		Collection<ExecutionFilesStatus> removedFiles = getRemovedFiles(removed, elementExecStatus, activationWorkspace);
+		execFiles.addAll(removedFiles);
+		
+		//persist updated element
+		ProvMonitorOutputManager.appendMessageLine("Persisting Activity....");
+		execStatusDAO.update(elemExecutionStatus);
+		
+		factory.getExecutionCommitDAO().persist(execCommit);
+		
+		ProvMonitorOutputManager.appendMessageLine("Activity Persisted.");
+		
+		//Persist accessed files
+		for (ExecutionFilesStatus executionFileStatus: execFiles){
+			factory.getExecutionFileStatusDAO().persist(executionFileStatus);
+		}
+		
+		//Pushing back to the experiment root workspace
+		vcsManager.pushBack(activationWorkspace, workspaceRoot);
+	}
+	
+	private static ExecutionStatus getNewExecStatus(String activityInstanceId, String[] context,Date activityStartDateTime, Date activityEndDateTime){
+		ExecutionStatus elementExecStatus = new ExecutionStatus();
+		elementExecStatus.setElementId(activityInstanceId);
+		elementExecStatus.setElementType("activity");
+		elementExecStatus.setStatus("starting");
+		//Mounting context
+		StringBuilder elementPath = new StringBuilder();
+		for (String path: context){
+			if (elementPath.length()>0){
+				elementPath.append("/");
+			}
+			elementPath.append(path);
+		}
+		
+		elementExecStatus.setElementPath(elementPath.toString());
+		//Record Timestamp
+		elementExecStatus.setStartTime(activityStartDateTime);
+		if (activityEndDateTime != null){
+			elementExecStatus.setEndTime(activityEndDateTime);
+		}
+		
+		return elementExecStatus;
+	}
+	
+	private static Collection<ExecutionFilesStatus> getAccessedFiles(ExecutionStatus elementExecStatus, String workspacePath){
+		//Reading accessedFiles
+		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
+		try{
+			//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
+			Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), elementExecStatus.getStartTime(), true);
+			if (accessedFiles != null && !accessedFiles.isEmpty()){
+				for (WorkspacePathStatus acFile: accessedFiles){
+					
+					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+					execFileStatus.setFileAccessDateTime(acFile.getStatusDateTime());
+					execFileStatus.setFilePath(acFile.getPathName().replaceFirst("/", ""));
+					execFileStatus.setElementId(elementExecStatus.getElementId());
+					execFileStatus.setElementPath(elementExecStatus.getElementPath());
+					execFileStatus.setFiletAccessType(acFile.getPathStatusType().name());
+					//execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
+					
+					execFiles.add(execFileStatus);
+					
+				}
+			}
+		}catch(Exception e){
+			ProvMonitorLogger.warning("RetrospectiveProvenanceBusinessServices", "notifyActivityExecutionStartup", e.getMessage());
+			ProvMonitorOutputManager.appendMenssage("WARNING: RetrospectiveProvenanceBusinessServices: notifyActivityExecutionStartup" + e.getMessage());
+		}
+		
+		return execFiles;
+	}
+	
+	private static Collection<ExecutionFilesStatus> getRemovedFiles(Set<String> removed, ExecutionStatus elementExecStatus, String workspacePath){
+		//Registering removed files
+		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
+		if (removed != null && !removed.isEmpty()){
+			for (String removedPath: removed){
+				ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+				execFileStatus.setFileAccessDateTime(elementExecStatus.getStartTime());
+				execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+				execFileStatus.setElementId(elementExecStatus.getElementId());
+				execFileStatus.setElementPath(elementExecStatus.getElementPath());
+				execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
+				
+				execFiles.add(execFileStatus);
+			}
+		}
+		return execFiles;
+	}
+	
 	/**
 	 * Notify startup of a simple activity instance execution.
 	 *
@@ -176,112 +343,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	 * @throws ConnectionException Database connection problems.
 	 */
 	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
-		try{
-			//Prepare ActivityObject to be persisted
-			ExecutionStatus elementExecStatus = new ExecutionStatus();
-			elementExecStatus.setElementId(activityInstanceId);
-			elementExecStatus.setElementType("activity");
-			elementExecStatus.setStatus("starting");
-			//Mounting context
-			StringBuilder elementPath = new StringBuilder();
-			for (String path: context){
-				if (elementPath.length()>0){
-					elementPath.append("/");
-				}
-				elementPath.append(path);
-			}
-			
-			elementExecStatus.setElementPath(elementPath.toString());
-			//Record Timestamp
-			elementExecStatus.setStartTime(activityStartDateTime);
-			
-			//ActivityInstance activity = new ActivityInstance();
-			//activity.setActivityInstanceId(activityInstanceId);
-			//activity.set
-			
-			
-			//Reading accessedFiles
-			ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
-			try{
-				//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
-				Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), activityStartDateTime, true);
-				if (accessedFiles != null && !accessedFiles.isEmpty()){
-					for (WorkspacePathStatus acFile: accessedFiles){
-						
-						ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
-						execFileStatus.setFileAccessDateTime(acFile.getStatusDateTime());
-						execFileStatus.setFilePath(acFile.getPathName().replaceFirst("/", ""));
-						execFileStatus.setElementId(activityInstanceId);
-						execFileStatus.setElementPath(elementPath.toString());
-						execFileStatus.setFiletAccessType(acFile.getPathStatusType().name());
-						//execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
-						
-						execFiles.add(execFileStatus);
-						
-					}
-				}
-			}catch(Exception e){
-				ProvMonitorLogger.warning("RetrospectiveProvenanceBusinessServices", "notifyActivityExecutionStartup", e.getMessage());
-				ProvMonitorOutputManager.appendMenssage("WARNING: RetrospectiveProvenanceBusinessServices: notifyActivityExecutionStartup" + e.getMessage());
-			}
-			
-			
-			//Activity start commit
-			StringBuilder message = new StringBuilder();
-			message.append("ActivityInstanceId:")
-				   .append(activityInstanceId)
-				   .append("; context:")
-				   .append(elementPath.toString())
-				   .append("; StartActivityCommit");
-			
-			VCSManager cvsManager = VCSManagerFactory.getInstance();
-			//((GitManager)cvsManager).getStatus(workspacePath);
-			//Set<String> removed = cvsManager.getRemovedFiles(workspacePath);
-			cvsManager.addAllFromPath(workspacePath);
-			Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
-			String commitId = cvsManager.commit(workspacePath, message.toString());
-			
-			//Registering removed files
-			if (removed != null && !removed.isEmpty()){
-				for (String removedPath: removed){
-					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
-					execFileStatus.setFileAccessDateTime(activityStartDateTime);
-					execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
-					execFileStatus.setElementId(activityInstanceId);
-					execFileStatus.setElementPath(elementPath.toString());
-					execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
-					
-					execFiles.add(execFileStatus);
-				}
-			}
-			
-			//Recording Commit ID
-			//elementExecStatus.setCommitId(commitId);
-			ExecutionCommit execCommit = new ExecutionCommit();
-			execCommit.setCommitId(commitId);
-			execCommit.setCommitTime(activityStartDateTime);
-			execCommit.setStatus("ActivityStart");
-			execCommit.setElementId(elementExecStatus.getElementId());
-			execCommit.setElementPath(elementExecStatus.getElementPath());
-			
-			//TODO: Implementar controle de transação e atomicidade para os casos de atributos multivalorados
-			
-			ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
-			
-			//factory.getActivityInstanceDAO().persist(activityInstance);
-			factory.getExecutionStatusDAO().persist(elementExecStatus);
-			factory.getExecutionCommitDAO().persist(execCommit);
-			
-			//Persist acessed files
-			for (ExecutionFilesStatus executionFileStatus: execFiles){
-				factory.getExecutionFileStatusDAO().persist(executionFileStatus);
-			}
-			
-			
-		}catch(Exception e){
-			throw new ProvMonitorException(e.getMessage(), e.getCause());
-		}
-		
+		newNotifyActivityExecutionStartup(activityInstanceId, context, activityStartDateTime, workspacePath);
 	}
 	
 	/**
@@ -543,6 +605,168 @@ public class RetrospectiveProvenanceBusinessServices {
 		//return repository.getCharon().getCharonAPI().publishArtifactValueLocation(artifactId, context, hostURL, hostLocalPath);
 	//}
 	public static void publishArtifactValueLocation(String artifactId, String[] context, String hostURL, String hostLocalPath){
+		
+	}
+	
+	@SuppressWarnings("unused")
+	private static void oldNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
+		try{
+			//Prepare ActivityObject to be persisted
+			ExecutionStatus elementExecStatus = new ExecutionStatus();
+			elementExecStatus.setElementId(activityInstanceId);
+			elementExecStatus.setElementType("activity");
+			elementExecStatus.setStatus("starting");
+			//Mounting context
+			StringBuilder elementPath = new StringBuilder();
+			for (String path: context){
+				if (elementPath.length()>0){
+					elementPath.append("/");
+				}
+				elementPath.append(path);
+			}
+			
+			elementExecStatus.setElementPath(elementPath.toString());
+			//Record Timestamp
+			elementExecStatus.setStartTime(activityStartDateTime);
+			
+			//ActivityInstance activity = new ActivityInstance();
+			//activity.setActivityInstanceId(activityInstanceId);
+			//activity.set
+			
+			
+			//Reading accessedFiles
+			ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
+			try{
+				//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
+				Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), activityStartDateTime, true);
+				if (accessedFiles != null && !accessedFiles.isEmpty()){
+					for (WorkspacePathStatus acFile: accessedFiles){
+						
+						ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+						execFileStatus.setFileAccessDateTime(acFile.getStatusDateTime());
+						execFileStatus.setFilePath(acFile.getPathName().replaceFirst("/", ""));
+						execFileStatus.setElementId(activityInstanceId);
+						execFileStatus.setElementPath(elementPath.toString());
+						execFileStatus.setFiletAccessType(acFile.getPathStatusType().name());
+						//execFileStatus.setFiletAccessType(ExecutionFilesStatus.TYPE_READ);
+						
+						execFiles.add(execFileStatus);
+						
+					}
+				}
+			}catch(Exception e){
+				ProvMonitorLogger.warning("RetrospectiveProvenanceBusinessServices", "notifyActivityExecutionStartup", e.getMessage());
+				ProvMonitorOutputManager.appendMenssage("WARNING: RetrospectiveProvenanceBusinessServices: notifyActivityExecutionStartup" + e.getMessage());
+			}
+			
+			
+			//Activity start commit
+			StringBuilder message = new StringBuilder();
+			message.append("ActivityInstanceId:")
+				   .append(activityInstanceId)
+				   .append("; context:")
+				   .append(elementPath.toString())
+				   .append("; StartActivityCommit");
+			
+			VCSManager cvsManager = VCSManagerFactory.getInstance();
+			//((GitManager)cvsManager).getStatus(workspacePath);
+			//Set<String> removed = cvsManager.getRemovedFiles(workspacePath);
+			cvsManager.addAllFromPath(workspacePath);
+			Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
+			String commitId = cvsManager.commit(workspacePath, message.toString());
+			
+			//Registering removed files
+			if (removed != null && !removed.isEmpty()){
+				for (String removedPath: removed){
+					ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+					execFileStatus.setFileAccessDateTime(activityStartDateTime);
+					execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+					execFileStatus.setElementId(activityInstanceId);
+					execFileStatus.setElementPath(elementPath.toString());
+					execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
+					
+					execFiles.add(execFileStatus);
+				}
+			}
+			
+			//Recording Commit ID
+			//elementExecStatus.setCommitId(commitId);
+			ExecutionCommit execCommit = new ExecutionCommit();
+			execCommit.setCommitId(commitId);
+			execCommit.setCommitTime(activityStartDateTime);
+			execCommit.setStatus("ActivityStart");
+			execCommit.setElementId(elementExecStatus.getElementId());
+			execCommit.setElementPath(elementExecStatus.getElementPath());
+			
+			//TODO: Implementar controle de transação e atomicidade para os casos de atributos multivalorados
+			
+			ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+			
+			//factory.getActivityInstanceDAO().persist(activityInstance);
+			factory.getExecutionStatusDAO().persist(elementExecStatus);
+			factory.getExecutionCommitDAO().persist(execCommit);
+			
+			//Persist acessed files
+			for (ExecutionFilesStatus executionFileStatus: execFiles){
+				factory.getExecutionFileStatusDAO().persist(executionFileStatus);
+			}
+			
+			
+		}catch(Exception e){
+			throw new ProvMonitorException(e.getMessage(), e.getCause());
+		}
+		
+	}
+	
+	public static void newNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
+		//Prepare ActivityObject to be persisted
+		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
+		
+		//Reading accessedFiles
+		Collection<ExecutionFilesStatus> execFiles = getAccessedFiles(elementExecStatus, workspacePath);
+		
+		//Activity start commit
+		StringBuilder message = new StringBuilder();
+		message.append("ActivityInstanceId:")
+			   .append(activityInstanceId)
+			   .append("; context:")
+			   .append(elementExecStatus.getElementPath())
+			   .append("; StartActivityCommit");
+		
+		VCSManager cvsManager = VCSManagerFactory.getInstance();
+		
+		cvsManager.addAllFromPath(workspacePath);
+		//Identifying removed files
+		Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
+		//Committing changes
+		String commitId = cvsManager.commit(workspacePath, message.toString());
+		
+		//Joining all files changes to be persisted.
+		Collection<ExecutionFilesStatus> removedFiles = getRemovedFiles(removed, elementExecStatus, workspacePath);
+		execFiles.addAll(removedFiles);
+		
+		//Recording Commit ID
+		//elementExecStatus.setCommitId(commitId);
+		ExecutionCommit execCommit = new ExecutionCommit();
+		execCommit.setCommitId(commitId);
+		execCommit.setCommitTime(activityStartDateTime);
+		execCommit.setStatus("ActivityStart");
+		execCommit.setElementId(elementExecStatus.getElementId());
+		execCommit.setElementPath(elementExecStatus.getElementPath());
+		
+		
+		//TODO: Implement transaction control and atomicity for multivalued attributes.
+		
+		//Persisting
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		//factory.getActivityInstanceDAO().persist(activityInstance);
+		factory.getExecutionStatusDAO().persist(elementExecStatus);
+		factory.getExecutionCommitDAO().persist(execCommit);
+		
+		//Persisting accessed files
+		for (ExecutionFilesStatus executionFileStatus: execFiles){
+			factory.getExecutionFileStatusDAO().persist(executionFileStatus);
+		}
 		
 	}
 	

@@ -26,6 +26,10 @@ public class JavaGitManager implements VCSManager{
 		//FileRepositoryBuilder frb = new FileRepositoryBuilder();
 	}
 
+	public boolean isWorkspaceCreated(String workspace) throws VCSException{
+		return false;
+	}
+	
 	@Override
 	public void cloneRepository(String sourceRepository, String workspacePath)
 			throws VCSException {

@@ -29,6 +29,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
@@ -38,7 +39,7 @@ import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 
 /**
  * 
- * CVS Manager Implementation for Git CVS.
+ * VCS Manager Implementation for Git VCS.
  * <br /><p>
  * <b>Technology:</b> Uses jGit API.</p>
  * 
@@ -56,12 +57,32 @@ public class GitManager implements VCSManager {
 		}
 	}
 	
+	public boolean isWorkspaceCreated(String workspace) throws VCSException {
+		Repository repository;
+		try {
+			repository = getRepository(workspace);
+			RepositoryState state = repository.getRepositoryState();
+			return state.canCheckout();
+		} catch (IOException e) {
+			throw new VCSException("Could not create repository: " + e.getMessage(), e.getCause());
+		}
+	}
+	
+	@Override
+	public void cloneRepository(String sourceRepository, String workspacePath) throws VCSException{
+		cloneRepositoryWithTemp(sourceRepository, workspacePath);
+	}
+	
 	/**
+	 * OLD Method that try to create a clone to an empty directory, if it fails,
+	 * 	try to clone to a temp directory (at the same level) and move to the desired destiny directory.
+	 * 
+	 * <br /><br />
 	 * TODO: Implement File Visitors on different external classes.
 	 * TODO: Identify how to exclude temporary workspace. 
 	 */
-	@Override
-	public void cloneRepository(String sourceRepository, String workspacePath) throws VCSException {
+	@SuppressWarnings("unused")
+	private void cloneRepositoryWithCopy(String sourceRepository, String workspacePath) throws VCSException {
 		try {
 
 			try{
@@ -69,7 +90,7 @@ public class GitManager implements VCSManager {
 				this.cloneRepositoryToEmptyFolder(sourceRepository, workspacePath);
 			}catch (VCSException ge){
 				try {
-					//If it fails, try to clone to an existing repository.
+					//If it fails, try to clone to an existing directory.
 					
 					//Creating temporary workspace.
 					SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmss");
@@ -96,6 +117,123 @@ public class GitManager implements VCSManager {
 					
 					//Moving from temp folder to base workspace
 					final Path origin = Paths.get(workspacePathTmp);
+					final Path destiny = Paths.get(workspacePath);
+					//Files.copy(origin, destiny.resolve(origin.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+					
+					
+					//Coping Temp repository
+					Files.walkFileTree(origin, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+							new SimpleFileVisitor<Path>() {
+					       		@Override
+					       		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+					       				throws IOException
+					       		{
+					       			Path targetdir = destiny.resolve(origin.relativize(dir));
+					       			try {
+					       				Files.copy(dir, targetdir);
+					       			} catch (FileAlreadyExistsException e) {
+					       				if (!Files.isDirectory(targetdir))
+					       					throw e;
+					       			}
+					       			return FileVisitResult.CONTINUE;
+					       		}
+					       		@Override
+					       		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException{
+					       			Files.copy(file, destiny.resolve(origin.relativize(file)));
+					       			return FileVisitResult.CONTINUE;
+					       		}
+					});
+
+					//Removing Temp repository
+					try{
+						Files.walkFileTree(origin, new SimpleFileVisitor<Path>() {
+							@Override
+							public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+								if (!file.getFileSystem().isReadOnly()){
+									Files.deleteIfExists(file);
+								}
+								return FileVisitResult.CONTINUE;
+					        }
+					        @Override
+					        public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException{
+					        	if (e == null) {
+					        		if (!dir.getFileSystem().isReadOnly()){
+					        			Files.deleteIfExists(dir);
+					        		}
+					                return FileVisitResult.CONTINUE;
+					            } else {
+					            	// directory iteration failed
+					                throw e;
+					            }
+					        }
+						});
+					}catch(Exception e){
+						ProvMonitorLogger.warning("Temporary repository not removed: " + workspacePathTmp);
+						ProvMonitorOutputManager.appendMenssage("Warning: Temporary repository not removed: " + workspacePathTmp);
+					}
+					
+					//Reseting workspace
+					try{
+						Repository rep = getRepository(workspacePath);
+						Git git = new Git(rep);
+						ResetCommand rc = git.reset();
+						rc.setRef(Constants.HEAD);
+						rc.call();
+					}catch(Throwable t){
+						//throw new VCSException(t.getMessage(), t.getCause());
+						ProvMonitorLogger.warning("Could not reset workspace's repositopry. Error: " + t.getMessage());
+						ProvMonitorOutputManager.appendMenssage("Warning: Could not reset workspace's repositopry. Error: " + t.getMessage());
+					}
+					
+				}catch (IOException e) {
+					throw new VCSException(ge.getMessage() + e.getMessage(), e.getCause());
+				}
+			}
+		} catch (VCSException e) {
+			throw new VCSException("Could not clone repository: " + e.getMessage(), e.getCause());
+		}
+	}
+	
+	private void cloneRepositoryWithTemp(String sourceRepository, String workspacePath) throws VCSException {
+		try {
+
+			try{
+				//Trying to clone to an empty directory.
+				this.cloneRepositoryToEmptyFolder(sourceRepository, workspacePath);
+			}catch (VCSException ge){
+				try {
+					//If it fails, try to clone to an existing directory.
+					
+					//Creating temporary workspace.
+					//SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmss");
+					//String nonce = sf.format(Calendar.getInstance().getTime());
+					
+					String workspacePathTmp;
+					
+					String[] wps = workspacePath.split("/");
+					if (wps != null && wps.length > 1){
+						StringBuilder sb = new StringBuilder();
+						for (int i = 0; i < (wps.length - 1); i++){
+							if (sb.length() > 0){
+								sb.append("/");
+							}
+							sb.append(wps[i]);
+						}
+						//sb.append("/" + wps[(wps.length - 1)] + "_tmp" + nonce);
+						workspacePathTmp = sb.toString();
+					}else{
+						throw new IOException("Invalid workspace path");
+					}
+					
+					//FileAttribute<?> attrs = null; 
+					//FileAttribute<?> attrs = FileAttribute.class.newInstance();
+					Path tempPath = Files.createTempDirectory(Paths.get(workspacePathTmp), "");
+					
+					//this.cloneRepositoryToEmptyFolder(sourceRepository, workspacePathTmp);
+					this.cloneRepositoryToEmptyFolder(sourceRepository, tempPath.toAbsolutePath().toString());
+					
+					//Moving from temp folder to base workspace
+					final Path origin = tempPath;
 					final Path destiny = Paths.get(workspacePath);
 					//Files.copy(origin, destiny.resolve(origin.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 					
@@ -482,6 +620,31 @@ public class GitManager implements VCSManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Recursively delete file or directory
+	 * @param fileOrDir
+	 *          the file or dir to delete
+	 * @return
+	 *          true iff all files are successfully deleted
+	 */
+	@SuppressWarnings("unused")
+	private static boolean recursiveDelete(File fileOrDir)
+	{
+	    if(fileOrDir.isDirectory())
+	    {
+	        // recursively delete contents
+	        for(File innerFile: fileOrDir.listFiles())
+	        {
+	            if(!GitManager.recursiveDelete(innerFile))
+	            {
+	                return false;
+	            }
+	        }
+	    }
+
+	    return fileOrDir.delete();
 	}
 
 }
