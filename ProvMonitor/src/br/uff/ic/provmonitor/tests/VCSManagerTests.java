@@ -23,12 +23,15 @@ import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 
 public class VCSManagerTests {
+	
 	public static void main(String[] args) {
-		//basicCVSFunctionalitiesTests();
+		
 		try {
 			//cloneParcialAndFullTest();
 			
-			cloneToExistingDirecgtoryTest();
+			//loneToExistingDirecgtoryTest();
+			
+			cloneFromBranch();
 		} catch (ProvMonitorException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -332,6 +335,7 @@ public class VCSManagerTests {
 		cvsManager.cloneRepository(centralRepository, workspacePath, branchesToBeCloned);
 	}
 	
+	@SuppressWarnings("unused")
 	private static void cloneToExistingDirecgtoryTest() throws ProvMonitorException{
 		//String centralRepository = "C:/Testes/CentralRepo/Repo1";
 		String centralRepository = "C:/experimentos/exp_SciPhy"; 
@@ -345,5 +349,94 @@ public class VCSManagerTests {
 		
 	}
 	
+	private static void cloneFromBranch() throws ProvMonitorException{
+		
+		String centralRepository = "C:/Testes/CentralRepo/Repo1"; 
+		String workspaceBase = "C:/Testes/workspaces/WorkspaceMapReduce20";
+		String workspacePath = workspaceBase + "/input";
+		//String branchName = "Branch" + (new SimpleDateFormat("YYYYMMddHHmmssS")).format(Calendar.getInstance().getTime());
+		String branchName = "Branch1";
+		String experimentInstanceId = branchName;
+		Collection<String> branchNames = new ArrayList<String>();
+		branchNames.add(branchName);
+		String fileName = "file.txt";
+		String fileName2 = "file2.txt";
+		
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		
+		//Init
+		//Repository branch
+		vcsManager.createBranch(centralRepository, experimentInstanceId);
+		//Repository checkOut
+		vcsManager.checkout(centralRepository, experimentInstanceId);
+		//Repository clone
+		//vcsManager.cloneRepository(centralRepository, workspacePath, branchNames);
+		vcsManager.cloneRepository(centralRepository, workspacePath);
+		
+		String workspaceInput;
+		String activationWorkspace;
+		String commitId;
+		
+		//ActivityStart
+		workspaceInput = workspacePath;
+		activationWorkspace = workspaceBase + "/Activity1/1/input";
+		//vcsManager.cloneRepository(workspaceInput, activationWorkspace, branchNames);
+		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		//vcsManager.checkout(activationWorkspace, experimentInstanceId);
+		
+		//Content change
+		createFileContent(activationWorkspace + "/" + fileName);
+		
+		//ActivityEnd
+		//Pushing back to the experiment root workspace
+		vcsManager.addAllFromPath(activationWorkspace);
+		commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity1");
+		System.out.println("Commit ID: " + commitId);
+		vcsManager.pushBack(activationWorkspace, workspacePath);
+		
+		//ActivityStart
+		workspaceInput = activationWorkspace;
+		activationWorkspace = workspaceBase + "/Activity2/1/input";
+		//vcsManager.cloneRepository(workspaceInput, activationWorkspace, branchNames);
+		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		//vcsManager.checkout(activationWorkspace, experimentInstanceId);
+		
+		//Content change
+		changeFileContent(activationWorkspace + "/" + fileName2);
+		
+		//ActivityEnd
+		//Pushing back to the experiment root workspace
+		vcsManager.addAllFromPath(activationWorkspace);
+		commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity2");
+		System.out.println("Commit ID: " + commitId);
+		vcsManager.pushBack(activationWorkspace, workspacePath);
+		
+		//End of Execution
+		vcsManager.pushBack(workspacePath, centralRepository);
+	}
+	
+	private static void changeFileContent(String filePath){
+		File exampleHtml = new File(filePath);
+		try {
+			FileWriter out = new FileWriter(exampleHtml, true);
+			
+			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
+			String nonce = sf.format(Calendar.getInstance().getTime());
+			
+			//out.append("/n");
+			out.append("<html>");
+			out.append("<table>");
+			out.append("<tr><td>line1</td><td>");
+			out.append(nonce);
+			out.append("</td><tr>");
+			out.append("</table>");
+			out.append("</html>");
+			out.append("\n");
+			out.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

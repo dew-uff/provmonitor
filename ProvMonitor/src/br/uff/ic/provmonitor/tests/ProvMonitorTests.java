@@ -31,12 +31,13 @@ public class ProvMonitorTests {
 	private static void experimentWithTwoScicumulusActivitiesTest(){
 		Date startDateTime = Calendar.getInstance().getTime();
 		try {
-			String experimentInstanceId = "ScicumulusTeste2";
-			String centralRepository = "C:/Testes/CentralRepo/Repo1";
-			String workspacePath = "C:/Testes/workspaces/WorkspaceExistente8";
+			String experimentInstanceId = "ScicumulusTeste7";
+			String centralRepository = "C:/Testes/CentralRepo/teste";
+			String workspacePathBase = "C:/Testes/workspaces/WorkspaceScicumulus7";
+			String workspacePath = workspacePathBase + "/input";
 			String activity1InstanceId = "Activity1Instance1";
-			String[] context = {"root","Activity1Instance1"};
-			String extendedContext = workspacePath + "/Activity1/1/";
+			String[] context = {experimentInstanceId,"root","Activity1Instance1"};
+			String extendedContext = workspacePathBase + "/Activity1/1/";
 			
 			//Initializing Experiment
 			initializeExperimentTest("Scicumulus", experimentInstanceId, centralRepository, workspacePath, startDateTime);
@@ -44,7 +45,7 @@ public class ProvMonitorTests {
 			//Starting Activity 1 - Instance 1
 			Date activityStartDateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, workspacePath, extendedContext);
-			createFileContent(workspacePath + "/file.html");
+			createFileContent(extendedContext + "/file.html");
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
@@ -52,9 +53,9 @@ public class ProvMonitorTests {
 				e.printStackTrace();
 			}
 			//Changing file's content.
-			changeFileContent(workspacePath + "/teste1.html");
+			changeFileContent(extendedContext + "/teste1.html");
 			//Remove File
-			deleteFile(workspacePath + "/Folder1/teste2.html");
+			deleteFile(extendedContext + "/Folder1/teste2.html");
 			//Ending Activity 1 - Instance 1
 			Date endActiviyDateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspacePath, extendedContext);
@@ -62,12 +63,12 @@ public class ProvMonitorTests {
 			
 			//Activity 2 - Instance 1
 			String activity2InstanceId = "Activity2Instance1";
-			String[] context2 = {"root","Activity2Instance1"};
-			String extendedContext2 = workspacePath + "/Activity2/1/";
+			String[] context2 = {experimentInstanceId,"root","Activity2Instance1"};
+			String extendedContext2 = workspacePathBase + "/Activity2/1/";
 			//Activity Start
 			Date activity2StartDateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspacePath, extendedContext2);
-			createFileContent(workspacePath + "/file.html");
+			createFileContent(extendedContext2 + "/file.html");
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
@@ -75,13 +76,35 @@ public class ProvMonitorTests {
 				e.printStackTrace();
 			}
 			//Changing file's content.
-			changeFileContent(workspacePath + "/teste1.html");
+			changeFileContent(extendedContext2 + "/teste1.html");
 			//Remove File
 			//deleteFile(workspacePath + "/Folder1/teste2.html");
 			//Ending Activity 1 - Instance 1
 			Date endActiviy2DateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2, activity2StartDateTime, endActiviy2DateTime, workspacePath, extendedContext2);
 			
+			
+			//Activity 3 - Instance 1
+			String activity3InstanceId = "Activity3Instance1";
+			String[] context3 = {experimentInstanceId,"root","Activity3Instance1"};
+			String extendedContext3 = workspacePathBase + "/Activity3/1/";
+			//Activity Start
+			Date activity3StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity3InstanceId, context3, activity3StartDateTime, workspacePath, extendedContext3);
+			createFileContent(extendedContext3 + "/file.html");
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//Changing file's content.
+			changeFileContent(extendedContext3 + "/teste1.html");
+			//Remove File
+			//deleteFile(workspacePath + "/Folder1/teste2.html");
+			//Ending Activity 1 - Instance 1
+			Date endActiviy3DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity3InstanceId, context3, endActiviy3DateTime, endActiviy3DateTime, workspacePath, extendedContext3);
 			
 			//Finalizing Experiment
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspacePath, endActiviyDateTime);
@@ -191,18 +214,19 @@ public class ProvMonitorTests {
 	private static void changeFileContent(String filePath){
 		File exampleHtml = new File(filePath);
 		try {
-			FileWriter out = new FileWriter(exampleHtml);
+			FileWriter out = new FileWriter(exampleHtml, true);
 			
 			SimpleDateFormat sf = new SimpleDateFormat("YYYYMMddHHmmssS");
 			String nonce = sf.format(Calendar.getInstance().getTime());
 			
-			out.write("<html>");
-			out.write("<table>");
-			out.write("<tr><td>line1</td><td>");
-			out.write(nonce);
-			out.write("</td><tr>");
-			out.write("</table>");
-			out.write("</html>");
+			out.append("<html>");
+			out.append("<table>");
+			out.append("<tr><td>line1</td><td>");
+			out.append(nonce);
+			out.append("</td><tr>");
+			out.append("</table>");
+			out.append("</html>");
+			out.append("\n");
 			out.close();
 			
 		} catch (IOException e) {

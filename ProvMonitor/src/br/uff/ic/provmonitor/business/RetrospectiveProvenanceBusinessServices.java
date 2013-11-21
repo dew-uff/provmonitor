@@ -112,11 +112,17 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Verify if Workspace already exists. If not, clone it.
 		
+		//Repository branch
+		cvsManager.createBranch(sourceRepository, experimentInstanceId);
+		
+		//Repository checkOut
+		cvsManager.checkout(sourceRepository, experimentInstanceId);
+		
 		//Repository clone
 		cvsManager.cloneRepository(sourceRepository, workspacePath);
 		
 		//Repository branch
-		cvsManager.createBranch(workspacePath, experimentInstanceId);
+		//cvsManager.createBranch(workspacePath, experimentInstanceId);
 		
 		//Repository checkOut
 		//cvsManager.checkout(workspacePath, experimentInstanceId);
@@ -172,8 +178,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		
 		//Activity start clone
-		VCSManager cvsManager = VCSManagerFactory.getInstance();
-		cvsManager.cloneRepository(workspaceInput, activationWorkspace);
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
 		
 		//TODO: Implement transaction control and atomicity for multivalued attributes.
 		

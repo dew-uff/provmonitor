@@ -23,7 +23,7 @@ public class DateUtils {
 	}
 	
 	/**
-	 * Converts from <code>java.util.Date</code> to <code>java.sql.Date returnDate</code>
+	 * Converts <b>from</b> <code>java.util.Date</code> <b>to</b> <code>java.sql.Date returnDate</code>
 	 * */
 	public static java.sql.Date utilsDate2SqlDate(Date date2BeConverted){
 		java.sql.Date returnDate = null;
@@ -36,7 +36,7 @@ public class DateUtils {
 	}
 	
 	/**
-	 * Converts from <code>java.util.Date</code> to <code>java.sql.Timestamp</code>
+	 * Converts <b>from</b> <code>java.util.Date</code> <b>to</b> <code>java.sql.Timestamp</code>
 	 * @param date2BeConverted - Date that will be converted.
 	 * @return java.sql.Timestamp - Corresponding Timestamp
 	 */
