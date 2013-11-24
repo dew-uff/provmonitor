@@ -20,6 +20,8 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
+import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
@@ -44,7 +46,7 @@ import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
  * <b>Technology:</b> Uses jGit API.</p>
  * 
  * */
-public class GitManager implements VCSManager {
+public class JGitManager implements VCSManager {
 
 	@Override
 	public void createWorkspace(String workspace) throws VCSException {
@@ -545,13 +547,22 @@ public class GitManager implements VCSManager {
 			Git git = new Git(repository);
 //			git.branchCreate().setName(branchName).call();
 			
-			CheckoutCommand co = git.checkout();
-	        co.setName(branchName);
-	        co.setCreateBranch(true);
-	        co.call();
+			//CheckoutCommand co = git.checkout();
+	        //co.setName(branchName);
+	        //co.setCreateBranch(true);
+	        //co.call();
+			
+			CreateBranchCommand cb = git.branchCreate();
+			cb.setName(branchName);
+			//String startPoint = null;
+			//cb.setStartPoint(startPoint);
+			cb.call();
 	        
 		} catch (IOException | GitAPIException e) {
 			throw new VCSException("Could not create branch: " + e.getMessage(), e.getCause());
+		} catch (Throwable e) {
+			throw new VCSException("Could not create branch: " + e.getLocalizedMessage(), e.getCause());
+			//throw new VCSException("Could not clone repository: " + e.getMessage(), e.getCause());
 		}
 		
 	}
@@ -620,9 +631,33 @@ public class GitManager implements VCSManager {
 		
 		
 	}
+	
+	public void fetchWithRepository(String workspacePath, String repositoryPath) throws VCSException {
+		try{
+			
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			
+			FetchCommand fc = git.fetch();
+			fc.setRemote(repositoryPath);
+			fc.call();
+		
+		}catch (IOException | GitAPIException e ){
+			throw new VCSException("Error fetching repository: " + workspacePath + " with central repository: " + repositoryPath + ". " + e.getMessage(), e.getCause());
+		}catch(Throwable e){
+			throw new VCSException("Error fetching repository: " + workspacePath + " with central repository: " + repositoryPath + ". " + e.getMessage(), e.getCause());
+		}
+	}
 
 	@Override
 	public void checkout(String workspacePath, String branchName) throws VCSException {
+		
+		checkout(workspacePath, branchName, false);
+		//checkout(workspacePath, branchName, true);
+		
+	}
+
+	public void checkout(String workspacePath, String branchName, Boolean isNewBranch) throws VCSException {
 		
 		Repository repository;
 		try {
@@ -632,7 +667,7 @@ public class GitManager implements VCSManager {
 			
 			CheckoutCommand co = git.checkout();
 	        co.setName(branchName);
-	        co.setCreateBranch(false);
+	        co.setCreateBranch(isNewBranch);
 	        co.call();
 	        
 		} catch (IOException | GitAPIException e) {
@@ -796,7 +831,7 @@ public class GitManager implements VCSManager {
 	        // recursively delete contents
 	        for(File innerFile: fileOrDir.listFiles())
 	        {
-	            if(!GitManager.recursiveDelete(innerFile))
+	            if(!JGitManager.recursiveDelete(innerFile))
 	            {
 	                return false;
 	            }

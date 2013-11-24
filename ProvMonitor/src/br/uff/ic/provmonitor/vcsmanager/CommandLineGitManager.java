@@ -18,7 +18,7 @@ import edu.nyu.cs.javagit.api.commands.GitCommitResponse;
  * <br /><p>
  * <b>Technology:</b> using command line git commands.</p>
  */
-public class JavaGitManager implements VCSManager{
+public class CommandLineGitManager implements VCSManager{
 
 	@Override
 	public void createWorkspace(String workspace) throws VCSException {
@@ -138,6 +138,10 @@ public class JavaGitManager implements VCSManager{
 	public void pushBack(String workspacePath, String repositoryPath)
 			throws VCSException {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	public void fetchWithRepository(String workspacePath, String repositoryPath) throws VCSException{
 		
 	}
 

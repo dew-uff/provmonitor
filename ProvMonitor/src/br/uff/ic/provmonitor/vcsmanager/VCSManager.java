@@ -53,6 +53,14 @@ public interface VCSManager {
 	public void pushBack(String workspacePath, String repositoryPath) throws VCSException;
 	
 	/**
+	 * Fetch changes between local workspace and the remote repository.
+	 * @param workspacePath - local path being prepared for next execution and/or returning changes.
+	 * @param repositoryPath - destiny repository to receive the local changes and/or source of inputs.
+	 * @throws VCSException - If any exception occurs.
+	 */
+	public void fetchWithRepository(String workspacePath, String repositoryPath) throws VCSException;
+	
+	/**
 	 * Add all untracked files into control.
 	 * @param workspacePath - Observed workspace.
 	 * @throws VCSException - If any exception occurs.

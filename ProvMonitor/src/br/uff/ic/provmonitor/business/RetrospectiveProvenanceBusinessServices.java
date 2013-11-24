@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jgit.util.StringUtils;
@@ -118,8 +119,14 @@ public class RetrospectiveProvenanceBusinessServices {
 		//Repository checkOut
 		cvsManager.checkout(sourceRepository, experimentInstanceId);
 		
+		//Repository commit new branch
+		cvsManager.commit(sourceRepository, "Creating branch for trial: " + experimentInstanceId);
+		
 		//Repository clone
-		cvsManager.cloneRepository(sourceRepository, workspacePath);
+		//cvsManager.cloneRepository(sourceRepository, workspacePath);
+		List<String> branches2Clone = new ArrayList<String>();
+		branches2Clone.add(experimentInstanceId);
+		cvsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
 		
 		//Repository branch
 		//cvsManager.createBranch(workspacePath, experimentInstanceId);
@@ -179,6 +186,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Activity start clone
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		//vcsManager.checkout(workspaceInput, context[0]);
 		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
 		
 		//TODO: Implement transaction control and atomicity for multivalued attributes.
@@ -777,4 +785,3 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 }
-

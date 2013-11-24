@@ -31,9 +31,9 @@ public class ProvMonitorTests {
 	private static void experimentWithTwoScicumulusActivitiesTest(){
 		Date startDateTime = Calendar.getInstance().getTime();
 		try {
-			String experimentInstanceId = "ScicumulusTeste7";
+			String experimentInstanceId = "ScicumulusTeste14";
 			String centralRepository = "C:/Testes/CentralRepo/teste";
-			String workspacePathBase = "C:/Testes/workspaces/WorkspaceScicumulus7";
+			String workspacePathBase = "C:/Testes/workspaces/WorkspaceScicumulus14";
 			String workspacePath = workspacePathBase + "/input";
 			String activity1InstanceId = "Activity1Instance1";
 			String[] context = {experimentInstanceId,"root","Activity1Instance1"};

@@ -4,8 +4,8 @@ package br.uff.ic.provmonitor.vcsmanager;
 /**
  * Supported Version Control Systems. <br />
  * <b>Currently Only Support Git</b>
- * @see GitManager
- * @see JavaGitManager
+ * @see JGitManager
+ * @see CommandLineGitManager
  * */
 public enum VCSType {
 	//Mercurial HG and SVN Support to be implemented.

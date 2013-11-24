@@ -31,10 +31,13 @@ public class VCSManagerTests {
 			
 			//loneToExistingDirecgtoryTest();
 			
-			cloneFromBranch();
-		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//Clone a branch using an intermediate workspace Test
+			//cloneFromBranch();
+			
+			multipleBranchesClones();
+			
+		} finally {
+			
 		}
 	}
 	
@@ -349,6 +352,7 @@ public class VCSManagerTests {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	private static void cloneFromBranch() throws ProvMonitorException{
 		
 		String centralRepository = "C:/Testes/CentralRepo/Repo1"; 
@@ -438,5 +442,107 @@ public class VCSManagerTests {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void multipleBranchesClones(){
+		try {
+			String centralRepository = "C:/Testes/Repositorios/Repo01"; 
+			
+			String workspaceBase = "C:/Testes/workspaces/BranchWorkspaces/Workspace01/Branch01";
+			String workspaceIntermediate = workspaceBase + "/input";
+			String workspaceActivation1 = workspaceBase + "/activation1/input";
+			String workspaceActivation2 = workspaceBase + "/activation2/input";
+			String branchName1 = "Branch03";
+			
+			String workspaceBase2 = "C:/Testes/workspaces/BranchWorkspaces/Workspace01/Branch02";
+			String workspaceIntermediate2 = workspaceBase2 + "/input";
+			String workspace2Activation1 = workspaceBase2 + "/activation1/input";
+			String workspace2Activation2 = workspaceBase2 + "/activation2/input";
+			String branchName2 = "Branch04";
+			
+			Collection<String> branchNames = new ArrayList<String>();
+			branchNames.add(branchName1);
+			
+			String fileName1 = "file1.txt";
+			String fileName2 = "file2.txt";
+			
+			
+			//Creating central repository
+			VCSManager vcsManager = VCSManagerFactory.getInstance();
+			if (!vcsManager.isWorkspaceCreated(centralRepository)){
+				vcsManager.createWorkspace(centralRepository);
+				createFileContent(centralRepository + "/" + fileName1);
+				createFileContent(centralRepository + "/" + fileName2);
+				vcsManager.addAllFromPath(centralRepository);
+				vcsManager.commit(centralRepository, "Initial Import");
+			}
+			
+			////////////////////////////// FIRST BRANCH - START ///////////////////////////////////
+			//Creating branch and intermediate workspace
+			vcsManager.createBranch(centralRepository, branchName1);
+			vcsManager.checkout(centralRepository, branchName1);
+			vcsManager.commit(centralRepository, "Created Branch: " + branchName1);
+			vcsManager.cloneRepository(centralRepository, workspaceIntermediate);
+
+			//First Activation
+			createAndExecuteActivation("Activation1", workspaceIntermediate, workspaceActivation1);
+			
+			//Second Activation
+			createAndExecuteActivation("Activation2", workspaceIntermediate, workspaceActivation2);
+			
+			//Final PushBack
+			vcsManager.pushBack(workspaceIntermediate, centralRepository);
+			////////////////////////////// FIRST BRANCH - END /////////////////////////////////////
+			
+			
+			////////////////////////////// SECOND BRANCH - START ///////////////////////////////////
+			
+			//Creating branch and intermediate workspace
+			vcsManager.createBranch(centralRepository, branchName2);
+			vcsManager.checkout(centralRepository, branchName2);
+			vcsManager.commit(centralRepository, "Created Branch: " + branchName2);
+			vcsManager.cloneRepository(centralRepository, workspaceIntermediate2);
+			
+			//First Activation
+			createAndExecuteActivation("Activation1", workspaceIntermediate2, workspace2Activation1);
+			
+			//Second Activation
+			createAndExecuteActivation("Activation2", workspaceIntermediate2, workspace2Activation2);
+			
+			//Final PushBack
+			vcsManager.pushBack(workspaceIntermediate2, centralRepository);
+			////////////////////////////// SECOND BRANCH - END /////////////////////////////////////
+			
+			
+			
+		} catch (VCSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void createAndExecuteActivation(String activationName, String workspaceIntermediate , String workspaceActivation) throws VCSException{
+		String fileName1 = "file1.txt";
+		String fileName2 = "file2.txt";
+		
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		
+		//Creating Workspace
+		vcsManager.cloneRepository(workspaceIntermediate, workspaceActivation);
+		
+		//Changes on Workspace
+		changeFileContent(workspaceActivation + "/" + fileName1);
+		changeFileContent(workspaceActivation + "/" + fileName2);
+		vcsManager.addAllFromPath(workspaceActivation);
+		vcsManager.commit(workspaceActivation, activationName + " - Commit 1");
+		changeFileContent(workspaceActivation + "/" + fileName1);
+		changeFileContent(workspaceActivation + "/" + fileName2);
+		
+		//Commit Workspace's changes
+		vcsManager.addAllFromPath(workspaceActivation);
+		vcsManager.commit(workspaceActivation, activationName + " - Commit 2");
+		
+		//PushBack
+		vcsManager.pushBack(workspaceActivation, workspaceIntermediate);
+	}
 
 }
+
