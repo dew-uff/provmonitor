@@ -871,7 +871,7 @@ public class VCSManagerTests {
 	 * Understand how the implemented VCS deals with multiple heads (but one head per named branch) on an intermediate repository and at the original repository after push back.
 	 * 
 	 */
-	//@SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static void multipleClonesSubBranchesAlternateCommits(){
 		try {
 			Boolean use2Branches = true;
@@ -1000,7 +1000,7 @@ public class VCSManagerTests {
 	 * Understand how the implemented VCS deals with multiple nested branches being pushed back to a repository without the new branches references.
 	 * 
 	 */
-	@SuppressWarnings("unused")
+	//@SuppressWarnings("unused")
 	private static void multipleNestedClonesSubBranchesCommits(){
 		try {
 			Boolean use2Branches = true;
