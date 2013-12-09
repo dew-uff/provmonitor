@@ -31,7 +31,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
@@ -63,8 +62,12 @@ public class JGitManager implements VCSManager {
 		Repository repository;
 		try {
 			repository = getRepository(workspace);
-			RepositoryState state = repository.getRepositoryState();
-			return state.canCheckout();
+			//RepositoryState state = repository.getRepositoryState();
+			//return state.canCheckout();
+			if (repository.getBranch() == null || repository.getBranch().length() < 1){
+				return false;
+			}
+			return true;
 		} catch (IOException e) {
 			throw new VCSException("Could not create repository: " + e.getMessage(), e.getCause());
 		}
@@ -620,12 +623,59 @@ public class JGitManager implements VCSManager {
 			Repository repository = getRepository(workspacePath);
 			Git git = new Git(repository);
 			PushCommand pc = git.push();
-			
 			pc.setRemote(repositoryPath);
 			
+//			Collection<Ref> workspaceRefs = repository.getAllRefs().values();
+//			
+//			Repository remoteRepository = getRepository(workspacePath);
+//			Map<String, Ref> remoteRefs = remoteRepository.getAllRefs();
+//			List<RefSpec> refs2Push = new ArrayList<RefSpec>();
+//			
+//			if (workspaceRefs != null && workspaceRefs.size() > 0){
+//				for (Ref reference : workspaceRefs){
+//					//if (!remoteRefs.containsKey(reference.getName())){
+//					if(!remoteRefs.containsValue(reference.getTarget())){
+//						//RefSpec newRef = new RefSpec(reference.getName());
+//						RefSpec newRef = new RefSpec(reference.getTarget().getName());
+//						refs2Push.add(newRef);
+//						System.out.println("RefSpec: " + reference.getName());
+//					}
+//				}
+//			}
+//			
+//			pc.setRefSpecs(refs2Push);
+//			Map<Exception, String> errorsMap = new HashMap<Exception, String>(); 
+//			Collection<Ref> workspaceRefs = repository.getAllRefs().values();
+//			if (workspaceRefs != null && workspaceRefs.size() > 0){
+//				for (Ref reference : workspaceRefs){
+//					try{
+//						PushCommand pc = git.push();
+//						pc.setRemote(repositoryPath);
+//						
+//						pc.add(reference.getName());
+//						System.out.println("RefSpec: " + reference.getName());
+//						
+//						pc.setPushAll();
+//						pc.call();
+//					}catch(Exception e){
+//						errorsMap.put(e, e.getMessage());
+//					}
+//				}
+//			}
+//			
+//			if (errorsMap.size() > 0){
+//				for (String message : errorsMap.values()){
+//					System.out.println("Error during pushing Back " + workspacePath + " to " + repositoryPath + ": " + message);
+//				}
+//			}
+			
+			pc.setPushAll();
+			//pc.setPushTags();
 			pc.call();
 		
-		}catch (IOException | GitAPIException  e){
+		//}catch (IOException | GitAPIException  e){
+		//	throw new VCSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
+		}catch(Throwable e){
 			throw new VCSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
 		}
 		
@@ -646,6 +696,23 @@ public class JGitManager implements VCSManager {
 			throw new VCSException("Error fetching repository: " + workspacePath + " with central repository: " + repositoryPath + ". " + e.getMessage(), e.getCause());
 		}catch(Throwable e){
 			throw new VCSException("Error fetching repository: " + workspacePath + " with central repository: " + repositoryPath + ". " + e.getMessage(), e.getCause());
+		}
+	}
+	
+	public void fetchRepositoryWithWorkspaceChanges(String workspacePath, String repositoryPath) throws VCSException {
+		try{
+			
+			Repository repository = getRepository(repositoryPath);
+			Git git = new Git(repository);
+			
+			FetchCommand fc = git.fetch();
+			fc.setRemote(workspacePath);
+			fc.call();
+		
+		}catch (IOException | GitAPIException e ){
+			throw new VCSException("Error fetching central repository: " + repositoryPath + " with workspace: " +  workspacePath + ". " + e.getMessage(), e.getCause());
+		}catch(Throwable e){
+			throw new VCSException("Error fetching central repository: " + repositoryPath + " with workspace: " +  workspacePath + ". " + e.getMessage(), e.getCause());
 		}
 	}
 
