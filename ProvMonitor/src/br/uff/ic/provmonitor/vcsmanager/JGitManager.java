@@ -27,6 +27,7 @@ import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.Constants;
@@ -34,6 +35,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
+import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
@@ -736,7 +738,8 @@ public class JGitManager implements VCSManager {
 	        co.setName(branchName);
 	        co.setCreateBranch(isNewBranch);
 	        co.call();
-	        
+		} catch (CheckoutConflictException e){
+			throw new VCSCheckOutConflictException(e.getMessage(), e.getCause());
 		} catch (IOException | GitAPIException e) {
 			throw new VCSException(e.getMessage(), e.getCause());
 		}

@@ -50,6 +50,7 @@ public class ProvMonitor {
 		options.addOption("context",true,"context");
 		options.addOption("ver", false, "version");
 		options.addOption("propertiesGen", false, "propertiesDefaultValuesGeneration");
+		options.addOption("firstActivity",false,"firstActivity");
 	}
 	
 	/**
@@ -87,6 +88,10 @@ public class ProvMonitor {
 			if (cmd.hasOption("propertiesGen")){
 				ProvMonitorProperties.getInstance().generateDefaultPropertiesFile();
 				return;
+			}
+			Boolean firstActivity = false;
+			if (cmd.hasOption("firstActivity")){
+				firstActivity = true;
 			}
 			
 			//Starting Log
@@ -171,7 +176,7 @@ public class ProvMonitor {
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
 					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath, extendedContext);
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath, extendedContext, firstActivity);
 					}else{
 						//Invoking BusinessServices
 						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);

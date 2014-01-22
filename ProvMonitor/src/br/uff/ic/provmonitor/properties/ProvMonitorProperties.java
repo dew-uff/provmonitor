@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.eclipse.jgit.util.StringUtils;
 
 import br.uff.ic.provmonitor.connection.DatabaseType;
+import br.uff.ic.provmonitor.enums.BranchStrategy;
 import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
@@ -26,6 +27,8 @@ public class ProvMonitorProperties {
 	private String dataBaseUserPass;
 	private ProvMonitorLevel logMode;
 	private VCSType vcsType;
+	private String canonicalBranchName;
+	private BranchStrategy branchStrategy;
 	private String outputFile;
 	private ProvMonitorOutputType outputType;
 	private Properties provMonitorProps;
@@ -95,9 +98,20 @@ public class ProvMonitorProperties {
 	public VCSType getVcsType() {
 		return vcsType;
 	}
-
 	public void setVcsType(VCSType vcsType) {
 		this.vcsType = vcsType;
+	}
+	public String getCanonicalBranchName() {
+		return canonicalBranchName;
+	}
+	public void setCanonicalBranchName(String canonicalBranchName) {
+		this.canonicalBranchName = canonicalBranchName;
+	}
+	public BranchStrategy getBranchStrategy() {
+		return branchStrategy;
+	}
+	public void setBranchStrategy(BranchStrategy branchStrategy) {
+		this.branchStrategy = branchStrategy;
 	}
 	public String getOutputFile() {
 		return outputFile;
@@ -145,6 +159,8 @@ public class ProvMonitorProperties {
 			dataBaseUserPass = provMonitorProps.getProperty("dataBaseUserPass");
 			logMode = ProvMonitorLevel.valueOf(provMonitorProps.getProperty("logMode"));
 			vcsType = VCSType.valueOfName(provMonitorProps.getProperty("cvsType"));
+			canonicalBranchName = provMonitorProps.getProperty("canonicalBranchName");
+			branchStrategy = BranchStrategy.valueOf(provMonitorProps.getProperty("branchStrategy"));
 			outputFile = provMonitorProps.getProperty("outputFile");
 			outputType = ProvMonitorOutputType.valueOfName(provMonitorProps.getProperty("outputType"));
 			
@@ -174,6 +190,8 @@ public class ProvMonitorProperties {
 		dataBaseUserPass = null;
 		logMode = null;
 		vcsType = null;
+		canonicalBranchName = null;
+		branchStrategy = null;
 		outputFile = null;
 		outputType = null;
 	}
@@ -194,6 +212,12 @@ public class ProvMonitorProperties {
 		}
 		if (vcsType == null){
 			vcsType = VCSType.GIT;
+		}
+		if (canonicalBranchName == null){
+			canonicalBranchName = "canonicalBranch";
+		}
+		if (branchStrategy == null){
+			branchStrategy = BranchStrategy.ACTIVITY;
 		}
 		if (outputFile == null || StringUtils.isEmptyOrNull(outputFile)){
 			outputFile = "";
@@ -216,6 +240,8 @@ public class ProvMonitorProperties {
 			provMonitorProps.setProperty("dataBaseUserPass", dataBaseUserPass);
 			provMonitorProps.setProperty("logMode", logMode.getName());
 			provMonitorProps.setProperty("cvsType", vcsType.getName());
+			provMonitorProps.setProperty("canonicalBranchName", canonicalBranchName);
+			provMonitorProps.setProperty("branchStrategy", branchStrategy.getStrategyName());
 			provMonitorProps.setProperty("outputFile", outputFile);
 			provMonitorProps.setProperty("outputType", outputType.getCode());
 			

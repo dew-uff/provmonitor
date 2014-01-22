@@ -19,6 +19,7 @@ import br.uff.ic.provmonitor.exceptions.ConnectionException;
 import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ServerDBException;
+import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
@@ -26,6 +27,7 @@ import br.uff.ic.provmonitor.model.ExecutionCommit;
 import br.uff.ic.provmonitor.model.ExecutionFilesStatus;
 import br.uff.ic.provmonitor.model.ExecutionStatus;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.workspaceWatcher.PathAccessType;
@@ -108,25 +110,37 @@ public class RetrospectiveProvenanceBusinessServices {
 		daoFactory.getDatabaseControlDAO().dbInitialize();
 		
 		//Workspace preparation
-		VCSManager cvsManager = VCSManagerFactory.getInstance();
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
 		
 		//Verify if Workspace already exists. If not, clone it.
 		
+		//Checking out/Creating canonical workspace
+		try {
+			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+		} catch(VCSCheckOutConflictException e){
+			vcsManager.commit(sourceRepository, "Resolving checkout conflicts.");
+			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+		} catch(VCSException e){
+			vcsManager.createBranch(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			vcsManager.commit(sourceRepository, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+		}
+		
+		
 		//Repository branch
-		cvsManager.createBranch(sourceRepository, experimentInstanceId);
-		
+		vcsManager.createBranch(sourceRepository, experimentInstanceId);
 		//Repository checkOut
-		cvsManager.checkout(sourceRepository, experimentInstanceId);
-		
+		vcsManager.checkout(sourceRepository, experimentInstanceId);
 		//Repository commit new branch
-		cvsManager.commit(sourceRepository, "Creating branch for trial: " + experimentInstanceId);
+		vcsManager.commit(sourceRepository, "Creating branch for trial: " + experimentInstanceId);
 		
 		//Repository clone
 		//cvsManager.cloneRepository(sourceRepository, workspacePath);
 		List<String> branches2Clone = new ArrayList<String>();
+		branches2Clone.add(ProvMonitorProperties.getInstance().getCanonicalBranchName());
 		branches2Clone.add(experimentInstanceId);
-		cvsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
+		vcsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
 		
 		//Repository branch
 		//cvsManager.createBranch(workspacePath, experimentInstanceId);
@@ -178,16 +192,65 @@ public class RetrospectiveProvenanceBusinessServices {
 		//Record Timestamp
 		return false;
 	}
-	
+
 	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace) throws ProvMonitorException{
+		notifyActivityExecutionStartup(activityInstanceId, context, activityStartDateTime, workspaceInput, activationWorkspace, false);
+	}
+	
+	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
+		switch (ProvMonitorProperties.getInstance().getBranchStrategy()){
+			case TRIAL:
+				notifyActivityExecutionStartupBranchByTrial(activityInstanceId, context, activityStartDateTime, workspaceInput, activationWorkspace, firstActivity);
+				break;
+			case ACTIVITY:
+				notifyActivityExecutionStartupBranchByActivity(activityInstanceId, context, activityStartDateTime, workspaceInput, activationWorkspace, firstActivity);
+				break;
+		}
+	}
+	
+	public static void notifyActivityExecutionStartupBranchByTrial(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
 		
-		
 		//Activity start clone
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
-		//vcsManager.checkout(workspaceInput, context[0]);
-		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		
+		//First activity Branching
+		if (firstActivity){ //CREATE OR CHECK OUT CANONICAL BRANCH
+			
+			try{
+				//Try to checkOut - First activity of first trial may have the branch already created by ExperimentInit
+				vcsManager.checkout(workspaceInput, context[0]);
+			}catch(VCSException e1){
+				//Checking out/Creating canonical workspace
+				try {
+					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				} catch(VCSCheckOutConflictException e){
+					vcsManager.commit(workspaceInput, "Resolving checkout conflicts.");
+					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				} catch(VCSException e){
+					vcsManager.createBranch(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+					vcsManager.commit(workspaceInput, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				}
+				
+				//Repository branch
+				vcsManager.createBranch(workspaceInput, context[0]);
+				//Repository checkOut
+				vcsManager.checkout(workspaceInput, context[0]);
+				//Repository commit new branch
+				vcsManager.commit(workspaceInput, "Creating branch for trial: " + context[0]);
+			}
+			
+			
+			
+		}//else{ //DO NORMAL EXECUTION.
+		
+			//vcsManager.checkout(workspaceInput, context[0]);
+			vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		
+		//}
+		
 		
 		//TODO: Implement transaction control and atomicity for multivalued attributes.
 		
@@ -196,6 +259,60 @@ public class RetrospectiveProvenanceBusinessServices {
 		//factory.getActivityInstanceDAO().persist(activityInstance);
 		factory.getExecutionStatusDAO().persist(elementExecStatus);
 		
+	}
+	
+	public static void notifyActivityExecutionStartupBranchByActivity(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
+		//Prepare ActivityObject to be persisted
+		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
+		
+		//Activity start clone
+		VCSManager vcsManager = VCSManagerFactory.getInstance();
+		
+		//First activity Branching
+		if (firstActivity){ //CREATE OR CHECK OUT CANONICAL BRANCH
+			
+			//Checking out/Creating canonical workspace
+			try {
+				vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			} catch(VCSCheckOutConflictException e){
+				vcsManager.commit(workspaceInput, "Resolving checkout conflicts.");
+				vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			} catch(VCSException e){
+				vcsManager.createBranch(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				vcsManager.commit(workspaceInput, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			}
+			
+			//Repository branch
+			vcsManager.createBranch(workspaceInput, context[0]);
+			//Repository checkOut
+			vcsManager.checkout(workspaceInput, context[0]);
+			//Repository commit new branch
+			vcsManager.commit(workspaceInput, "Creating branch for trial: " + context[0]);
+			
+		}else{ //DO NORMAL EXECUTION.
+		
+			//BranchName
+			String branchName = ContextHelper.getBranchNameFromContext(context);
+			//Repository branch
+			vcsManager.createBranch(workspaceInput, branchName);
+			//Repository checkOut
+			vcsManager.checkout(workspaceInput, branchName);
+			//Repository commit new branch
+			vcsManager.commit(workspaceInput, "Creating branch for activity: " + activityInstanceId + ". branch name: " + branchName);
+			
+			//vcsManager.checkout(workspaceInput, context[0]);
+			vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		
+		}
+		
+		
+		//TODO: Implement transaction control and atomicity for multivalued attributes.
+		
+		//Persisting
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		//factory.getActivityInstanceDAO().persist(activityInstance);
+		factory.getExecutionStatusDAO().persist(elementExecStatus);
 	}
 	
 	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date activityStartDateTime, Date endActiviyDateTime, String workspaceRoot, String activationWorkspace) throws ProvMonitorException{

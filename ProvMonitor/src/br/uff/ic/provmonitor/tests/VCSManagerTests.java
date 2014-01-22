@@ -17,8 +17,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
+import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
+import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 
@@ -41,7 +42,9 @@ public class VCSManagerTests {
 			
 			//multipleClonesSubBranchesAlternateCommits();
 			
-			multipleNestedClonesSubBranchesCommits();
+			//multipleNestedClonesSubBranchesCommits();
+			
+			multipleNestedClonesSubBranchesCommitsFirstCloneFromTrunk();
 			
 		} finally {
 			
@@ -1000,7 +1003,7 @@ public class VCSManagerTests {
 	 * Understand how the implemented VCS deals with multiple nested branches being pushed back to a repository without the new branches references.
 	 * 
 	 */
-	//@SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static void multipleNestedClonesSubBranchesCommits(){
 		try {
 			Boolean use2Branches = true;
@@ -1118,4 +1121,157 @@ public class VCSManagerTests {
 		}
 
 	}
+	
+	
+	private static void multipleNestedClonesSubBranchesCommitsFirstCloneFromTrunk(){
+		try {
+			Boolean use2Branches = true; 
+			
+			String centralRepository = "C:/Testes/Repositorios/Repo64"; 
+			
+			String initialBranchName = "InitialBranch";
+			//String initialBranchName = "origin/master";
+			
+			String branchName1 = "Branch03";
+			String branchName1_2 = branchName1 + "_Activation3";
+			String workspaceBase = "C:/Testes/workspaces/WorkspacesFromTrunk/WorkspaceSubBranch64_2/" + branchName1;
+			String workspaceIntermediate = workspaceBase + "/input";
+			String workspaceActivation1 = workspaceBase + "/activation1/input";
+			String workspaceActivation2 = workspaceBase + "/activation2/input";
+			String workspaceActivation3 = workspaceBase + "/activation3/input";
+			
+			String branchName2 = "Branch04";
+			String workspaceBase2 = "C:/Testes/workspaces/WorkspacesFromTrunk/WorkspaceSubBranch64_2/" + branchName2;
+			String workspaceIntermediate2 = workspaceBase2 + "/input";
+			String workspace2Activation1 = workspaceBase2 + "/activation1/input";
+			String workspace2Activation2 = workspaceBase2 + "/activation2/input";
+			
+			Collection<String> branchNames = new ArrayList<String>();
+			branchNames.add(branchName1);
+			
+			String fileName1 = "file1.txt";
+			String fileName2 = "file2.txt";
+			
+			Collection<String> filesNames = new ArrayList<String>();
+			filesNames.add(fileName1);
+			filesNames.add(fileName2);
+			
+			
+			//Creating central repository
+			VCSManager vcsManager = VCSManagerFactory.getInstance();
+			if (!vcsManager.isWorkspaceCreated(centralRepository)){
+				vcsManager.createWorkspace(centralRepository);
+				
+				createFileContent(centralRepository + "/" + fileName1);
+				createFileContent(centralRepository + "/" + fileName2);
+				vcsManager.addAllFromPath(centralRepository);
+				vcsManager.commit(centralRepository, "Initial Import");
+			}
+			try {
+				//vcsManager.createBranch(centralRepository, initialBranchName);
+				vcsManager.checkout(centralRepository, initialBranchName);
+				//vcsManager.commit(centralRepository, "Created Branch: " + initialBranchName);
+			}catch(VCSCheckOutConflictException e){
+				vcsManager.commit(centralRepository, "test");
+				vcsManager.checkout(centralRepository, initialBranchName);
+			}catch(VCSException e){
+				vcsManager.createBranch(centralRepository, initialBranchName);
+				vcsManager.checkout(centralRepository, initialBranchName);
+				vcsManager.commit(centralRepository, "Created Branch: " + initialBranchName);
+			}
+			
+			vcsManager.cloneRepository(centralRepository, workspaceIntermediate);
+			
+			////////////////////////////// FIRST BRANCH - START ///////////////////////////////////
+			//Creating branch and intermediate workspace
+			//vcsManager.createBranch(centralRepository, branchName1);
+			//vcsManager.checkout(centralRepository, branchName1);
+			//vcsManager.commit(centralRepository, "Created Branch: " + branchName1);
+			
+			//vcsManager.cloneRepository(centralRepository, workspaceIntermediate);
+			
+			vcsManager.createBranch(workspaceIntermediate, branchName1);
+			vcsManager.checkout(workspaceIntermediate, branchName1);
+			vcsManager.commit(workspaceIntermediate, "Created Branch: " + branchName1);
+			
+			//String subBranchName1 = branchName1 + "_Activation1";
+			//vcsManager.createBranch(workspaceIntermediate, subBranchName1);
+			//vcsManager.checkout(workspaceIntermediate, subBranchName1);
+			//vcsManager.commit(workspaceIntermediate, "Created Branch: " + subBranchName1);
+			vcsManager.cloneRepository(workspaceIntermediate, workspaceActivation1);
+			
+			//First Activation
+			executeActivation(branchName1, "Activation1", workspaceIntermediate, workspaceIntermediate, workspaceActivation1, filesNames);
+			
+			filesNames.add("file5.txt");
+			
+			//Second Activation
+
+			//String subBranchName2 = branchName1 + "_Activation2";
+			//vcsManager.createBranch(workspaceActivation1, subBranchName2);
+			//vcsManager.checkout(workspaceActivation1, subBranchName2);
+			//vcsManager.commit(workspaceActivation1, "Created Branch: " + subBranchName2);
+			vcsManager.cloneRepository(workspaceActivation1, workspaceActivation2);
+			
+			executeActivation(branchName1, "Activation2", workspaceIntermediate, workspaceActivation1, workspaceActivation2, filesNames);
+			
+			filesNames.add("file6.txt");
+			//Third Activation
+			
+			//String subBranchName3 = branchName1 + "_Activation3";
+			//vcsManager.createBranch(workspaceActivation2, subBranchName3);
+			//vcsManager.checkout(workspaceActivation2, subBranchName3);
+			//vcsManager.commit(workspaceActivation2, "Created Branch: " + subBranchName3);
+			//vcsManager.cloneRepository(workspaceActivation2, workspaceActivation3);
+			
+			vcsManager.checkout(workspaceIntermediate, initialBranchName);
+			
+			vcsManager.createBranch(workspaceIntermediate, branchName1_2);
+			vcsManager.checkout(workspaceIntermediate, branchName1_2);
+			vcsManager.commit(workspaceIntermediate, "Created Branch: " + branchName1_2);
+			
+			vcsManager.cloneRepository(workspaceIntermediate, workspaceActivation3);
+			
+			//executeActivation(branchName1, "Activation3", workspaceIntermediate, workspaceActivation2, workspaceActivation3, filesNames);
+			executeActivation(branchName1, "Activation3", workspaceIntermediate, workspaceIntermediate, workspaceActivation3, filesNames);
+			
+			////////////////////////////// FIRST BRANCH - END /////////////////////////////////////
+			
+			//TEST
+			if (use2Branches){
+				////////////////////////////// SECOND BRANCH - START ///////////////////////////////////
+				
+				//Creating branch and intermediate workspace
+				vcsManager.createBranch(centralRepository, branchName2);
+				vcsManager.checkout(centralRepository, branchName2);
+				vcsManager.commit(centralRepository, "Created Branch: " + branchName2);
+				vcsManager.cloneRepository(centralRepository, workspaceIntermediate2);
+				
+				vcsManager.cloneRepository(workspaceIntermediate2, workspace2Activation1);
+				vcsManager.cloneRepository(workspaceIntermediate2, workspace2Activation2);
+				
+				//First Activation
+				executeActivation(branchName2, "Activation1", workspaceIntermediate2, workspaceIntermediate2, workspace2Activation1, filesNames);
+				
+				//Second Activation
+				executeActivation(branchName2, "Activation2", workspaceIntermediate2, workspace2Activation1, workspace2Activation2, filesNames);
+				
+				////////////////////////////// SECOND BRANCH - END /////////////////////////////////////
+			}
+
+			//Final PushBack - Intermediate 1
+			vcsManager.pushBack(workspaceIntermediate, centralRepository);
+			
+			if (use2Branches){
+				//Final PushBack - Intermediate 2
+				vcsManager.pushBack(workspaceIntermediate2, centralRepository);
+			}
+			
+			
+		} catch (VCSException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 }
