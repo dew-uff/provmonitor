@@ -1,6 +1,7 @@
 package br.uff.ic.provmonitor.enums;
 
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
+import br.uff.ic.provmonitor.output.ProvMonitorOutputType;
 
 /**
  * Automated branch strategy supported by RestrospectivePronenanceBusinessServices
@@ -42,6 +43,23 @@ public enum BranchStrategy {
 			if (branchStrategy.getStrategyId().equals(code)){
 				return branchStrategy;
 			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the {@link ProvMonitorOutputType} by the name.
+	 * @param name Name of the desired {@link ProvMonitorOutputType}. Null if not found.
+	 * @return ProvMonitorOutputType
+	 */
+	public static BranchStrategy valueOfName(String name){
+		if (name != null && name.length() >0){
+			for (BranchStrategy branchStrategy: BranchStrategy.values()){
+				if (branchStrategy.getStrategyName().equals(name)){
+					return branchStrategy;
+				}
+			}
+			
 		}
 		return null;
 	}

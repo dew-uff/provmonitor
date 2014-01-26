@@ -160,7 +160,7 @@ public class ProvMonitorProperties {
 			logMode = ProvMonitorLevel.valueOf(provMonitorProps.getProperty("logMode"));
 			vcsType = VCSType.valueOfName(provMonitorProps.getProperty("cvsType"));
 			canonicalBranchName = provMonitorProps.getProperty("canonicalBranchName");
-			branchStrategy = BranchStrategy.valueOf(provMonitorProps.getProperty("branchStrategy"));
+			branchStrategy = BranchStrategy.valueOfName(provMonitorProps.getProperty("branchStrategy"));
 			outputFile = provMonitorProps.getProperty("outputFile");
 			outputType = ProvMonitorOutputType.valueOfName(provMonitorProps.getProperty("outputType"));
 			
@@ -217,7 +217,7 @@ public class ProvMonitorProperties {
 			canonicalBranchName = "canonicalBranch";
 		}
 		if (branchStrategy == null){
-			branchStrategy = BranchStrategy.ACTIVITY;
+			branchStrategy = BranchStrategy.TRIAL;
 		}
 		if (outputFile == null || StringUtils.isEmptyOrNull(outputFile)){
 			outputFile = "";

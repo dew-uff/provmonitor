@@ -92,7 +92,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	 * @throws ConnectionException Database connection problems.
 	 * @throws ServerDBException Database server related problems.
 	 */
-	public static String initializeExperimentExecution(String experimentId, String experimentInstanceId, String sourceRepository, String workspacePath) throws ProvMonitorException{
+	public synchronized static String initializeExperimentExecution(String experimentId, String experimentInstanceId, String sourceRepository, String workspacePath) throws ProvMonitorException{
 		
 		//If experimentInstanceId is not informed, generate it.
 		if (StringUtils.isEmptyOrNull(experimentInstanceId)){
@@ -117,18 +117,25 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Checking out/Creating canonical workspace
 		try {
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "checking out canonical branch...");
 			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch checkout.");
 		} catch(VCSCheckOutConflictException e){
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Resolving checking out canonical branch's conflict...");
 			vcsManager.commit(sourceRepository, "Resolving checkout conflicts.");
 			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Checking out canonical branch's conflict resolver.");
 		} catch(VCSException e){
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "creating canonical branch...");
 			vcsManager.createBranch(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
 			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
 			vcsManager.commit(sourceRepository, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch created.");
 		}
 		
 		
 		//Repository branch
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Creating branch for trial:" + experimentInstanceId + ".");
 		vcsManager.createBranch(sourceRepository, experimentInstanceId);
 		//Repository checkOut
 		vcsManager.checkout(sourceRepository, experimentInstanceId);
@@ -140,7 +147,9 @@ public class RetrospectiveProvenanceBusinessServices {
 		List<String> branches2Clone = new ArrayList<String>();
 		branches2Clone.add(ProvMonitorProperties.getInstance().getCanonicalBranchName());
 		branches2Clone.add(experimentInstanceId);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Workspace checout. Cloning from:" + sourceRepository + " to: " + workspacePath +".");
 		vcsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
+		
 		
 		//Repository branch
 		//cvsManager.createBranch(workspacePath, experimentInstanceId);
@@ -149,6 +158,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		//cvsManager.checkout(workspacePath, experimentInstanceId);
 		
 		//System.out.println("initializeExperimentExecution end execution.");
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Returning experiment instance id:" + experimentInstanceId + ".");
 		return experimentInstanceId;
 	}
 	
@@ -170,7 +180,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	 * @throws ConnectionException Database connection problems.
 	 * @throws ServerDBException Database server related problems.
 	 */
-	public static void FinalizeExperimentExecution(String experimentInstanceId, String sourceRepository, String workspacePath, Date endDateTime) throws ProvMonitorException{
+	public synchronized static void FinalizeExperimentExecution(String experimentInstanceId, String sourceRepository, String workspacePath, Date endDateTime) throws ProvMonitorException{
 		//Stop DB infra
 		ProvMonitorDAOFactory daoFactory = new ProvMonitorDAOFactory();
 		daoFactory.getDatabaseControlDAO().dbFinalize();
@@ -197,7 +207,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		notifyActivityExecutionStartup(activityInstanceId, context, activityStartDateTime, workspaceInput, activationWorkspace, false);
 	}
 	
-	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
 		switch (ProvMonitorProperties.getInstance().getBranchStrategy()){
 			case TRIAL:
 				notifyActivityExecutionStartupBranchByTrial(activityInstanceId, context, activityStartDateTime, workspaceInput, activationWorkspace, firstActivity);
@@ -208,7 +218,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		}
 	}
 	
-	public static void notifyActivityExecutionStartupBranchByTrial(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionStartupBranchByTrial(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
 		
@@ -224,22 +234,30 @@ public class RetrospectiveProvenanceBusinessServices {
 			}catch(VCSException e1){
 				//Checking out/Creating canonical workspace
 				try {
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "checking out canonical branch...");
 					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Canonical checked out.");
 				} catch(VCSCheckOutConflictException e){
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Resolving checking out canonical branch's conflict...");
 					vcsManager.commit(workspaceInput, "Resolving checkout conflicts.");
 					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Canonical branch checked out...");
 				} catch(VCSException e){
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "creating canonical branch...");
 					vcsManager.createBranch(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
 					vcsManager.checkout(workspaceInput, ProvMonitorProperties.getInstance().getCanonicalBranchName());
 					vcsManager.commit(workspaceInput, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+					ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Canonical branch created.");
 				}
 				
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Creating branch for trial...");
 				//Repository branch
 				vcsManager.createBranch(workspaceInput, context[0]);
 				//Repository checkOut
 				vcsManager.checkout(workspaceInput, context[0]);
 				//Repository commit new branch
 				vcsManager.commit(workspaceInput, "Creating branch for trial: " + context[0]);
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Branch for trial created.");
 			}
 			
 			
@@ -247,21 +265,25 @@ public class RetrospectiveProvenanceBusinessServices {
 		}//else{ //DO NORMAL EXECUTION.
 		
 			//vcsManager.checkout(workspaceInput, context[0]);
-			vcsManager.cloneRepository(workspaceInput, activationWorkspace);
 		
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Creating activation workspace. Cloning from: " + workspaceInput + " to: " + activationWorkspace + "...");
+		vcsManager.cloneRepository(workspaceInput, activationWorkspace);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Activation workspace created.");
 		//}
 		
 		
 		//TODO: Implement transaction control and atomicity for multivalued attributes.
 		
 		//Persisting
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Updating database...");
 		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
 		//factory.getActivityInstanceDAO().persist(activityInstance);
 		factory.getExecutionStatusDAO().persist(elementExecStatus);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartupBranchByTrial", "Database updated.");
 		
 	}
 	
-	public static void notifyActivityExecutionStartupBranchByActivity(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionStartupBranchByActivity(String activityInstanceId, String[] context, Date activityStartDateTime, String workspaceInput, String activationWorkspace, Boolean firstActivity) throws ProvMonitorException{
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
 		
@@ -315,15 +337,17 @@ public class RetrospectiveProvenanceBusinessServices {
 		factory.getExecutionStatusDAO().persist(elementExecStatus);
 	}
 	
-	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date activityStartDateTime, Date endActiviyDateTime, String workspaceRoot, String activationWorkspace) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date activityStartDateTime, Date endActiviyDateTime, String workspaceRoot, String activationWorkspace) throws ProvMonitorException{
 		//Mounting context
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, endActiviyDateTime);
 		
 		//Record Timestamp
 		
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Identifying accessed files...");
 		//Verify accessed files
 		Collection<ExecutionFilesStatus> execFiles = getAccessedFiles(elementExecStatus, activationWorkspace);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Accessed files identified.");
 						
 						
 		//Commit changed files
@@ -336,9 +360,15 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
 		//((GitManager)cvsManager).getStatus(workspacePath);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Adding new files...");
 		vcsManager.addAllFromPath(activationWorkspace);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Files added.");
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Removing files...");
 		Set<String> removed = vcsManager.removeAllFromPath(activationWorkspace);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Files removed.");
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Cheking in changes...");
 		String commitId = vcsManager.commit(activationWorkspace, message.toString());
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Changes checked in.");
 				
 		
 		//Recover executionStatus element
@@ -373,7 +403,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		execFiles.addAll(removedFiles);
 		
 		//persist updated element
-		ProvMonitorOutputManager.appendMessageLine("Persisting Activity....");
+		ProvMonitorOutputManager.appendMessageLine("Persisting Activity...");
 		execStatusDAO.update(elemExecutionStatus);
 		
 		factory.getExecutionCommitDAO().persist(execCommit);
@@ -381,12 +411,16 @@ public class RetrospectiveProvenanceBusinessServices {
 		ProvMonitorOutputManager.appendMessageLine("Activity Persisted.");
 		
 		//Persist accessed files
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Persisting accessed files...");
 		for (ExecutionFilesStatus executionFileStatus: execFiles){
 			factory.getExecutionFileStatusDAO().persist(executionFileStatus);
 		}
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Files persisted.");
 		
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Pushing back changes to: " + workspaceRoot + "...");
 		//Pushing back to the experiment root workspace
 		vcsManager.pushBack(activationWorkspace, workspaceRoot);
+		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Changes pushed back.");
 	}
 	
 	private static ExecutionStatus getNewExecStatus(String activityInstanceId, String[] context,Date activityStartDateTime, Date activityEndDateTime){
@@ -473,7 +507,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	 * @throws DatabaseException Database related problems.
 	 * @throws ConnectionException Database connection problems.
 	 */
-	public static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
 		newNotifyActivityExecutionStartup(activityInstanceId, context, activityStartDateTime, workspacePath);
 	}
 	
@@ -530,7 +564,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	 * @throws DatabaseException Database related problems.
 	 * @throws ConnectionException Database connection problems.
 	 */
-	public static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date startActivityDateTime, Date endActiviyDateTime, String workspacePath) throws ProvMonitorException{
+	public synchronized static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date startActivityDateTime, Date endActiviyDateTime, String workspacePath) throws ProvMonitorException{
 		//Mounting context
 		StringBuilder elementPath = new StringBuilder();
 		for (String path: context){
@@ -740,7 +774,7 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 	@SuppressWarnings("unused")
-	private static void oldNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
+	private synchronized static void oldNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
 		try{
 			//Prepare ActivityObject to be persisted
 			ExecutionStatus elementExecStatus = new ExecutionStatus();
@@ -849,7 +883,7 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 	}
 	
-	public static void newNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
+	public synchronized static void newNotifyActivityExecutionStartup(String activityInstanceId, String[] context, Date activityStartDateTime, String workspacePath) throws ProvMonitorException{
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, null);
 		
