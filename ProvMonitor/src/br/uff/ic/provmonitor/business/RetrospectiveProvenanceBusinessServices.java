@@ -113,43 +113,56 @@ public class RetrospectiveProvenanceBusinessServices {
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
 		//System.out.println("Cloning to: " + workspacePath);
 		
+		Boolean workspaceAlreadyCreated = false;
 		//Verify if Workspace already exists. If not, clone it.
-		
-		//Checking out/Creating canonical workspace
-		try {
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "checking out canonical branch...");
-			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch checkout.");
-		} catch(VCSCheckOutConflictException e){
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Resolving checking out canonical branch's conflict...");
-			vcsManager.commit(sourceRepository, "Resolving checkout conflicts.");
-			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Checking out canonical branch's conflict resolver.");
-		} catch(VCSException e){
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "creating canonical branch...");
-			vcsManager.createBranch(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
-			vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
-			vcsManager.commit(sourceRepository, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
-			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch created.");
+		if (vcsManager.isWorkspaceCreated(workspacePath)){
+			workspaceAlreadyCreated = true;
 		}
 		
-		
-		//Repository branch
-		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Creating branch for trial:" + experimentInstanceId + ".");
-		vcsManager.createBranch(sourceRepository, experimentInstanceId);
-		//Repository checkOut
-		vcsManager.checkout(sourceRepository, experimentInstanceId);
-		//Repository commit new branch
-		vcsManager.commit(sourceRepository, "Creating branch for trial: " + experimentInstanceId);
-		
-		//Repository clone
-		//cvsManager.cloneRepository(sourceRepository, workspacePath);
-		List<String> branches2Clone = new ArrayList<String>();
-		branches2Clone.add(ProvMonitorProperties.getInstance().getCanonicalBranchName());
-		branches2Clone.add(experimentInstanceId);
-		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Workspace checout. Cloning from:" + sourceRepository + " to: " + workspacePath +".");
-		vcsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
-		
+		if (workspaceAlreadyCreated){
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Workspace already created.");
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "checking out canonical branch...");
+			vcsManager.checkout(workspacePath, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch checkout.");
+		}else{
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Creating new workspace...");
+			//Checking out/Creating canonical workspace
+			try {
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "checking out canonical branch...");
+				vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch checkout.");
+			} catch(VCSCheckOutConflictException e){
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Resolving checking out canonical branch's conflict...");
+				vcsManager.commit(sourceRepository, "Resolving checkout conflicts.");
+				vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Checking out canonical branch's conflict resolver.");
+			} catch(VCSException e){
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "creating canonical branch...");
+				vcsManager.createBranch(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				vcsManager.checkout(sourceRepository, ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				vcsManager.commit(sourceRepository, "Creating canonical branch for trial: " + ProvMonitorProperties.getInstance().getCanonicalBranchName());
+				ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Canonical branch created.");
+			}
+			
+			
+			//Repository branch
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Creating branch for trial:" + experimentInstanceId + ".");
+			vcsManager.createBranch(sourceRepository, experimentInstanceId);
+			//Repository checkOut
+			vcsManager.checkout(sourceRepository, experimentInstanceId);
+			//Repository commit new branch
+			vcsManager.commit(sourceRepository, "Creating branch for trial: " + experimentInstanceId);
+			
+			//Repository clone
+			//cvsManager.cloneRepository(sourceRepository, workspacePath);
+			List<String> branches2Clone = new ArrayList<String>();
+			branches2Clone.add(ProvMonitorProperties.getInstance().getCanonicalBranchName());
+			branches2Clone.add(experimentInstanceId);
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "Workspace checkout. Cloning from:" + sourceRepository + " to: " + workspacePath +".");
+			vcsManager.cloneRepository(sourceRepository, workspacePath, branches2Clone);
+			
+			ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", "New workspace created.");
+		}
 		
 		//Repository branch
 		//cvsManager.createBranch(workspacePath, experimentInstanceId);

@@ -23,6 +23,7 @@ import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
@@ -681,6 +682,19 @@ public class JGitManager implements VCSManager {
 			throw new VCSException("Error pushing back repository to central repository: " + e.getMessage(), e.getCause());
 		}
 		
+		
+	}
+	
+	public void pull(String workspacePath, String repositoryPath) throws VCSException{
+		try{
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			PullCommand pc = git.pull();
+			pc.call();
+			
+		}catch(Exception e){
+			throw new VCSException("Error pulling changes into workspace: " + e.getMessage(), e.getCause());
+		}
 		
 	}
 	

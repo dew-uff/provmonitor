@@ -63,7 +63,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Changing file's content.
@@ -86,7 +85,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Changing file's content.
@@ -109,7 +107,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Changing file's content.
@@ -124,7 +121,6 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspacePath, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -154,7 +150,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Changing file's content.
@@ -170,7 +165,6 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution("ScicumulusTeste1", centralRepository, workspacePath, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -193,7 +187,6 @@ public class ProvMonitorTests {
 		try {
 			experimentInstanceId = RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId, experimentInstanceId, centralRepository, workspacePath);
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			ProvMonitorLogger.fatal(ProvMonitorTests.class.getName(), "initializeExperimentTest", "Exception: " + e.getMessage());
 			e.printStackTrace();
 			throw e;
@@ -468,7 +461,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Remove File
@@ -495,8 +487,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -522,8 +513,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -549,8 +539,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -567,7 +556,6 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -643,7 +631,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Remove File
@@ -670,8 +657,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -697,8 +683,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -724,8 +709,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -742,7 +726,6 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -819,7 +802,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Remove File
@@ -847,8 +829,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -875,8 +856,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -903,8 +883,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -921,7 +900,6 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -931,20 +909,63 @@ public class ProvMonitorTests {
 		//String centralRepository = "C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste201";
 		//String workspacePathBase = "C:/Testes/SciCumulus/workspaces/Scicumulus/Teste201";
 		
-		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste304"
-																	 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
-																	 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
-																	 ,"4");
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//CASE 2 - Experiment with a all activities cloning and pushing back directly to an intermediate workspace. - Branch Per Trial
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste304"
+//																	 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
+//																	 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
+//																	 ,"4");
+//		
+//		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste305"
+//				 													 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
+//				 													 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
+//				 													 ,"5");
+//		
+//		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste306"
+//				 													 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
+//				 													 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
+//				 													 ,"6");
 		
-		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste305"
-				 													 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
-				 													 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
-				 													 ,"5");
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//CASE 2 - END.
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		experimentScicumulusActivitiesIntermediateCloneCommitStrategy("ScicumulusTeste306"
-				 													 ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste301"
-				 													 ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste301"
-				 													 ,"6");
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//CASE 3 - Experiment with a an intermediate workspace per trial. Nested clones. - Branch Per Activity.
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+//		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste401"
+//															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste401"
+//															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste401"
+//															   ,"1");
+//
+//		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste402"
+//															  ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste401"
+//															  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste401"
+//															  ,"2");
+//		
+//		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste403"
+//															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste401"
+//															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste401"
+//															   ,"3");
+		
+		
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste501"
+				   											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
+				   											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
+				   											   ,"1");
+
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste502"
+				  											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
+				  											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
+				  											   ,"2");
+
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//CASE 3 - END.
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 	}
 	
 	private static void experimentScicumulusActivitiesIntermediateCloneCommitStrategy(String experimentInstanceId, String centralRepository, String workspacePathBase, String activation){
@@ -1020,7 +1041,6 @@ public class ProvMonitorTests {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			//Remove File
@@ -1048,8 +1068,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -1076,8 +1095,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -1104,8 +1122,7 @@ public class ProvMonitorTests {
 			try {
 			Thread.sleep(3000);
 			} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			//Remove File
 			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
@@ -1122,7 +1139,241 @@ public class ProvMonitorTests {
 			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
 			
 		} catch (ProvMonitorException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static void experimentScicumulusActivitiesBranchPerActivityStrategy(String experimentInstanceId, String centralRepository, String workspacePathBase, String activation){
+		Date startDateTime = Calendar.getInstance().getTime();
+		try {
+			Boolean firstIterationOfIntermediateWorkspace = true;
+			
+			//String experimentInstanceId = "ScicumulusTeste202";
+			//String centralRepository = "C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste201";
+			//String workspacePathBase = "C:/Testes/SciCumulus/workspaces/Scicumulus/Teste201";
+			
+			//String workspacePathBaseTrial = workspacePathBase + "/Trial202";
+			String workspacePathBaseTrial = workspacePathBase + "/" + experimentInstanceId;
+
+			//Workflow Input workspace
+			//String workspaceIntermediate = workspacePathBase + "/input";
+			String workspaceIntermediate = workspacePathBaseTrial + "/input";
+
+			//String branchName1 = "Branch01";
+			
+			//Activities - Workflow Simulation
+			//Mafft
+			String activity1InstanceId = "Mafft";
+			//ModelGenerator
+			String activity2InstanceId = "ModelGenerator";
+			//Readseq
+			String activity3InstanceId = "Readseq";
+			//Raxml
+			String activity4InstanceId = "Raxml";
+			
+			
+			String workspaceActivation1 = workspacePathBase + "/" + activity1InstanceId + "/"+experimentInstanceId+"/input";
+			String workspaceActivation2 = workspacePathBase + "/" + activity2InstanceId + "/"+experimentInstanceId+"/input";
+			String workspaceActivation2_2 = workspacePathBase + "/" + activity2InstanceId + "/"+experimentInstanceId+"/input2";
+			String workspaceActivation2_3 = workspacePathBase + "/" + activity2InstanceId + "/"+experimentInstanceId+"/input3";
+			String workspaceActivation3 = workspacePathBase + "/" + activity3InstanceId + "/"+experimentInstanceId+"/input";
+			String workspaceActivation3_2 = workspacePathBase + "/" + activity3InstanceId + "/"+experimentInstanceId+"/input2";
+			String workspaceActivation4 = workspacePathBase + "/" + activity4InstanceId + "/"+experimentInstanceId+"/input";
+			
+			String[] context = {experimentInstanceId,"root",activity1InstanceId};
+			//String extendedContext = workspacePathBase + "/Activity1/1/";
+			
+			
+			//Creating central repository
+			String fileName1 = "file1.txt";
+			String fileName2 = "file2.txt";
+			Collection<String> filesNames = new ArrayList<String>();
+			filesNames.add(fileName1);
+			filesNames.add(fileName2);
+			
+			VCSManager vcsManager = VCSManagerFactory.getInstance();
+			if (!vcsManager.isWorkspaceCreated(centralRepository)){
+				vcsManager.createWorkspace(centralRepository);
+				
+				createFileContent(centralRepository + "/" + fileName1);
+				createFileContent(centralRepository + "/" + fileName2);
+				vcsManager.addAllFromPath(centralRepository);
+				vcsManager.commit(centralRepository, "Initial Import");
+			}
+			
+			//Initializing Experiment
+			if (firstIterationOfIntermediateWorkspace){
+				initializeExperimentTest("Scicumulus", experimentInstanceId, centralRepository, workspaceIntermediate, startDateTime);
+			}
+
+			//////////////////////////////////
+			//Activity 1 - Instance 1 - Init//
+			//////////////////////////////////
+			//Starting Activity 1 - Instance 1
+			Date activityStartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity1InstanceId, context, activityStartDateTime, workspaceIntermediate, workspaceActivation1);
+			//Execute Activity 1 - Instance 1
+			executeActivation(workspaceActivation1, filesNames);
+			createFileContent(workspaceActivation1 + "/fileActivity1.txt");
+			
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//Remove File
+			//deleteFile(workspaceActivation1 + "/Folder1/teste2.html");
+			//Ending Activity 1 - Instance 1
+			Date endActiviyDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspaceIntermediate, workspaceActivation1);
+			//////////////////////////////////
+			//Activity 1 - Instance 1 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 2 - Instance 1 - Init//
+			//////////////////////////////////
+			//Starting Activity 1 - Instance 1
+			String[] context2 = {context[0],context[1],activity2InstanceId};
+			Date activity2StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspaceActivation1, workspaceActivation2);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspaceIntermediate, workspaceActivation2);
+			//Execute Activity 1 - Instance 1
+			executeActivation(workspaceActivation2, filesNames);
+			createFileContent(workspaceActivation2 + "/fileActivity2.txt");
+			
+			try {
+			Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//Remove File
+			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
+			//Ending Activity 2 - Instance 1
+			Date endActiviy2DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2, activity2StartDateTime, endActiviy2DateTime, workspaceIntermediate, workspaceActivation2);
+			//////////////////////////////////
+			//Activity 2 - Instance 1 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 2 - Instance 2 - Init//
+			//////////////////////////////////
+			//Starting Activity 2 - Instance 1
+			String[] context2_2 = {context[0],context[1],activity2InstanceId,"2"};
+			Date activity2_2StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2_2, activity2_2StartDateTime, workspaceActivation1, workspaceActivation2_2);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspaceIntermediate, workspaceActivation2);
+			//Execute Activity 2 - Instance 2
+			executeActivation(workspaceActivation2_2, filesNames);
+			createFileContent(workspaceActivation2_2 + "/fileActivity2_2.txt");
+			//Ending Activity 2 - Instance 2
+			Date endActiviy2_2DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2_2, activity2_2StartDateTime, endActiviy2_2DateTime, workspaceIntermediate, workspaceActivation2_2);
+			//////////////////////////////////
+			//Activity 2 - Instance 2 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 2 - Instance 3 - Init//
+			//////////////////////////////////
+			//Starting Activity 1 - Instance 1
+			String[] context2_3 = {context[0],context[1],activity2InstanceId,"3"};
+			Date activity2_3StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2_3, activity2_3StartDateTime, workspaceActivation1, workspaceActivation2_3);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity2InstanceId, context2, activity2StartDateTime, workspaceIntermediate, workspaceActivation2);
+			//Execute Activity 2 - Instance 3
+			//Remove File
+			deleteFile(workspaceActivation2_3 + "/fileActivity1.txt");
+			//Ending Activity 2 - Instance 3
+			Date endActiviy2_3DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2_3, activity2_3StartDateTime, endActiviy2_3DateTime, workspaceIntermediate, workspaceActivation2_3);
+			//////////////////////////////////
+			//Activity 2 - Instance 3 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 3 - Instance 1 - Init//
+			//////////////////////////////////
+			//Starting Activity 3 - Instance 1
+			String[] context3 = {context[0],context[1],activity3InstanceId};
+			Date activity3StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity3InstanceId, context3, activity3StartDateTime, workspaceActivation2, workspaceActivation3);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity3InstanceId, context3, activity3StartDateTime, workspaceIntermediate, workspaceActivation3);
+			//Execute Activity 3 - Instance 1
+			executeActivation(workspaceActivation3, filesNames);
+			createFileContent(workspaceActivation3 + "/fileActivity3.txt");
+			
+			try {
+			Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//Remove File
+			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
+			//Ending Activity 3 - Instance 1
+			Date endActiviy3DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity3InstanceId, context3, activity3StartDateTime, endActiviy3DateTime, workspaceIntermediate, workspaceActivation3);
+			//////////////////////////////////
+			//Activity 3 - Instance 1 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 3 - Instance 2 - Init//
+			//////////////////////////////////
+			//Starting Activity 3 - Instance 2
+			String[] context3_2 = {context[0],context[1],activity3InstanceId,"2"};
+			Date activity3_2StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity3InstanceId, context3_2, activity3_2StartDateTime, workspaceActivation2_2, workspaceActivation3_2);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity3InstanceId, context3, activity3StartDateTime, workspaceIntermediate, workspaceActivation3);
+			//Execute Activity 3 - Instance 2
+			executeActivation(workspaceActivation3, filesNames);
+			createFileContent(workspaceActivation3 + "/fileActivity3_2.txt");
+			//Ending Activity 3 - Instance 2
+			Date endActiviy3_2DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity3InstanceId, context3_2, activity3_2StartDateTime, endActiviy3_2DateTime, workspaceIntermediate, workspaceActivation3_2);
+			//////////////////////////////////
+			//Activity 3 - Instance 2 - End///
+			//////////////////////////////////
+			
+			
+			//////////////////////////////////
+			//Activity 4 - Instance 1 - Init//
+			//////////////////////////////////
+			//Starting Activity 4 - Instance 1
+			String[] context4 = {context[0],context[1],activity4InstanceId};
+			Date activity4StartDateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity4InstanceId, context4, activity4StartDateTime, workspaceActivation3, workspaceActivation4);
+			//RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activity4InstanceId, context4, activity4StartDateTime, workspaceIntermediate, workspaceActivation4);
+			//Execute Activity 4 - Instance 1
+			executeActivation(workspaceActivation4, filesNames);
+			//createFileContent(workspaceActivation3 + "/fileActivity3.txt");
+			
+			try {
+			Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//Remove File
+			//deleteFile(workspaceActivation2 + "/fileActivity1.txt");
+			//Ending Activity 4 - Instance 1
+			Date endActiviy4DateTime = Calendar.getInstance().getTime();
+			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity4InstanceId, context4, activity4StartDateTime, endActiviy4DateTime, workspaceIntermediate, workspaceActivation4);
+			//////////////////////////////////
+			//Activity 4 - Instance 1 - End///
+			//////////////////////////////////
+			
+			
+			
+			//Finalizing Experiment
+			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
+			
+		} catch (ProvMonitorException e) {
 			e.printStackTrace();
 		}
 	}
