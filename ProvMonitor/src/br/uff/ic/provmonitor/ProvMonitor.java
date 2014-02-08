@@ -157,8 +157,15 @@ public class ProvMonitor {
 					//Getting parameters
 					String activityInstanceId = cmd.getOptionValue("aii");
 					String[] context = cmd.getOptionValues("context");
-					String startDate = cmd.getOptionValue("stDt");
-					Date starDateTime = DateUtils.dateParse(startDate);
+					//String startDate = cmd.getOptionValue("stDt");
+					String startDate = null;
+					Date startDateTime = null;
+					if (startDate != null){
+						startDateTime = DateUtils.dateParse(startDate);
+					}else{
+						startDateTime = provExecStartTime;
+					}
+					
 					String workspacePath = cmd.getOptionValue("wp");
 					
 					Date methodInit = Calendar.getInstance().getTime();
@@ -176,10 +183,10 @@ public class ProvMonitor {
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
 					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath, extendedContext, firstActivity);
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, startDateTime, workspacePath, extendedContext, firstActivity);
 					}else{
 						//Invoking BusinessServices
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, starDateTime, workspacePath);
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, startDateTime, workspacePath);
 					}
 					
 					Date methodEnd = Calendar.getInstance().getTime();
@@ -193,10 +200,23 @@ public class ProvMonitor {
 					//Getting parameters
 					String activityInstanceId = cmd.getOptionValue("aii");
 					String[] context = cmd.getOptionValues("context");
-					String startDate = cmd.getOptionValue("stDt");
-					Date starDateTime = DateUtils.dateParse(startDate);
-					String endDate = cmd.getOptionValue("edDt");
-					Date endDateTime = DateUtils.dateParse(endDate);
+					//String startDate = cmd.getOptionValue("stDt");
+					String startDate = null;
+					Date startDateTime = null;
+					if (startDate != null){
+						startDateTime = DateUtils.dateParse(startDate);
+					}  
+					startDateTime = null;
+					
+					//String endDate = cmd.getOptionValue("edDt");
+					String endDate = null;
+					Date endDateTime = null;
+					if (endDate != null){
+						endDateTime = DateUtils.dateParse(endDate);
+					}else{
+						endDateTime = provExecStartTime;
+					}
+					
 					String workspacePath = cmd.getOptionValue("wp");
 					
 //					String extendedContext = cmd.getOptionValue("sceContext");
@@ -211,10 +231,10 @@ public class ProvMonitor {
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
 					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath, extendedContext);
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, startDateTime, endDateTime, workspacePath, extendedContext);
 					}else{
 						//Invoking BusinessServices
-						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, starDateTime, endDateTime, workspacePath);
+						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, startDateTime, endDateTime, workspacePath);
 					}
 				}
 				break;

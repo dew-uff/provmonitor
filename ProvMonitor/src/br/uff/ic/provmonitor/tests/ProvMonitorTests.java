@@ -1,8 +1,12 @@
 package br.uff.ic.provmonitor.tests;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.CharBuffer;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -252,6 +256,21 @@ public class ProvMonitorTests {
 		} catch (IOException x) {
 		    // File permission problems are caught here.
 		    System.err.println(x);
+		}
+	}
+	
+	private static void accessFileContent(String filePath){
+		File exampleHtml = new File(filePath);
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(exampleHtml));
+			String line = null;
+			while ((line = reader.readLine()) != null){
+				System.out.println(line);
+			}
+			reader.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -951,15 +970,26 @@ public class ProvMonitorTests {
 //															   ,"3");
 		
 		
-		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste501"
-				   											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
-				   											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
-				   											   ,"1");
+//		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste501"
+//				   											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
+//				   											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
+//				   											   ,"1");
+//
+//		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste502"
+//				  											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
+//				  											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
+//				  											   ,"2");
+		
+		
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1111"
+															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1111"
+															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1111"
+															   ,"1");
 
-		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste502"
-				  											   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste501"
-				  											   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste501"
-				  											   ,"2");
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1102"
+															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1111"
+															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1111"
+															   ,"2");
 
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1224,6 +1254,7 @@ public class ProvMonitorTests {
 			//Remove File
 			//deleteFile(workspaceActivation1 + "/Folder1/teste2.html");
 			//Ending Activity 1 - Instance 1
+			activityStartDateTime = null;
 			Date endActiviyDateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity1InstanceId, context, activityStartDateTime, endActiviyDateTime, workspaceIntermediate, workspaceActivation1);
 			//////////////////////////////////
@@ -1251,6 +1282,7 @@ public class ProvMonitorTests {
 			//Remove File
 			deleteFile(workspaceActivation2 + "/fileActivity1.txt");
 			//Ending Activity 2 - Instance 1
+			activity2StartDateTime = null;
 			Date endActiviy2DateTime = Calendar.getInstance().getTime();
 			RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activity2InstanceId, context2, activity2StartDateTime, endActiviy2DateTime, workspaceIntermediate, workspaceActivation2);
 			//////////////////////////////////
@@ -1307,6 +1339,8 @@ public class ProvMonitorTests {
 			//Execute Activity 3 - Instance 1
 			executeActivation(workspaceActivation3, filesNames);
 			createFileContent(workspaceActivation3 + "/fileActivity3.txt");
+			
+			accessFileContent(workspaceActivation3 + "/fileActivity2.txt");
 			
 			try {
 			Thread.sleep(3000);

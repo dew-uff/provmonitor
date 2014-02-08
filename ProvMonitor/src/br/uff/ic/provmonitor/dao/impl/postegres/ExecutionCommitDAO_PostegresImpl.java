@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 
 import br.uff.ic.provmonitor.connection.ConnectionManager;
 import br.uff.ic.provmonitor.dao.ExecutionCommitDAO;
@@ -35,7 +36,7 @@ public class ExecutionCommitDAO_PostegresImpl implements ExecutionCommitDAO {
 				executionCommit.setCommitId(rs.getString("ID_COMMIT"));
 				executionCommit.setElementId(rs.getString("ID_ELEMENT"));
 				executionCommit.setElementPath(rs.getString("PATH"));
-				executionCommit.setCommitTime(rs.getDate("END_TIME"));
+				executionCommit.setCommitTime(rs.getTimestamp("END_TIME"));
 				executionCommit.setStatus(rs.getString("STATUS"));
 				
 				return executionCommit;
@@ -68,7 +69,8 @@ public class ExecutionCommitDAO_PostegresImpl implements ExecutionCommitDAO {
 																							") values (?,?,?,?,?)");
 			psInsert.setString(1, executionCommit.getElementId());
 			psInsert.setString(2, executionCommit.getStatus());
-			psInsert.setDate(3, DateUtils.utilsDate2SqlDate(executionCommit.getCommitTime()));
+			//psInsert.setDate(3, DateUtils.utilsDate2SqlDate(executionCommit.getCommitTime()), Calendar.getInstance());
+			psInsert.setTimestamp(3, DateUtils.utilsDate2SqlTimeStamp(executionCommit.getCommitTime()), Calendar.getInstance());
 			psInsert.setString(4, executionCommit.getElementPath());
 			psInsert.setString(5, executionCommit.getCommitId());
 			
@@ -110,7 +112,8 @@ public class ExecutionCommitDAO_PostegresImpl implements ExecutionCommitDAO {
 																" WHERE ID_ELEMENT = ? AND PATH = ? " );
 			psInsert.setString(1, executionCommit.getElementId());
 			psInsert.setString(2, executionCommit.getStatus());
-			psInsert.setDate(3, DateUtils.utilsDate2SqlDate(executionCommit.getCommitTime()));
+			//psInsert.setDate(3, DateUtils.utilsDate2SqlDate(executionCommit.getCommitTime()));
+			psInsert.setTimestamp(3, DateUtils.utilsDate2SqlTimeStamp(executionCommit.getCommitTime()));
 			psInsert.setString(4, executionCommit.getElementPath());
 			psInsert.setString(5, executionCommit.getCommitId());
 			psInsert.setString(6, executionCommit.getElementId());

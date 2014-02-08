@@ -574,7 +574,57 @@ public class JGitManager implements VCSManager {
 	}
 
 	@Override
-	public String commit(String workspacePath, String message)
+	public VCSWorkspaceMetaData commit(String workspacePath, String message)
+			throws VCSException {
+		try {
+			VCSWorkspaceMetaData wkMetaData = new VCSWorkspaceMetaData();
+			
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			
+			StatusCommand sc = git.status();
+			Status status = sc.call();
+			wkMetaData.setChanged(status.getChanged());
+			
+			CommitCommand commit = git.commit();
+	        RevCommit revision;
+	        
+			revision = commit.setMessage(message).call();
+			String revisionId = revision.getId().getName();
+			wkMetaData.setCommidId(revisionId);
+			
+			//System.out.println(revision.getShortMessage());
+			
+			
+			
+			return wkMetaData;
+        
+		} catch (GitAPIException | IOException e) {
+			throw new VCSException("Commit error: " + e.getMessage(), e.getCause());
+		}
+	}
+	
+	public VCSWorkspaceMetaData getStatus(String workspacePath) throws VCSException{
+		try{
+			VCSWorkspaceMetaData wkMetaData = new VCSWorkspaceMetaData();
+			
+			Repository repository = getRepository(workspacePath);
+			Git git = new Git(repository);
+			StatusCommand sc = git.status();
+			Status status = sc.call();
+			wkMetaData.setModified(status.getModified());
+			wkMetaData.setChanged(status.getChanged());
+			wkMetaData.setCreated(status.getAdded());
+			wkMetaData.setRemoved(status.getRemoved());
+			
+			return wkMetaData;
+		} catch (GitAPIException | IOException e) {
+			throw new VCSException("Commit error: " + e.getMessage(), e.getCause());
+		}
+		
+	}
+	
+/*	public String commit(String workspacePath, String message)
 			throws VCSException {
 		try {
 			Repository repository = getRepository(workspacePath);
@@ -587,13 +637,16 @@ public class JGitManager implements VCSManager {
 			String revisionId = revision.getId().getName();
 			
 			//System.out.println(revision.getShortMessage());
+			StatusCommand sc = git.status();
+			Status status = sc.call();
+			status.getModified();
 			
 			return revisionId;
         
 		} catch (GitAPIException | IOException e) {
 			throw new VCSException("Commit error: " + e.getMessage(), e.getCause());
 		}
-	}
+	}*/
 
 	@Override
 	public void addPathOrFile(String workspacePath, String pathOrFile)
@@ -808,7 +861,7 @@ public class JGitManager implements VCSManager {
 		
 	}
 	
-	public void addAllFromPath(String workspacePath) throws VCSException{
+	public VCSWorkspaceMetaData addAllFromPath(String workspacePath) throws VCSException{
 		try {
 			Repository repository = getRepository(workspacePath);
 			Git git = new Git(repository);
@@ -821,9 +874,13 @@ public class JGitManager implements VCSManager {
 	        
 			add.call();
 
-			//StatusCommand sc = git.status();
-			//Status status = sc.call();
-			//status.getAdded();
+			StatusCommand sc = git.status();
+			Status status = sc.call();
+			
+			VCSWorkspaceMetaData wkMetaData = new VCSWorkspaceMetaData();
+			wkMetaData.setCreated(status.getAdded());
+			
+			return wkMetaData;
 			
 	        //DirCache dir = add.call();
 	        
@@ -880,7 +937,7 @@ public class JGitManager implements VCSManager {
 	}
 	
 	@SuppressWarnings("unused")
-	public void getStatus(String workspacePath){
+	public void getStatusOld(String workspacePath){
 		try {	
 			Repository repo = getRepository(workspacePath);
 			Git git = new Git(repo);

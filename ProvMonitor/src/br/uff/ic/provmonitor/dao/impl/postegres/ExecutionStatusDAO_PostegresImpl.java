@@ -37,9 +37,9 @@ public class ExecutionStatusDAO_PostegresImpl implements ExecutionStatusDAO{
 				executionStatus.setElementId(rs.getString("ID_ELEMENT"));
 				executionStatus.setElementPath(rs.getString("PATH"));
 				executionStatus.setElementType(rs.getString("TYPE_ELEMENT"));
-				executionStatus.setEndTime(rs.getDate("END_TIME"));
+				executionStatus.setEndTime(rs.getTimestamp("END_TIME"));
 				executionStatus.setPerformers(rs.getString("PERFORMERS"));
-				executionStatus.setStartTime(rs.getDate("START_TIME"));
+				executionStatus.setStartTime(rs.getTimestamp("START_TIME"));
 				executionStatus.setStatus(rs.getString("STATUS"));
 				
 				return executionStatus;
@@ -77,8 +77,10 @@ public class ExecutionStatusDAO_PostegresImpl implements ExecutionStatusDAO{
 			psInsert.setString(1, executionStatus.getElementId());
 			psInsert.setString(2, executionStatus.getElementType());
 			psInsert.setString(3, executionStatus.getStatus());
-			psInsert.setDate(4, DateUtils.utilsDate2SqlDate(executionStatus.getStartTime()));
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionStatus.getEndTime()));
+			psInsert.setTimestamp(4, DateUtils.utilsDate2SqlTimeStamp(executionStatus.getStartTime()));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionStatus.getEndTime()));
+			//psInsert.setDate(4, DateUtils.utilsDate2SqlDate(executionStatus.getStartTime()), Calendar.getInstance());
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionStatus.getEndTime()), Calendar.getInstance());
 			psInsert.setString(6, executionStatus.getElementPath());
 			psInsert.setString(7, executionStatus.getPerformers());
 			psInsert.setString(8, executionStatus.getCommitId());
@@ -124,8 +126,10 @@ public class ExecutionStatusDAO_PostegresImpl implements ExecutionStatusDAO{
 			psInsert.setString(1, executionStatus.getElementId());
 			psInsert.setString(2, executionStatus.getElementType());
 			psInsert.setString(3, executionStatus.getStatus());
-			psInsert.setDate(4, DateUtils.utilsDate2SqlDate(executionStatus.getStartTime()));
-			psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionStatus.getEndTime()));
+			psInsert.setTimestamp(4, DateUtils.utilsDate2SqlTimeStamp(executionStatus.getStartTime()));
+			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(executionStatus.getEndTime()));
+			//psInsert.setDate(4, DateUtils.utilsDate2SqlDate(executionStatus.getStartTime()));
+			//psInsert.setDate(5, DateUtils.utilsDate2SqlDate(executionStatus.getEndTime()));
 			psInsert.setString(6, executionStatus.getElementPath());
 			psInsert.setString(7, executionStatus.getPerformers());
 			psInsert.setString(8, executionStatus.getCommitId());

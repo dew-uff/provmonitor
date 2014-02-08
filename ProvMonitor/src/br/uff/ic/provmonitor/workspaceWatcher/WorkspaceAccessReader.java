@@ -381,4 +381,172 @@ public class WorkspaceAccessReader {
 		return result;
 	}
 	
+	
+	/**
+	 * Method that recursively read the path structure looking for Path with access time greater than the start date parameterized.
+	 * @param rootPath <code>Path</code> - Path to be used as root for the recursively read
+	 * @param startDate <code>Date</code> - Date to be compared with. It will return all path entries with access time greater than this date 
+	 * @param onlyFiles <code>boolean</code> - Flag to include Directory's Paths or only File's Paths
+	 * @return <code>Collection<WorkspacePathStatus> - Array with the absolute path, type of access and access dateTime of all Entries with access time greater than the one informed on startDate parameter.
+	 * @throws IOException - When any problem occurs accessing Path attributes.
+	 * */
+	public static final Collection<WorkspacePathStatus> readAccessedPathStatusAndStatusTime (Path rootPath, Date startDate, boolean onlyFiles) throws IOException{
+		ArrayList<WorkspacePathStatus> result = new ArrayList<WorkspacePathStatus>();
+		
+		if (rootPath == null || rootPath.toFile()== null){
+			return result;
+		}
+		
+		//If the rootPath is not a Directory, verify accessTime. Else iterate recursively inside it's structure. 
+		if (!rootPath.toFile().isDirectory()){
+			BasicFileAttributes attributes = Files.readAttributes(rootPath, BasicFileAttributes.class);
+			Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+			//Date fileCreateDate = new Date(attributes.creationTime().toMillis());
+			//Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
+			//Date compare
+			//if (startDate.compareTo(fileCreateDate) < 0){
+				//result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CREATE, fileCreateDate));
+			//	if (fileCreateDate.compareTo(fileChangeDate) < 0){
+					//result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CHANGE, fileCreateDate));
+			//		if(fileChangeDate.compareTo(fileAccessDate) < 0){
+			//			result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileCreateDate));
+			//		}
+			//	}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+			//		result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileCreateDate));
+			//	}
+			//}
+			//else if (startDate.compareTo(fileChangeDate) < 0){
+			//	result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.CHANGE, fileChangeDate));
+			//}
+			//else if (startDate.compareTo(fileAccessDate) < 0){
+			if (startDate.compareTo(fileAccessDate) < 0){
+				result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileAccessDate));
+			}
+		}else{
+			//Queue to help navigate recursively inside the Path.
+			Queue<Path> pathQueue = new LinkedList<Path>();
+
+			//First level access
+			for (File childrenPassName: rootPath.toFile().listFiles()){
+				//TODO: Ignore list support: using regular expression
+				
+				//Ignore Git pathes
+				if (!childrenPassName.getAbsolutePath().contains(".git")){
+					Path childrenPass = Paths.get(childrenPassName.getAbsolutePath());
+					
+					BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
+					Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+					//Date fileCreateDate = new Date(attributes.creationTime().toMillis());
+					//Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
+					
+					//If the path is a directory put it on the Queue to recursively navigation.
+					if (childrenPassName.isDirectory()){
+						//Date compare
+						//if (startDate.compareTo(fileCreateDate) < 0){
+						//	pathQueue.add(childrenPass);
+						//	if (!onlyFiles){
+								//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE,fileCreateDate));
+						//	}
+						//}
+						//else if (startDate.compareTo(fileChangeDate) < 0){
+						//	pathQueue.add(childrenPass);
+						//	if (!onlyFiles){
+								//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE,fileChangeDate));
+						//	}
+						//}
+						//else if (startDate.compareTo(fileAccessDate) < 0){
+						if (startDate.compareTo(fileAccessDate) < 0){
+							pathQueue.add(childrenPass);
+							if (!onlyFiles){
+								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
+							}
+						}
+					}else{
+						//Date compare
+						//if (startDate.compareTo(fileCreateDate) < 0){
+							//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE, fileCreateDate));
+						//	if (fileCreateDate.compareTo(fileChangeDate) < 0){
+								//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileCreateDate));
+						//		if(fileChangeDate.compareTo(fileAccessDate) < 0){
+						//			result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+						//		}
+						//	}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+						//		result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+						//	}
+						//}
+						//else if (startDate.compareTo(fileChangeDate) < 0){
+						//	result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
+						//}
+						//else if (startDate.compareTo(fileAccessDate) < 0){
+						if (startDate.compareTo(fileAccessDate) < 0){
+							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
+						}
+					}
+				}
+			}
+			
+			//Recursively access through Path tree
+			while (!pathQueue.isEmpty()){
+				File childrenFile = pathQueue.poll().toFile();
+				for (File childrenPassName: childrenFile.listFiles()){
+					//TODO: Ignore list support: using regular expression
+					
+					if (!childrenPassName.getAbsolutePath().contains(".git")){
+						Path childrenPass = Paths.get(childrenPassName.getAbsolutePath());
+						
+						BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
+						Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+						//Date fileCreateDate = new Date(attributes.creationTime().toMillis());
+						//Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
+						
+						//If the path is a directory put it on the Queue to recursively navigation.
+						if (childrenPassName.isDirectory()){
+							//Date compare
+							//if (startDate.compareTo(fileCreateDate) < 0){
+							//	pathQueue.add(childrenPass);
+							//	if (!onlyFiles){
+									//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE,fileCreateDate));
+							//	}
+							//}
+							//else if (startDate.compareTo(fileChangeDate) < 0){
+							//	pathQueue.add(childrenPass);
+							//	if (!onlyFiles){
+									//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE,fileChangeDate));
+							//	}
+							//}
+							//else if (startDate.compareTo(fileAccessDate) < 0){
+							if (startDate.compareTo(fileAccessDate) < 0){
+								pathQueue.add(childrenPass);
+								if (!onlyFiles){
+									result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
+								}
+							}
+						}else{
+							//Date compare
+							//if (startDate.compareTo(fileCreateDate) < 0){
+								//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CREATE, fileCreateDate));
+							//	if (fileCreateDate.compareTo(fileChangeDate) < 0){
+									//result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileCreateDate));
+							//		if(fileChangeDate.compareTo(fileAccessDate) < 0){
+							//			result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+							//		}
+							//	}else if(fileCreateDate.compareTo(fileAccessDate) < 0){
+							//		result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileCreateDate));
+							//	}
+							//}
+							//else if (startDate.compareTo(fileChangeDate) < 0){
+							//	result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
+							//}
+							//else if (startDate.compareTo(fileAccessDate) < 0){
+							if (startDate.compareTo(fileAccessDate) < 0){
+								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
 }

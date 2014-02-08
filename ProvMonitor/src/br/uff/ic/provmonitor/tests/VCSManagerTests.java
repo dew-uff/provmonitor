@@ -22,6 +22,7 @@ import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
+import br.uff.ic.provmonitor.vcsmanager.VCSWorkspaceMetaData;
 
 public class VCSManagerTests {
 	
@@ -357,8 +358,10 @@ public class VCSManagerTests {
 		//System.out.println("Cloning to: " + workspacePath);
 		cvsManager.cloneRepository(centralRepository, workspacePath);
 		cvsManager.addAllFromPath(workspacePath);
-		String commiId = cvsManager.commit(workspacePath, "Teste de Commit em Workspace Pre-preenchido.");
-		System.out.println("Commit ID: " + commiId);
+		//String commiId = cvsManager.commit(workspacePath, "Teste de Commit em Workspace Pre-preenchido.");
+		VCSWorkspaceMetaData wkMetaData = cvsManager.commit(workspacePath, "Teste de Commit em Workspace Pre-preenchido.");
+		String commitId = wkMetaData.getCommidId();
+		System.out.println("Commit ID: " + commitId);
 		
 	}
 	
@@ -404,7 +407,9 @@ public class VCSManagerTests {
 		//ActivityEnd
 		//Pushing back to the experiment root workspace
 		vcsManager.addAllFromPath(activationWorkspace);
-		commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity1");
+		//commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity1");
+		VCSWorkspaceMetaData wkMetaData = vcsManager.commit(activationWorkspace, "TestCommitActivity1");
+		commitId = wkMetaData.getCommidId();
 		System.out.println("Commit ID: " + commitId);
 		vcsManager.pushBack(activationWorkspace, workspacePath);
 		
@@ -421,7 +426,9 @@ public class VCSManagerTests {
 		//ActivityEnd
 		//Pushing back to the experiment root workspace
 		vcsManager.addAllFromPath(activationWorkspace);
-		commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity2");
+		//commitId = vcsManager.commit(activationWorkspace, "TestCommitActivity2");
+		VCSWorkspaceMetaData wkMetaData2 = vcsManager.commit(activationWorkspace, "TestCommitActivity2");
+		commitId = wkMetaData2.getCommidId();
 		System.out.println("Commit ID: " + commitId);
 		vcsManager.pushBack(activationWorkspace, workspacePath);
 		

@@ -65,7 +65,15 @@ public interface VCSManager {
 	 * @param workspacePath - Observed workspace.
 	 * @throws VCSException - If any exception occurs.
 	 */
-	public void addAllFromPath(String workspacePath) throws VCSException;
+	public VCSWorkspaceMetaData addAllFromPath(String workspacePath) throws VCSException;
+	//public void addAllFromPath(String workspacePath) throws VCSException;
+	
+	/**
+	 * Get workspace status.
+	 * @param workspacePath - Observed workspace.
+	 * @throws VCSException - If any exception occurs.
+	 */
+	public VCSWorkspaceMetaData getStatus(String workspacePath) throws VCSException;
 	
 	/**
 	 * Add specified untracked file into control.
@@ -108,7 +116,8 @@ public interface VCSManager {
 	 * @return String Commit ID - Identification of the commit.
 	 * @throws VCSException - If any exception occurs.
 	 */
-	public String commit(String workspacePath, String message) throws VCSException;
+	public VCSWorkspaceMetaData commit(String workspacePath, String message) throws VCSException;
+	//public String commit(String workspacePath, String message) throws VCSException;
 	
 	/**
 	 * Commit the removed files, removing it from repository.

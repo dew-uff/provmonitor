@@ -30,6 +30,7 @@ import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
+import br.uff.ic.provmonitor.vcsmanager.VCSWorkspaceMetaData;
 import br.uff.ic.provmonitor.workspaceWatcher.PathAccessType;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspaceAccessReader;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspacePathStatus;
@@ -351,9 +352,27 @@ public class RetrospectiveProvenanceBusinessServices {
 	}
 	
 	public synchronized static void notifyActivityExecutionEnding(String activityInstanceId, String[] context, Date activityStartDateTime, Date endActiviyDateTime, String workspaceRoot, String activationWorkspace) throws ProvMonitorException{
+		
+		//Recover executionStatus element
+		ProvMonitorOutputManager.appendMessageLine("Starting ActivityExecutionEnding Method...");
+		
 		//Mounting context
 		//Prepare ActivityObject to be persisted
 		ExecutionStatus elementExecStatus = getNewExecStatus(activityInstanceId, context, activityStartDateTime, endActiviyDateTime);
+		
+		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
+		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
+		ProvMonitorOutputManager.appendMessageLine("Getting activity by id: " + activityInstanceId);
+		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementExecStatus.getElementPath());
+		
+		if (elemExecutionStatus == null){
+			throw new ProvMonitorException("Element: " + activityInstanceId + " not found exception. Activity could not be finished if it was not started." );
+		}
+		
+		if (activityStartDateTime == null){
+			activityStartDateTime = elemExecutionStatus.getStartTime();
+			elementExecStatus.setStartTime(activityStartDateTime);
+		}
 		
 		//Record Timestamp
 		
@@ -373,27 +392,26 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
 		//((GitManager)cvsManager).getStatus(workspacePath);
+		
+		//VCSWorkspaceMetaData wkMetaDataStatus = vcsManager.getStatus(activationWorkspace);
+		//Set<String> test = wkMetaDataStatus.getCreated();
+		
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Adding new files...");
-		vcsManager.addAllFromPath(activationWorkspace);
+		VCSWorkspaceMetaData wkMetaDataAddAll = vcsManager.addAllFromPath(activationWorkspace);
+		Set<String> created = wkMetaDataAddAll.getCreated();
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Files added.");
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Removing files...");
 		Set<String> removed = vcsManager.removeAllFromPath(activationWorkspace);
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Files removed.");
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Cheking in changes...");
-		String commitId = vcsManager.commit(activationWorkspace, message.toString());
+		//String commitId = vcsManager.commit(activationWorkspace, message.toString());
+		VCSWorkspaceMetaData wkMetaData = vcsManager.commit(activationWorkspace, message.toString());
+		String commitId = wkMetaData.getCommidId();
+		Set<String> modified = wkMetaData.getChanged();
 		ProvMonitorLogger.debug(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionEnding", "Changes checked in.");
 				
 		
-		//Recover executionStatus element
-		ProvMonitorOutputManager.appendMessageLine("Starting ActivityExecutionEnding Method...");
-		ProvMonitorDAOFactory factory = new ProvMonitorDAOFactory();
-		ExecutionStatusDAO execStatusDAO = factory.getExecutionStatusDAO();
-		ProvMonitorOutputManager.appendMessageLine("Getting activity by id: " + activityInstanceId);
-		ExecutionStatus elemExecutionStatus = execStatusDAO.getById(activityInstanceId, elementExecStatus.getElementPath());
 		
-		if (elemExecutionStatus == null){
-			throw new ProvMonitorException("Element: " + activityInstanceId + " not found exception. Activity could not be finished if it was not started." );
-		}
 		
 		//update execution element
 		ProvMonitorOutputManager.appendMessageLine("Updating Activity properties: End DateTime....");
@@ -413,7 +431,11 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Joining all files changes to be persisted.
 		Collection<ExecutionFilesStatus> removedFiles = getRemovedFiles(removed, elementExecStatus, activationWorkspace);
+		Collection<ExecutionFilesStatus> createdFiles = getCreatedFiles(created, elementExecStatus, activationWorkspace);
+		Collection<ExecutionFilesStatus> modifiedFiles = getModifiedFiles(modified, elementExecStatus, activationWorkspace);
 		execFiles.addAll(removedFiles);
+		execFiles.addAll(createdFiles);
+		execFiles.addAll(modifiedFiles);
 		
 		//persist updated element
 		ProvMonitorOutputManager.appendMessageLine("Persisting Activity...");
@@ -465,7 +487,9 @@ public class RetrospectiveProvenanceBusinessServices {
 		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
 		try{
 			//Collection<AccessedPath> accessedFiles = WorkspaceAccessReader.readAccessedPathsAndAccessTime(Paths.get(workspacePath), startActivityDateTime, true);
-			Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), elementExecStatus.getStartTime(), true);
+			//Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readWorkspacePathStatusAndStatusTime(Paths.get(workspacePath), elementExecStatus.getStartTime(), true);
+			Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readAccessedPathStatusAndStatusTime(Paths.get(workspacePath), elementExecStatus.getStartTime(), true);
+			
 			if (accessedFiles != null && !accessedFiles.isEmpty()){
 				for (WorkspacePathStatus acFile: accessedFiles){
 					
@@ -500,6 +524,42 @@ public class RetrospectiveProvenanceBusinessServices {
 				execFileStatus.setElementId(elementExecStatus.getElementId());
 				execFileStatus.setElementPath(elementExecStatus.getElementPath());
 				execFileStatus.setFiletAccessType(PathAccessType.REMOVE.name());
+				
+				execFiles.add(execFileStatus);
+			}
+		}
+		return execFiles;
+	}
+	
+	private static Collection<ExecutionFilesStatus> getModifiedFiles(Set<String> removed, ExecutionStatus elementExecStatus, String workspacePath){
+		//Registering removed files
+		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
+		if (removed != null && !removed.isEmpty()){
+			for (String removedPath: removed){
+				ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+				execFileStatus.setFileAccessDateTime(elementExecStatus.getStartTime());
+				execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+				execFileStatus.setElementId(elementExecStatus.getElementId());
+				execFileStatus.setElementPath(elementExecStatus.getElementPath());
+				execFileStatus.setFiletAccessType(PathAccessType.CHANGE.name());
+				
+				execFiles.add(execFileStatus);
+			}
+		}
+		return execFiles;
+	}
+	
+	private static Collection<ExecutionFilesStatus> getCreatedFiles(Set<String> removed, ExecutionStatus elementExecStatus, String workspacePath){
+		//Registering removed files
+		ArrayList<ExecutionFilesStatus> execFiles = new ArrayList<ExecutionFilesStatus>();
+		if (removed != null && !removed.isEmpty()){
+			for (String removedPath: removed){
+				ExecutionFilesStatus execFileStatus = new ExecutionFilesStatus();
+				execFileStatus.setFileAccessDateTime(elementExecStatus.getStartTime());
+				execFileStatus.setFilePath(workspacePath.concat("/".concat(removedPath)));
+				execFileStatus.setElementId(elementExecStatus.getElementId());
+				execFileStatus.setElementPath(elementExecStatus.getElementPath());
+				execFileStatus.setFiletAccessType(PathAccessType.CREATE.name());
 				
 				execFiles.add(execFileStatus);
 			}
@@ -626,7 +686,9 @@ public class RetrospectiveProvenanceBusinessServices {
 		//((GitManager)cvsManager).getStatus(workspacePath);
 		cvsManager.addAllFromPath(workspacePath);
 		Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
-		String commitId = cvsManager.commit(workspacePath, message.toString());
+		//String commitId = cvsManager.commit(workspacePath, message.toString());
+		VCSWorkspaceMetaData wkMetaData = cvsManager.commit(workspacePath, message.toString());
+		String commitId = wkMetaData.getCommidId();
 				
 		
 		//Recover executionStatus element
@@ -851,7 +913,8 @@ public class RetrospectiveProvenanceBusinessServices {
 			//Set<String> removed = cvsManager.getRemovedFiles(workspacePath);
 			cvsManager.addAllFromPath(workspacePath);
 			Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
-			String commitId = cvsManager.commit(workspacePath, message.toString());
+			VCSWorkspaceMetaData wkMetaData = cvsManager.commit(workspacePath, message.toString());
+			String commitId = wkMetaData.getCommidId();
 			
 			//Registering removed files
 			if (removed != null && !removed.isEmpty()){
@@ -917,7 +980,8 @@ public class RetrospectiveProvenanceBusinessServices {
 		//Identifying removed files
 		Set<String> removed = cvsManager.removeAllFromPath(workspacePath);
 		//Committing changes
-		String commitId = cvsManager.commit(workspacePath, message.toString());
+		VCSWorkspaceMetaData wkMetaData = cvsManager.commit(workspacePath, message.toString());
+		String commitId = wkMetaData.getCommidId();
 		
 		//Joining all files changes to be persisted.
 		Collection<ExecutionFilesStatus> removedFiles = getRemovedFiles(removed, elementExecStatus, workspacePath);
