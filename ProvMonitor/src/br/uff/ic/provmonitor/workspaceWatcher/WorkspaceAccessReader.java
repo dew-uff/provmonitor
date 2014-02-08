@@ -436,7 +436,7 @@ public class WorkspaceAccessReader {
 					
 					BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
 					Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
-					//Date fileCreateDate = new Date(attributes.creationTime().toMillis());
+					Date fileCreateDate = new Date(attributes.creationTime().toMillis());
 					//Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
 					
 					//If the path is a directory put it on the Queue to recursively navigation.
@@ -455,7 +455,7 @@ public class WorkspaceAccessReader {
 						//	}
 						//}
 						//else if (startDate.compareTo(fileAccessDate) < 0){
-						if (startDate.compareTo(fileAccessDate) < 0){
+						if (fileCreateDate.compareTo(fileAccessDate) < 0 && startDate.compareTo(fileAccessDate) < 0){
 							pathQueue.add(childrenPass);
 							if (!onlyFiles){
 								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
@@ -478,7 +478,7 @@ public class WorkspaceAccessReader {
 						//	result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
 						//}
 						//else if (startDate.compareTo(fileAccessDate) < 0){
-						if (startDate.compareTo(fileAccessDate) < 0){
+						if (fileCreateDate.compareTo(fileAccessDate) < 0 && startDate.compareTo(fileAccessDate) < 0){
 							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
 						}
 					}
@@ -496,7 +496,7 @@ public class WorkspaceAccessReader {
 						
 						BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
 						Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
-						//Date fileCreateDate = new Date(attributes.creationTime().toMillis());
+						Date fileCreateDate = new Date(attributes.creationTime().toMillis());
 						//Date fileChangeDate = new Date(attributes.lastModifiedTime().toMillis()); 
 						
 						//If the path is a directory put it on the Queue to recursively navigation.
@@ -515,7 +515,7 @@ public class WorkspaceAccessReader {
 							//	}
 							//}
 							//else if (startDate.compareTo(fileAccessDate) < 0){
-							if (startDate.compareTo(fileAccessDate) < 0){
+							if (fileCreateDate.compareTo(fileAccessDate) < 0 && startDate.compareTo(fileAccessDate) < 0){
 								pathQueue.add(childrenPass);
 								if (!onlyFiles){
 									result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
@@ -538,7 +538,7 @@ public class WorkspaceAccessReader {
 							//	result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.CHANGE, fileChangeDate));
 							//}
 							//else if (startDate.compareTo(fileAccessDate) < 0){
-							if (startDate.compareTo(fileAccessDate) < 0){
+							if (fileCreateDate.compareTo(fileAccessDate) < 0 && startDate.compareTo(fileAccessDate) < 0){
 								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
 							}
 						}

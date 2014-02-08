@@ -981,14 +981,14 @@ public class ProvMonitorTests {
 //				  											   ,"2");
 		
 		
-		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1111"
-															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1111"
-															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1111"
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1121"
+															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1121"
+															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1121"
 															   ,"1");
 
-		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1102"
-															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1111"
-															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1111"
+		experimentScicumulusActivitiesBranchPerActivityStrategy("ScicumulusTeste1122"
+															   ,"C:/Testes/SciCumulus/CentralRepo/ScicumulusTeste1121"
+															   ,"C:/Testes/SciCumulus/workspaces/Scicumulus/Teste1121"
 															   ,"2");
 
 		
