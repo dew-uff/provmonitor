@@ -14,6 +14,7 @@ import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputType;
+import br.uff.ic.provmonitor.vcsmanager.GITCloneOptions;
 import br.uff.ic.provmonitor.vcsmanager.VCSType;
 
 /**
@@ -33,6 +34,7 @@ public class ProvMonitorProperties {
 	private ProvMonitorOutputType outputType;
 	private Properties provMonitorProps;
 	private static ProvMonitorProperties myInstance;
+	private GITCloneOptions gitCloneOptions;
 	
 	/**
 	 * Private constructor as a singleton.
@@ -126,6 +128,14 @@ public class ProvMonitorProperties {
 	public void setOutputType(ProvMonitorOutputType outputType) {
 		this.outputType = outputType;
 	}
+	
+	public GITCloneOptions getGitCloneOptions() {
+		return gitCloneOptions;
+	}
+
+	public void setGitCloneOptions(GITCloneOptions gitCloneOptions) {
+		this.gitCloneOptions = gitCloneOptions;
+	}
 
 	/**
 	 * Save an example ProvMonitorProperties file with default values
@@ -163,7 +173,7 @@ public class ProvMonitorProperties {
 			branchStrategy = BranchStrategy.valueOfName(provMonitorProps.getProperty("branchStrategy"));
 			outputFile = provMonitorProps.getProperty("outputFile");
 			outputType = ProvMonitorOutputType.valueOfName(provMonitorProps.getProperty("outputType"));
-			
+			gitCloneOptions = GITCloneOptions.valueOfName(provMonitorProps.getProperty("gitCloneOptions"));
 			
 			
 		}catch(FileNotFoundException e){
@@ -223,6 +233,9 @@ public class ProvMonitorProperties {
 			outputFile = "";
 			outputType = ProvMonitorOutputType.CONSOLE;
 		}
+		if (gitCloneOptions == null){
+			gitCloneOptions = GITCloneOptions.DEFAULT;
+		}
 		
 	}
 	
@@ -244,6 +257,7 @@ public class ProvMonitorProperties {
 			provMonitorProps.setProperty("branchStrategy", branchStrategy.getStrategyName());
 			provMonitorProps.setProperty("outputFile", outputFile);
 			provMonitorProps.setProperty("outputType", outputType.getCode());
+			provMonitorProps.setProperty("gitCloneOptions", gitCloneOptions.getName());
 			
 			
 			FileOutputStream out = new FileOutputStream("provMonitor.properties");

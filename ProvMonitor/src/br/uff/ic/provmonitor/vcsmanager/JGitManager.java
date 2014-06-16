@@ -1,7 +1,9 @@
 package br.uff.ic.provmonitor.vcsmanager;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -40,6 +42,7 @@ import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
 import br.uff.ic.provmonitor.exceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 
 /**
  * 
@@ -78,7 +81,21 @@ public class JGitManager implements VCSManager {
 	
 	@Override
 	public void cloneRepository(String sourceRepository, String workspacePath) throws VCSException{
-		cloneRepositoryWithTemp(sourceRepository, workspacePath);
+		switch (ProvMonitorProperties.getInstance().getGitCloneOptions()){
+		case DEFAULT:
+			cloneRepositoryWithTemp(sourceRepository, workspacePath);
+			break;
+		case SHARE:
+			cloneRepositoryWithoutTempThroughGitCLI(sourceRepository, workspacePath, true, false);
+			break;
+		case HARDLINK:
+			cloneRepositoryWithoutTempThroughGitCLI(sourceRepository, workspacePath, false, true);
+			break;
+		case SHARE_HARDLINK:
+			cloneRepositoryWithoutTempThroughGitCLI(sourceRepository, workspacePath, true, true);
+			break;
+		}
+		
 	}
 	
 	/**
@@ -358,6 +375,31 @@ public class JGitManager implements VCSManager {
 			}
 		} catch (VCSException e) {
 			throw new VCSException("Could not clone repository: " + e.getMessage(), e.getCause());
+		}
+	}
+	
+	private void cloneRepositoryWithoutTempThroughGitCLI(String sourceRepository, String workspacePath, Boolean share, Boolean hardlinks) throws VCSException{
+		StringBuilder sb = new StringBuilder();
+		sb.append("git.exe clone ");
+		if (share)
+			sb.append(" --share ");
+		if (hardlinks)
+			sb.append(" --hardlinks");
+		
+		sb.append(sourceRepository)
+		  .append(" ")
+		  .append(workspacePath);
+		
+		String command = sb.toString();
+		try{
+			Process proc = Runtime.getRuntime().exec(command);
+			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			String line;
+			while ((line = br.readLine()) != null) {
+			   System.out.println(line);
+			}
+		}catch(IOException e){
+			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
 	
