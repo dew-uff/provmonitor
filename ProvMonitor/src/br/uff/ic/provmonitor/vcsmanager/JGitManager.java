@@ -380,7 +380,7 @@ public class JGitManager implements VCSManager {
 	
 	private void cloneRepositoryWithoutTempThroughGitCLI(String sourceRepository, String workspacePath, Boolean share, Boolean hardlinks) throws VCSException{
 		StringBuilder sb = new StringBuilder();
-		sb.append("git.exe clone ");
+		sb.append("git clone ");
 		if (share)
 			sb.append(" --share ");
 		if (hardlinks)
