@@ -10,7 +10,8 @@ package br.uff.ic.provmonitor.vcsmanager;
 public enum VCSType {
 	//Mercurial HG and SVN Support to be implemented.
 	GIT (1, "GIT"), //JGit
-	GIT_COMAND_LINE(2,"GIT_COMAND_LINE"); //Git through system command calls.
+	GIT_COMAND_LINE(2,"GIT_COMAND_LINE"), //Git through system command calls.
+	GIT_CLI(3,"GIT_CLI"); //Git through system command calls.
 	
 	private Integer code;
 	private String name;

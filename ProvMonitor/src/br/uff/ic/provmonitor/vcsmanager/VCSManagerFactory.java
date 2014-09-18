@@ -15,6 +15,8 @@ public class VCSManagerFactory {
 		switch(ProvMonitorProperties.getInstance().getVcsType()){
 		case GIT_COMAND_LINE:
 			return new CommandLineGitManager();
+		case GIT_CLI:
+			return new CLIGitManager();
 		case GIT:
 		default:
 			return new JGitManager();

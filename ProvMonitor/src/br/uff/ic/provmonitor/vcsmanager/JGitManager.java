@@ -39,7 +39,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;

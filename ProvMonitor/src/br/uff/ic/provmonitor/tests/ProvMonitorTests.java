@@ -21,7 +21,7 @@ import java.util.Date;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
 import br.uff.ic.provmonitor.business.scicumulus.SciCumulusBusinessHelper;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.log.LogMessages;
 import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;

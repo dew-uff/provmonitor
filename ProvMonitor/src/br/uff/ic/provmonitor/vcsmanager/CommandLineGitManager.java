@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Set;
 
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 
 /**
  * CVS Manager Implementation for Git CVS.

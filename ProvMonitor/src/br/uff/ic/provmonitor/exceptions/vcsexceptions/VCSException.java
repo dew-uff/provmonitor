@@ -1,4 +1,6 @@
-package br.uff.ic.provmonitor.exceptions;
+package br.uff.ic.provmonitor.exceptions.vcsexceptions;
+
+import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 
 public class VCSException extends ProvMonitorException{
 
@@ -6,8 +8,6 @@ public class VCSException extends ProvMonitorException{
 
 	public VCSException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
-
 
 }

@@ -19,7 +19,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.vcsmanager.VCSWorkspaceMetaData;

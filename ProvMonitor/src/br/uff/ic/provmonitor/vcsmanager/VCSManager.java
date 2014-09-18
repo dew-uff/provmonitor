@@ -3,7 +3,7 @@ package br.uff.ic.provmonitor.vcsmanager;
 import java.util.Collection;
 import java.util.Set;
 
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 
 /**
  * CVS Manager Interface. Make it independent of implementation.

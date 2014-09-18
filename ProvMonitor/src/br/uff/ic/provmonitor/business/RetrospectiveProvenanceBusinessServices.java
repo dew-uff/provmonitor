@@ -20,7 +20,7 @@ import br.uff.ic.provmonitor.exceptions.DatabaseException;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.ServerDBException;
 import br.uff.ic.provmonitor.exceptions.VCSCheckOutConflictException;
-import br.uff.ic.provmonitor.exceptions.VCSException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.model.ArtifactInstance;
 import br.uff.ic.provmonitor.model.ExecutionCommit;
