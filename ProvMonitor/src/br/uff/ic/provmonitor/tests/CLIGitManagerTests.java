@@ -8,7 +8,7 @@ public class CLIGitManagerTests {
 	public final static String VALID_WORKSPACE="C:/Testes/Central1";
 	public final static String INVALID_WORKSPACE="C:/Testes";
 	public final static String EXISTENT_WORKSPACE="C:/Testes/manualTests/newWorkspace1";
-	public final static String NEW_WORKSPACE="C:/Testes/manualTests/newWorkspace2";
+	public final static String NEW_WORKSPACE="C:/Testes/manualTests/newWorkspace3";
 	
 	public static void main(String[] args) {
 		try {
