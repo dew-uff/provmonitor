@@ -11,6 +11,7 @@ import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSAddFilesException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSCommitException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSStatusException;
+import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSWorkspaceAlreadyExistsException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSWorkspaceCreationException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSWorkspaceInitException;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
@@ -30,29 +31,41 @@ public class CLIGitManager implements VCSManager {
 		try{
 			//Process proc = Runtime.getRuntime().exec(command);
 			File dirPath = new File(workspace);
+			
+			//Verify if path exists to avoid error
+			if (!dirPath.exists()){
+				return false;
+			}
+			
 			Process proc = Runtime.getRuntime().exec(command, null, dirPath);
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			BufferedReader brError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 			boolean error = false;
 			boolean success = false;
-			if (brError.ready()){
+			
+			if (brError.ready() || brError.read() > 0){
 				error = true;
 			}
-			if (br.ready()){
+			if (br.ready() || br.read() > 0){
 				success = true;
 			}
 			
 			//String line;
 			//while ((line = br.readLine()) != null) {
-			//   System.out.println(line);
+			//   System.out.println("br: " + line);
 			//}
 			//while ((line = brError.readLine()) != null) {
-			//	   System.out.println(line);
+			//	   System.out.println("brError: " + line);
 			//}
+			//System.out.println("isWorkspaceCreated (" + workspace + ") Error: " + error + " Success:" + success);
+			
+			br.close();
+			brError.close();
 			
 			return (!error && success);
 		}catch(IOException e){
+			//e.printStackTrace();
 			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		//return false;
@@ -63,6 +76,10 @@ public class CLIGitManager implements VCSManager {
 	@SuppressWarnings("unused")
 	public void createWorkspace(String workspace) throws VCSException {
 		try{
+			//If workspace already exists throw an exception
+			if (this.isWorkspaceCreated(workspace)){
+				throw new VCSWorkspaceAlreadyExistsException("Already exists a workspace at the path:" + workspace + ". ", null);
+			}
 			//Workspace initialization
 			workspaceInit(workspace);
 			
@@ -75,8 +92,10 @@ public class CLIGitManager implements VCSManager {
 			//Initial commit for workspace creation
 			VCSWorkspaceMetaData vcsCommitMD = commit(workspace, "Workspace creation.");
 		}catch(VCSWorkspaceInitException e){
+			//e.printStackTrace();
 			throw new VCSWorkspaceCreationException(e.getMessage(), e);
 		}catch(VCSAddFilesException e){
+			//e.printStackTrace();
 			throw new VCSWorkspaceCreationException(e.getMessage(), e);
 		}
 	}
@@ -89,6 +108,14 @@ public class CLIGitManager implements VCSManager {
 		try{
 			//Process proc = Runtime.getRuntime().exec(command);
 			File dirPath = new File(workspace);
+			
+			//Verify if path exists to avoid error
+			if (!dirPath.exists() || !dirPath.isDirectory()){
+				//If path does not exists create it.
+				if(!dirPath.mkdirs()){
+					throw new IOException("Workspace path does not exists and it was not possible create the path.");
+				}
+			}
 			Process proc = Runtime.getRuntime().exec(command, null, dirPath);
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -108,7 +135,11 @@ public class CLIGitManager implements VCSManager {
 				}
 			}
 			
+			br.close();
+			brError.close();
+			
 		}catch(IOException e){
+			//e.printStackTrace();
 			throw new VCSException(e.getMessage(), e.getCause());
 		}
 	}
@@ -200,7 +231,11 @@ public class CLIGitManager implements VCSManager {
 				}
 			}
 			
+			br.close();
+			brError.close();
+			
 		}catch(IOException e){
+			//e.printStackTrace();
 			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		
@@ -229,6 +264,8 @@ public class CLIGitManager implements VCSManager {
 				   System.out.println(line);
 				   errorMessage.append(line);
 				}
+				br.close();
+				brError.close();
 				throw new VCSStatusException(errorMessage.toString(), null);
 			}
 			if (br.ready()){
@@ -253,7 +290,11 @@ public class CLIGitManager implements VCSManager {
 				}
 			}
 			
+			br.close();
+			brError.close();
+			
 		}catch(IOException e){
+			//e.printStackTrace();
 			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		
@@ -313,6 +354,8 @@ public class CLIGitManager implements VCSManager {
 				   System.out.println(linePorcelain);
 				   errorMessage.append(linePorcelain);
 				}
+				brPorcelain.close();
+				brErrorPorcelain.close();
 				throw new VCSStatusException(errorMessage.toString(), null);
 			}
 			if (brPorcelain.ready()){
@@ -349,6 +392,8 @@ public class CLIGitManager implements VCSManager {
 				   System.out.println(line);
 				   errorMessage.append(line);
 				}
+				br.close();
+				brError.close();
 				throw new VCSCommitException(errorMessage.toString(), null);
 			}
 			if (br.ready()){
@@ -356,8 +401,11 @@ public class CLIGitManager implements VCSManager {
 					System.out.println(line);
 				}
 			}
+			br.close();
+			brError.close();
 			
 		}catch(IOException e){
+			//e.printStackTrace();
 			throw new VCSException(e.getMessage(), e.getCause());
 		}
 		

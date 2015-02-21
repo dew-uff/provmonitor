@@ -57,6 +57,7 @@ public class ProvMonitor {
 	 * @param args
 	 * @return 
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		//Execution start time...
 		Date provExecStartTime = Calendar.getInstance().getTime();
