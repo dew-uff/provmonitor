@@ -2,6 +2,7 @@ package br.uff.ic.provmonitor.dao.impl.javadb;
 
 import java.io.IOException;
 
+import br.uff.ic.provmonitor.dao.ActivityBenchmarkMarkupDAO;
 import br.uff.ic.provmonitor.dao.ActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
@@ -187,6 +188,12 @@ public class DatabaseControlDAO_JavaDBImpl implements DatabaseControlDAO{
 		ArtifactPortActivityInstanceDAO artifactPortActivityInstanceDAO = daoFactory.getArtifactPortActivityInstanceDAO();
 		if (!artifactPortActivityInstanceDAO.isTableCreated()){
 			artifactPortActivityInstanceDAO.createTable();
+		}
+		
+		//Verify and create if needed ActivityBenchmarkMarkupDAO Database Object
+		ActivityBenchmarkMarkupDAO activityBenchmarkMarkupDAO = daoFactory.getActivityBenchmarkMarkupDAO();
+		if (!activityBenchmarkMarkupDAO.isTableCreated()){
+			activityBenchmarkMarkupDAO.createTable();
 		}
 		
 		//Verify and create if needed xxx Database Object

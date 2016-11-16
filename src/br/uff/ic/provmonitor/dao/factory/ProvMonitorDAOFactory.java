@@ -1,5 +1,6 @@
 package br.uff.ic.provmonitor.dao.factory;
 
+import br.uff.ic.provmonitor.dao.ActivityBenchmarkMarkupDAO;
 import br.uff.ic.provmonitor.dao.ActivityInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactInstanceDAO;
 import br.uff.ic.provmonitor.dao.ArtifactPortActivityInstanceDAO;
@@ -9,6 +10,7 @@ import br.uff.ic.provmonitor.dao.ExecutionCommitDAO;
 import br.uff.ic.provmonitor.dao.ExecutionFilesStatusDAO;
 import br.uff.ic.provmonitor.dao.ExecutionStatusDAO;
 import br.uff.ic.provmonitor.dao.ProcessInstanceDAO;
+import br.uff.ic.provmonitor.dao.impl.javadb.ActivityBenchmarkMarkupDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ActivityInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactInstanceDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ArtifactPortActivityInstanceDAO_JavaDBImpl;
@@ -18,6 +20,7 @@ import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionCommitDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionFilesStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ExecutionStatusDAO_JavaDBImpl;
 import br.uff.ic.provmonitor.dao.impl.javadb.ProcessInstanceDAO_JavaDBImpl;
+import br.uff.ic.provmonitor.dao.impl.postegres.ActivityBenchmarkMarkupDAO_PostegresImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.DatabaseControlDAO_PostegresImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionCommitDAO_PostegresImpl;
 import br.uff.ic.provmonitor.dao.impl.postegres.ExecutionFilesStatusDAO_PostegresImpl;
@@ -137,4 +140,18 @@ public class ProvMonitorDAOFactory {
 		return new ArtifactPortActivityInstanceDAO_JavaDBImpl();
 	}
 	
+	/**
+	 * Get the Database control DAO Implementation
+	 * @return ArtifactPortActivityInstanceDAO
+	 * */
+	public ActivityBenchmarkMarkupDAO getActivityBenchmarkMarkupDAO(){
+		switch(ProvMonitorProperties.getInstance().getDataBaseType()){
+		case POSTGRES:
+			return new ActivityBenchmarkMarkupDAO_PostegresImpl();
+		case MYSQL:
+		case JAVADB:
+		default:
+			return new ActivityBenchmarkMarkupDAO_JavaDBImpl();
+	}
+	}
 }
