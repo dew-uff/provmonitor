@@ -549,4 +549,72 @@ public class WorkspaceAccessReader {
 		return result;
 	}
 	
+	
+	public static final Collection<WorkspacePathStatus> readPathFilesLasReadTime (Path rootPath, boolean onlyFiles) throws IOException{
+		ArrayList<WorkspacePathStatus> result = new ArrayList<WorkspacePathStatus>();
+		
+		if (rootPath == null || rootPath.toFile()== null){
+			return result;
+		}
+		
+		//If the rootPath is not a Directory, verify accessTime. Else iterate recursively inside it's structure. 
+		if (!rootPath.toFile().isDirectory()){
+			BasicFileAttributes attributes = Files.readAttributes(rootPath, BasicFileAttributes.class);
+			Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+			result.add(new WorkspacePathStatus(rootPath.toUri().getPath(), PathAccessType.READ, fileAccessDate));
+		}else{
+			//Queue to help navigate recursively inside the Path.
+			Queue<Path> pathQueue = new LinkedList<Path>();
+
+			//First level access
+			for (File childrenPassName: rootPath.toFile().listFiles()){
+				//TODO: Ignore list support: using regular expression
+				
+				//Ignore Git pathes
+				if (!childrenPassName.getAbsolutePath().contains(".git")){
+					Path childrenPass = Paths.get(childrenPassName.getAbsolutePath());
+					
+					BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
+					Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+					
+					//If the path is a directory put it on the Queue to recursively navigation.
+					if (childrenPassName.isDirectory()){
+						pathQueue.add(childrenPass);
+						if (!onlyFiles){
+							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
+						}
+					}else{
+						result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
+					}
+				}
+			}
+			
+			//Recursively access through Path tree
+			while (!pathQueue.isEmpty()){
+				File childrenFile = pathQueue.poll().toFile();
+				for (File childrenPassName: childrenFile.listFiles()){
+					//TODO: Ignore list support: using regular expression
+					
+					if (!childrenPassName.getAbsolutePath().contains(".git")){
+						Path childrenPass = Paths.get(childrenPassName.getAbsolutePath());
+						
+						BasicFileAttributes attributes = Files.readAttributes(childrenPass, BasicFileAttributes.class);
+						Date fileAccessDate = new Date(attributes.lastAccessTime().toMillis());
+						
+						//If the path is a directory put it on the Queue to recursively navigation.
+						if (childrenPassName.isDirectory()){
+							pathQueue.add(childrenPass);
+							if (!onlyFiles){
+								result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ,fileAccessDate));
+							}
+						}else{
+							result.add(new WorkspacePathStatus(childrenPassName.getAbsoluteFile().toURI().getPath(), PathAccessType.READ, fileAccessDate));
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
 }

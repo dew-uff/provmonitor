@@ -1016,15 +1016,21 @@ public class ProvMonitorTests {
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Isolation Strategy 3
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		isolationStrategy3("IsolationStrategy3_Trial1"
-						  ,"C:/Testes/SciCumulus/CentralRepo/IsolationStrategy03"
-						  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/IsolationStrategy03"
-						  ,"1");
+//		isolationStrategy3("IsolationStrategy3_Trial1"
+//						  ,"C:/Testes/SciCumulus/CentralRepo/IsolationStrategy03"
+//						  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/IsolationStrategy03"
+//						  ,"1");
+//		
+//		isolationStrategy3("IsolationStrategy3_Trial2"
+//						  ,"C:/Testes/SciCumulus/CentralRepo/IsolationStrategy03"
+//						  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/IsolationStrategy03"
+//						  ,"2");
 		
-		isolationStrategy3("IsolationStrategy3_Trial2"
-						  ,"C:/Testes/SciCumulus/CentralRepo/IsolationStrategy03"
-						  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/IsolationStrategy03"
-						  ,"2");
+		
+		isolationStrategy3("IsolationStrategy3_SetupTest2"
+				  ,"C:/Testes/SciCumulus/CentralRepo/IsolationStrategy03"
+				  ,"C:/Testes/SciCumulus/workspaces/Scicumulus/IsolationStrategy03"
+				  ,"2");
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//Isolation Strategy 3 - END
