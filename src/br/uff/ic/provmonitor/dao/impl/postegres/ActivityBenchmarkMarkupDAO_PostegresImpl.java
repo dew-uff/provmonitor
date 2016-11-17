@@ -74,7 +74,7 @@ public class ActivityBenchmarkMarkupDAO_PostegresImpl implements ActivityBenchma
 			psInsert.setString(3, activityBenchmarkMarkup.getActivityInstanceId());
 			psInsert.setTimestamp(4, DateUtils.utilsDate2SqlTimeStamp(activityBenchmarkMarkup.getStartTime()));
 			psInsert.setTimestamp(5, DateUtils.utilsDate2SqlTimeStamp(activityBenchmarkMarkup.getEndTime()));
-	
+			psInsert.setString(6, activityBenchmarkMarkup.getElementPath());
 			
 			psInsert.executeUpdate(); 
 			

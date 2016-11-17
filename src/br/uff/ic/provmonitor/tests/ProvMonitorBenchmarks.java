@@ -12,10 +12,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import br.uff.ic.provmonitor.benchmark.Benchmark;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
+import br.uff.ic.provmonitor.utils.WorkspaceUtils;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
 import br.uff.ic.provmonitor.workspaceWatcher.WorkspaceAccessReader;
@@ -27,6 +29,8 @@ public class ProvMonitorBenchmarks {
 	public static final int AT_SHORT_TERM_MANY_FILES = 2;
 	public static final int AT_LONG_TERM = 10;
 	public static final int AT_LONG_TERM_MANY_FILES = 11;
+	
+	public static final int AT_NON_INSTRUMENTED = 100;
 	
 	public static void main(String[] args) {
 		runBanchmark();
@@ -41,7 +45,9 @@ public class ProvMonitorBenchmarks {
 		
 		try{
 		
-			List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase);
+			//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase);
+			
+			List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase);
 		
 			benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
 		
@@ -82,6 +88,25 @@ public class ProvMonitorBenchmarks {
 	}
 	
 	/**
+	 * Setup the benchmark with properties to match an execution with few activities with few files
+	 * @param experimentInstanceId
+	 * @param centralRepository
+	 * @param workspacePathBase
+	 * @return
+	 * @throws IOException 
+	 * @throws VCSException 
+	 */
+	private static List<Integer> benchMarkSetup_NonInstrumented(String experimentInstanceId, String centralRepository, String workspacePathBase) throws VCSException, IOException{
+		Integer totalActivities = 4;
+		createInputData(false, centralRepository, 1, 10);
+		List<Integer> activitiesTypes = new ArrayList<Integer>();
+		for (int i = 0; i < totalActivities; i++){
+			activitiesTypes.add(ProvMonitorBenchmarks.AT_NON_INSTRUMENTED);
+		}
+		return activitiesTypes;
+	}
+	
+	/**
 	 * Creates the input data file to be used by the benchmarks
 	 * @param usesVCS
 	 * @param repositoryPath
@@ -103,6 +128,15 @@ public class ProvMonitorBenchmarks {
 		if (!vcsManager.isWorkspaceCreated(repositoryPath)){
 			if (usesVCS){ 
 				vcsManager.createWorkspace(repositoryPath);
+			}else{
+				File dirPath = new File(repositoryPath);
+				//Verify if path exists to avoid error
+				if (!dirPath.exists() || !dirPath.isDirectory()){
+					//If path does not exists create it.
+					if(!dirPath.mkdirs()){
+						throw new IOException("Workspace path does not exists and it was not possible create the path.");
+					}
+				}
 			}
 			
 			for (String fileName : filesNames) {
@@ -212,6 +246,10 @@ public class ProvMonitorBenchmarks {
 	 */
 	private static void benchMarkExecution(String experimentId, String experimentInstanceId, String centralRepository, String workspacePathBase, List<Integer> activitiesTypes) throws ProvMonitorException, IOException{
 		
+		Benchmark benchmark = new Benchmark(experimentId,experimentInstanceId);
+		Date startTime;
+		Date endTime;
+		
 		String[] contextBase = {experimentInstanceId,"root"};
 		
 		String workspacePathBaseTrial = workspacePathBase + "/" + experimentInstanceId;
@@ -223,17 +261,26 @@ public class ProvMonitorBenchmarks {
 		
 		Date startDateTime = Calendar.getInstance().getTime();
 		
+		Boolean experimentProvMonitorInitialized = false;
+		
 		for (Integer activityType : activitiesTypes){
 			String activityInstanceId = activityInstanceBaseName + activityCount++;
 			String workspaceActivation = workspacePathBaseTrial + "/" + activityInstanceId + "/"+experimentInstanceId+"/input";
 			
 			//Initializing Experiment
 			if (firstIterationOfIntermediateWorkspace){
-				initializeExperimentTest(experimentId, experimentInstanceId, centralRepository, workspaceIntermediate, startDateTime);
+				if(!activityType.equals(ProvMonitorBenchmarks.AT_NON_INSTRUMENTED)){
+					initializeExperimentTest(experimentId, experimentInstanceId, centralRepository, workspaceIntermediate, startDateTime);
+					experimentProvMonitorInitialized = true;
+				}else{
+					WorkspaceUtils.copyDirectory(centralRepository, workspaceIntermediate);
+				}
 				firstIterationOfIntermediateWorkspace = false;
 			}
 			
 			String[] context = {contextBase[0],contextBase[1],activityInstanceId};
+			
+			startTime = Calendar.getInstance().getTime();
 			
 			switch (activityType){
 				case ProvMonitorBenchmarks.AT_SHORT_TERM:
@@ -243,7 +290,14 @@ public class ProvMonitorBenchmarks {
 					//executeActivity();
 					shortTermActivityExecution(activityInstanceId, workspaceIntermediate, workspaceActivation, context);
 					break;
+				case ProvMonitorBenchmarks.AT_NON_INSTRUMENTED:
+					nonInstrumentedActivityExecution(activityInstanceId, workspaceIntermediate, workspaceActivation, context);
+					break;
 			}
+			
+			endTime = Calendar.getInstance().getTime();
+			
+			benchmark.saveMarkup(startTime, endTime, activityInstanceId);
 			
 			//The next activity intermediate workspace is the last activity workspace.
 			workspaceIntermediate = workspaceActivation;
@@ -251,7 +305,9 @@ public class ProvMonitorBenchmarks {
 		
 		Date endActiviyDateTime = Calendar.getInstance().getTime();
 		//Finalizing Experiment
-		RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
+		if (experimentProvMonitorInitialized){
+			RetrospectiveProvenanceBusinessServices.FinalizeExperimentExecution(experimentInstanceId, centralRepository, workspaceIntermediate, endActiviyDateTime);
+		}
 	}
 	
 	/**
@@ -269,6 +325,12 @@ public class ProvMonitorBenchmarks {
 		activityExecution(activityInstanceId, workspaceIntermediate, workspaceActivation, context, filesNames);
 	}
 	
+	/**
+	 * 
+	 * @param rootPath
+	 * @return
+	 * @throws IOException
+	 */
 	private static List<String> getFilesNames(String rootPath) throws IOException{
 		//Date startDate = new Date("01/01/1900 00:00:00");
 		//Collection<WorkspacePathStatus>accessedFiles = WorkspaceAccessReader.readAccessedPathStatusAndStatusTime(Paths.get(rootPath), startDate, true);
@@ -296,6 +358,15 @@ public class ProvMonitorBenchmarks {
 		return filesNames;
 	}
 	
+	/**
+	 * 
+	 * @param activityInstanceId
+	 * @param workspaceIntermediate
+	 * @param workspaceActivation
+	 * @param context
+	 * @param filesNames
+	 * @throws ProvMonitorException
+	 */
 	private static void activityExecution(String activityInstanceId, String workspaceIntermediate, String workspaceActivation, String[] context, List<String> filesNames) throws ProvMonitorException{
 		Date activityStartDateTime = Calendar.getInstance().getTime();
 		RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context, activityStartDateTime, workspaceIntermediate, workspaceActivation);
@@ -315,5 +386,40 @@ public class ProvMonitorBenchmarks {
 		activityStartDateTime = null;
 		Date endActiviyDateTime = Calendar.getInstance().getTime();
 		RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context, activityStartDateTime, endActiviyDateTime, workspaceIntermediate, workspaceActivation);
+	}
+	
+	/**
+	 * 
+	 * @param activityInstanceId
+	 * @param workspaceIntermediate
+	 * @param workspaceActivation
+	 * @param context
+	 * @throws ProvMonitorException
+	 * @throws IOException
+	 */
+	private static void nonInstrumentedActivityExecution(String activityInstanceId, String workspaceIntermediate, String workspaceActivation, String[] context) throws ProvMonitorException, IOException{
+		//Copy Input Files from workspaceIntermediate to workspaceActivation
+		WorkspaceUtils.copyDirectory(workspaceIntermediate, workspaceActivation);
+				
+		List<String> filesNames = new ArrayList<String>();
+		filesNames = getFilesNames(workspaceIntermediate);
+		activityExecutionWithoutProvMonitor(activityInstanceId, workspaceIntermediate, workspaceActivation, context, filesNames);
+	}
+	
+	/**
+	 * 
+	 * @param activityInstanceId
+	 * @param workspaceIntermediate
+	 * @param workspaceActivation
+	 * @param context
+	 * @param filesNames
+	 * @throws ProvMonitorException
+	 * @throws IOException 
+	 */
+	private static void activityExecutionWithoutProvMonitor(String activityInstanceId, String workspaceIntermediate, String workspaceActivation, String[] context, List<String> filesNames) throws ProvMonitorException, IOException{
+		//Execute Activity 1 - Instance 1
+		
+		executeActivation(workspaceActivation, filesNames);
+		//createFileContent(workspaceActivation + "/fileActivity1.txt", 1);
 	}
 }
