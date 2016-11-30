@@ -38,23 +38,258 @@ public class ProvMonitorBenchmarks {
 
 	public static void runBanchmark(){
 		
-		String experimentId = "BenchMark1_FewActivitiesFewFiles";
-		String experimentInstanceId = "BenchMark1_FewActivitiesFewFiles_Instance1";
-		String centralRepository = "C:/Testes/CentralRepositories/BenchMark1/CentralRepoFewFiles";
-		String workspacePathBase = "C:/Testes/workspaces/BenchMarks/FewActivitiesFewFiles";
+//		String experimentId = "BenchMark1_FewActivitiesFewFiles";
+//		String experimentInstanceId = "BenchMark1_FewActivitiesFewFiles_Instance1";
+//		String centralRepository = "C:/Testes/CentralRepositories/BenchMark1/CentralRepoFewFiles";
+//		String workspacePathBase = "C:/Testes/workspaces/BenchMarks/FewActivitiesFewFiles";
 		
-		try{
+		SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		
-			//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase);
+		
+		/**
+		 * Using ProVmonitor
+		 */
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark6_300Activities200Files";
+			String experimentInstanceId = "BenchMark6_200Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark6/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/300Activities200Files"+i;
 			
-			List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase);
-		
-			benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
-		
-		}catch(ProvMonitorException | IOException e){
-			e.printStackTrace();
+			try{
+				System.out.println("Starting Benchmark6 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 300, 200);
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark6 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
 		}
 		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark7_400Activities200Files";
+			String experimentInstanceId = "BenchMark7_400Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark7/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/400Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark7 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 400, 200);
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark7 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark8_100Activities200Files";
+			String experimentInstanceId = "BenchMark8_100Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark8/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/100Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark8 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 100, 200);
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark8 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		/*************************************
+		 ******* Without using ProvMonitor
+		 *************************************/
+		
+		
+		for (int i=1;i<=3;i++){
+			
+			String experimentId = "BenchMark101_10Activities200Files";
+			String experimentInstanceId = "BenchMark101_10Activities200Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark101/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchaMark101_10Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark101 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 10, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 10, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark101 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			
+			String experimentId = "BenchMark102_4Activities200Files";
+			String experimentInstanceId = "BenchMark102_4Activities200Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark102/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark102_4Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark102 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 4, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 4, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark102 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			
+			String experimentId = "BenchMark103_4Activities4Files";
+			String experimentInstanceId = "BenchMark103_4Activities4Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark103/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark103_4Activities4Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark103 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 4, 4);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 4, 4);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark103 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			
+			String experimentId = "BenchMark104_10Activities4Files";
+			String experimentInstanceId = "BenchMark104_10Activities4Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark104/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark104_10Activities4Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark104 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 10, 4);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 10, 4);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark104 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark105_200Activities200Files";
+			String experimentInstanceId = "BenchMark105_200Activities200Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark105/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark105_200Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark105 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 200, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 200, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark105 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark106_300Activities200Files";
+			String experimentInstanceId = "BenchMark106_200Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark106/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark106_300Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark106 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 300, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 300, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark106 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark107_400Activities200Files";
+			String experimentInstanceId = "BenchMark107_400Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark107/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark107_400Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark107 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 400, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 400, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark107 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i=1;i<=3;i++){
+			String experimentId = "BenchMark108_100Activities200Files";
+			String experimentInstanceId = "BenchMark108_100Activities300Files_Instance" + i;
+			String centralRepository = "C:/Testes/CentralRepositories/BenchMark108/CentralRepoFewFiles"+i;
+			String workspacePathBase = "C:/Testes/workspaces/BenchMarks/BenchMark108_100Activities200Files"+i;
+			
+			try{
+				System.out.println("Starting Benchmark108 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+				
+				//List<Integer> activitiesTypes = benchMarkSetup_FewActivitiesFewFiles(experimentInstanceId, centralRepository, workspacePathBase, 100, 200);
+				
+				List<Integer> activitiesTypes = benchMarkSetup_NonInstrumented(experimentInstanceId, centralRepository, workspacePathBase, 100, 200);
+			
+				benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+			
+				System.out.println("... Ending Benchmark108 Trial " + i + " - " + sf.format(Calendar.getInstance().getTime()));
+			}catch(ProvMonitorException | IOException e){
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	/**
@@ -77,9 +312,8 @@ public class ProvMonitorBenchmarks {
 	 * @throws IOException 
 	 * @throws VCSException 
 	 */
-	private static List<Integer> benchMarkSetup_FewActivitiesFewFiles(String experimentInstanceId, String centralRepository, String workspacePathBase) throws VCSException, IOException{
-		Integer totalActivities = 4;
-		createInputData(true, centralRepository, 1, 10);
+	private static List<Integer> benchMarkSetup_FewActivitiesFewFiles(String experimentInstanceId, String centralRepository, String workspacePathBase, Integer totalActivities, Integer numberOfFiles) throws VCSException, IOException{
+		createInputData(true, centralRepository, numberOfFiles, 2000);
 		List<Integer> activitiesTypes = new ArrayList<Integer>();
 		for (int i = 0; i < totalActivities; i++){
 			activitiesTypes.add(ProvMonitorBenchmarks.AT_SHORT_TERM);
@@ -96,9 +330,9 @@ public class ProvMonitorBenchmarks {
 	 * @throws IOException 
 	 * @throws VCSException 
 	 */
-	private static List<Integer> benchMarkSetup_NonInstrumented(String experimentInstanceId, String centralRepository, String workspacePathBase) throws VCSException, IOException{
-		Integer totalActivities = 4;
-		createInputData(false, centralRepository, 1, 10);
+	
+	private static List<Integer> benchMarkSetup_NonInstrumented(String experimentInstanceId, String centralRepository, String workspacePathBase, Integer totalActivities, Integer numberOfFiles) throws VCSException, IOException{
+		createInputData(false, centralRepository, numberOfFiles, 2000);
 		List<Integer> activitiesTypes = new ArrayList<Integer>();
 		for (int i = 0; i < totalActivities; i++){
 			activitiesTypes.add(ProvMonitorBenchmarks.AT_NON_INSTRUMENTED);
