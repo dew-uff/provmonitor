@@ -21,6 +21,7 @@ import br.uff.ic.provmonitor.log.ProvMonitorLevel;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
 import br.uff.ic.provmonitor.output.ProvMonitorOutputManager;
 import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
+import br.uff.ic.provmonitor.tests.ProvMonitorBenchmarks;
 import br.uff.ic.provmonitor.tests.ProvMonitorTests;
 import br.uff.ic.provmonitor.utils.DateUtils;
 import br.uff.ic.provmonitor.validator.OptionsValidator;
@@ -51,6 +52,7 @@ public class ProvMonitor {
 		options.addOption("ver", false, "version");
 		options.addOption("propertiesGen", false, "propertiesDefaultValuesGeneration");
 		options.addOption("firstActivity",false,"firstActivity");
+		options.addOption("benchmark",false,"benchmark");
 	}
 	
 	/**
@@ -80,6 +82,11 @@ public class ProvMonitor {
 			//Reading parameters
 			CommandLineParser parser = new PosixParser();
 			CommandLine cmd = parser.parse(options, args);
+			
+			if (cmd.hasOption("benchmark")){
+				benchmark();
+				return;
+			}
 			
 			//Only prints ProvMonitorVersion into the Default Output
 			if (cmd.hasOption("ver")){
@@ -441,4 +448,12 @@ public class ProvMonitor {
 		}
 	}
 
+	/**
+	 * executes provMonitor BenchMark
+	 */
+	private static void benchmark(){
+		//ProvMonitorProperties.getInstance()
+		ProvMonitorBenchmarks bench = new ProvMonitorBenchmarks();
+		bench.runBachmarkFromProperties();
+	}
 }

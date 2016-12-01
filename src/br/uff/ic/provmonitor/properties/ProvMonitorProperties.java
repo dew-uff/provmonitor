@@ -35,6 +35,10 @@ public class ProvMonitorProperties {
 	private Properties provMonitorProps;
 	private static ProvMonitorProperties myInstance;
 	private GITCloneOptions gitCloneOptions;
+	private String benchmarkRootExperimentId;
+	private String benchmarkRootCentralRepository;
+	private String benchmarkRootWorkspacePathBase;
+	private String benchmarkSetup;
 	
 	/**
 	 * Private constructor as a singleton.
@@ -136,6 +140,38 @@ public class ProvMonitorProperties {
 	public void setGitCloneOptions(GITCloneOptions gitCloneOptions) {
 		this.gitCloneOptions = gitCloneOptions;
 	}
+	
+	public String getBenchmarkRootExperimentId() {
+		return benchmarkRootExperimentId;
+	}
+
+	public void setBenchmarkRootExperimentId(String benchmarkRootExperimentId) {
+		this.benchmarkRootExperimentId = benchmarkRootExperimentId;
+	}
+
+	public String getBenchmarkRootCentralRepository() {
+		return benchmarkRootCentralRepository;
+	}
+
+	public void setBenchmarkRootCentralRepository(String benchmarkRootCentralRepository) {
+		this.benchmarkRootCentralRepository = benchmarkRootCentralRepository;
+	}
+
+	public String getBenchmarkRootWorkspacePathBase() {
+		return benchmarkRootWorkspacePathBase;
+	}
+
+	public void setBenchmarkRootWorkspacePathBase(String benchmarkRootWorkspacePathBase) {
+		this.benchmarkRootWorkspacePathBase = benchmarkRootWorkspacePathBase;
+	}
+
+	public String getBenchmarkSetup() {
+		return benchmarkSetup;
+	}
+
+	public void setBenchmarkSetup(String benchmarkSetup) {
+		this.benchmarkSetup = benchmarkSetup;
+	}
 
 	/**
 	 * Save an example ProvMonitorProperties file with default values
@@ -175,6 +211,12 @@ public class ProvMonitorProperties {
 			outputType = ProvMonitorOutputType.valueOfName(provMonitorProps.getProperty("outputType"));
 			gitCloneOptions = GITCloneOptions.valueOfName(provMonitorProps.getProperty("gitCloneOptions"));
 			
+			benchmarkRootExperimentId = provMonitorProps.getProperty("benchmarkRootExperimentId");
+			benchmarkRootCentralRepository = provMonitorProps.getProperty("benchmarkRootCentralRepository");
+			benchmarkRootWorkspacePathBase = provMonitorProps.getProperty("benchmarkRootWorkspacePathBase");
+			benchmarkSetup = provMonitorProps.getProperty("benchmarkSetup");
+			
+			
 			
 		}catch(FileNotFoundException e){
 			//Properties File not found. Starting with default options
@@ -204,6 +246,11 @@ public class ProvMonitorProperties {
 		branchStrategy = null;
 		outputFile = null;
 		outputType = null;
+		
+		benchmarkRootExperimentId = null;
+		benchmarkRootCentralRepository = null;
+		benchmarkRootWorkspacePathBase = null;
+		benchmarkSetup = null;
 	}
 	
 	/**
@@ -237,6 +284,20 @@ public class ProvMonitorProperties {
 			gitCloneOptions = GITCloneOptions.DEFAULT;
 		}
 		
+		if (benchmarkRootExperimentId == null){
+			benchmarkRootExperimentId = "defaultRootExperimentId";
+		}
+		if (benchmarkRootCentralRepository == null){
+			benchmarkRootCentralRepository = "/defaultProvMonitorCentralRepositories";
+		}
+		if (benchmarkRootWorkspacePathBase == null){
+			benchmarkRootWorkspacePathBase = "/defaultProvMonitorWorkspacePathBase";
+		}
+		if (benchmarkSetup == null){
+			benchmarkSetup = "1,1,1";
+		}
+		
+		
 	}
 	
 	private void savaDefaultProperties(){
@@ -258,6 +319,11 @@ public class ProvMonitorProperties {
 			provMonitorProps.setProperty("outputFile", outputFile);
 			provMonitorProps.setProperty("outputType", outputType.getCode());
 			provMonitorProps.setProperty("gitCloneOptions", gitCloneOptions.getName());
+			
+			provMonitorProps.setProperty("benchmarkRootExperimentId", benchmarkRootExperimentId);
+			provMonitorProps.setProperty("benchmarkRootCentralRepository", benchmarkRootCentralRepository);
+			provMonitorProps.setProperty("benchmarkRootWorkspacePathBase", benchmarkRootWorkspacePathBase);
+			provMonitorProps.setProperty("benchmarkSetup", benchmarkSetup);
 			
 			
 			FileOutputStream out = new FileOutputStream("provMonitor.properties");

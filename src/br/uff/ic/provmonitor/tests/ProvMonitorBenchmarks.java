@@ -11,12 +11,16 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
+
+import org.eclipse.jgit.util.StringUtils;
 
 import br.uff.ic.provmonitor.benchmark.Benchmark;
 import br.uff.ic.provmonitor.business.RetrospectiveProvenanceBusinessServices;
 import br.uff.ic.provmonitor.exceptions.ProvMonitorException;
 import br.uff.ic.provmonitor.exceptions.vcsexceptions.VCSException;
 import br.uff.ic.provmonitor.log.ProvMonitorLogger;
+import br.uff.ic.provmonitor.properties.ProvMonitorProperties;
 import br.uff.ic.provmonitor.utils.WorkspaceUtils;
 import br.uff.ic.provmonitor.vcsmanager.VCSManager;
 import br.uff.ic.provmonitor.vcsmanager.VCSManagerFactory;
@@ -34,6 +38,96 @@ public class ProvMonitorBenchmarks {
 	
 	public static void main(String[] args) {
 		runBanchmark();
+	}
+	
+	public void runBachmarkFromProperties(){
+		SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		
+		System.out.println("Benchmark starting...");
+		System.out.println("");
+		System.out.println("");
+		
+		String rootExperimentBaseId = ProvMonitorProperties.getInstance().getBenchmarkRootExperimentId();
+		String rootCentralRepository = ProvMonitorProperties.getInstance().getBenchmarkRootCentralRepository();
+		String rootWorkspacePathBase = ProvMonitorProperties.getInstance().getBenchmarkRootWorkspacePathBase();
+		String banchMarkSetup = ProvMonitorProperties.getInstance().getBenchmarkSetup();
+		
+		StringTokenizer st = new StringTokenizer(banchMarkSetup, ";");
+		Integer experimentCount = 1;
+		while (st.hasMoreTokens()){
+			String setupConfig = st.nextToken();
+			
+			if (!StringUtils.isEmptyOrNull(setupConfig)){
+				
+				String experimentId = rootExperimentBaseId + experimentCount;
+				String experimentIdNP = "NP_" + rootExperimentBaseId + experimentCount;
+						
+				StringTokenizer stExp = new StringTokenizer(setupConfig, ",");
+				
+				Integer numTrials = null;
+				Integer numActivities = null;
+				Integer numFiles = null;
+				Integer numFileLines = null;
+				
+				if (stExp.hasMoreTokens()){
+					numTrials = Integer.parseInt(stExp.nextToken());
+				}
+				if (stExp.hasMoreTokens()){
+					numActivities = Integer.parseInt(stExp.nextToken());
+				}
+				if (stExp.hasMoreTokens()){
+					numFiles = Integer.parseInt(stExp.nextToken());
+				}
+				if (stExp.hasMoreTokens()){
+					numFileLines = Integer.parseInt(stExp.nextToken());
+				}
+				
+				for (int i = 1; i <= numTrials; i++){
+					try{
+						
+						//Without ProvMonitor
+						String experimentInstanceIdNP = experimentIdNP + "_instance" + i;
+						String centralRepositoryNP = rootCentralRepository + "/" + experimentIdNP + "/" + experimentInstanceIdNP;
+						String workspacePathBaseNP = rootWorkspacePathBase + "/" + experimentIdNP + "/" + experimentInstanceIdNP;
+						
+						System.out.println("Starting Benchmark " + experimentInstanceIdNP + " without ProvMonitor" + " - " + sf.format(Calendar.getInstance().getTime()));
+						
+						List<Integer> activitiesTypesWithoutProvMonitor = benchMarkSetup_NonInstrumented(experimentInstanceIdNP, centralRepositoryNP, workspacePathBaseNP, numActivities, numFiles, numFileLines);
+						benchMarkExecution(experimentIdNP, experimentInstanceIdNP, centralRepositoryNP, workspacePathBaseNP, activitiesTypesWithoutProvMonitor);
+						
+						System.out.println("... Ending Benchmark " + experimentInstanceIdNP + " without ProvMonitor" + " - " + sf.format(Calendar.getInstance().getTime()));
+						
+						System.out.println("");
+						
+						//With ProvMonitor
+						String experimentInstanceId = experimentId + "_instance" + i;
+						String centralRepository = rootCentralRepository + "/" + experimentId + "/" + experimentInstanceId;
+						String workspacePathBase = rootWorkspacePathBase + "/" + experimentId + "/" + experimentInstanceId;
+						
+						System.out.println("Starting Benchmark " + experimentInstanceId + " using ProvMonitor" + " - " + sf.format(Calendar.getInstance().getTime()));
+						
+						List<Integer> activitiesTypes = benchMarkSetup(experimentInstanceId, centralRepository, workspacePathBase, numActivities, numFiles, numFileLines);
+						benchMarkExecution(experimentId, experimentInstanceId, centralRepository, workspacePathBase, activitiesTypes);
+						
+						System.out.println("... Ending Benchmark " + experimentInstanceId + " using ProvMonitor" + " - " + sf.format(Calendar.getInstance().getTime()));
+						System.out.println("");
+						System.out.println("");
+						
+					}catch(ProvMonitorException | IOException e){
+						e.printStackTrace();
+					}
+					
+				}
+				
+			}
+			
+			experimentCount++;
+		}
+		
+		System.out.println("");
+		System.out.println("");
+		System.out.println("... Benchmark end.");
+		
 	}
 
 	public static void runBanchmark(){
@@ -312,11 +406,48 @@ public class ProvMonitorBenchmarks {
 	 * @throws IOException 
 	 * @throws VCSException 
 	 */
+	private static List<Integer> benchMarkSetup(String experimentInstanceId, String centralRepository, String workspacePathBase, Integer totalActivities, Integer numberOfFiles, Integer numOfLines) throws VCSException, IOException{
+		createInputData(true, centralRepository, numberOfFiles, numOfLines);
+		List<Integer> activitiesTypes = new ArrayList<Integer>();
+		for (int i = 0; i < totalActivities; i++){
+			activitiesTypes.add(ProvMonitorBenchmarks.AT_SHORT_TERM);
+		}
+		return activitiesTypes;
+	}
+	
+	/**
+	 * Setup the benchmark with properties to match an execution with few activities with few files
+	 * @param experimentInstanceId
+	 * @param centralRepository
+	 * @param workspacePathBase
+	 * @return
+	 * @throws IOException 
+	 * @throws VCSException 
+	 */
 	private static List<Integer> benchMarkSetup_FewActivitiesFewFiles(String experimentInstanceId, String centralRepository, String workspacePathBase, Integer totalActivities, Integer numberOfFiles) throws VCSException, IOException{
 		createInputData(true, centralRepository, numberOfFiles, 2000);
 		List<Integer> activitiesTypes = new ArrayList<Integer>();
 		for (int i = 0; i < totalActivities; i++){
 			activitiesTypes.add(ProvMonitorBenchmarks.AT_SHORT_TERM);
+		}
+		return activitiesTypes;
+	}
+	
+	/**
+	 * Setup the benchmark with properties to match an execution with few activities with few files
+	 * @param experimentInstanceId
+	 * @param centralRepository
+	 * @param workspacePathBase
+	 * @return
+	 * @throws IOException 
+	 * @throws VCSException 
+	 */
+	
+	private static List<Integer> benchMarkSetup_NonInstrumented(String experimentInstanceId, String centralRepository, String workspacePathBase, Integer totalActivities, Integer numberOfFiles, Integer numLines) throws VCSException, IOException{
+		createInputData(false, centralRepository, numberOfFiles, numLines);
+		List<Integer> activitiesTypes = new ArrayList<Integer>();
+		for (int i = 0; i < totalActivities; i++){
+			activitiesTypes.add(ProvMonitorBenchmarks.AT_NON_INSTRUMENTED);
 		}
 		return activitiesTypes;
 	}
