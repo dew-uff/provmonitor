@@ -16,6 +16,7 @@ The ProvMonitor team is composed by the following researchers.
 * Leonardo Murta (UFF)
 * Vitor Neves (UFF)
 * Kary Ocaña (LNCC)
+* Fabrício Nogueira (UFF)
 
 Publications
 ------------
