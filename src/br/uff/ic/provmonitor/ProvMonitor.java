@@ -63,20 +63,12 @@ public class ProvMonitor {
 		SimpleDateFormat sdf = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss:SSS");
 		try {
 			
-			//System.out.println("rodou!");
-			//System.out.println("ProvMonitor: StartExecution....");
-			
-			
-			//Getting ProvMonitor execution start time, to be used in cases that time was not informed by parameter.
-			//Date provMonitorExecutionStartTime = Calendar.getInstance().getTime();
-			
-			// CLI construction
-			// create Options object
+			// CLI construction - create Options object
 			Options options = new Options();
 			//Initializing the Options of the CLI
 			optionsInitialize(options);
 			
-			//Reading parameters
+			//Reading parameters from this program args
 			CommandLineParser parser = new PosixParser();
 			CommandLine cmd = parser.parse(options, args);
 			
@@ -107,9 +99,6 @@ public class ProvMonitor {
 			switch (MethodType.valueOf(methodId)){
 			case INITIALIZE_EXPERIMENT_EXECUTION:
 				{
-					//System.out.println("Initializing experiment execution...");
-					//Validate options
-					//OptionsValidator.validate(cmd);
 					//Getting parameters
 					String experimentId = cmd.getOptionValue("ei");
 					String workspacePath = cmd.getOptionValue("wp");
@@ -119,15 +108,6 @@ public class ProvMonitor {
 					if (experimentInstanceId == null || !(experimentInstanceId.length() > 0) ){
 						experimentInstanceId = ProvMonitorBusinessHelper.generateExperimentInstanceId(experimentId);
 					}
-					
-					//System.out.println("Workspace: " + workspacePath);
-					//System.out.println("Central Repository: " + centralRepository);
-					
-					//Invoking BusinessServices
-					//OutputStream outputStream = Thread.currentThread().get
-					
-					//RetrospectiveProvenanceBusinessServices.initializeExperimentExecution(experimentId);
-					
 					
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
@@ -157,29 +137,12 @@ public class ProvMonitor {
 					//Getting parameters
 					String activityInstanceId = cmd.getOptionValue("aii");
 					String[] context = cmd.getOptionValues("context");
-					//String startDate = cmd.getOptionValue("stDt");
-					String startDate = null;
-					Date startDateTime = null;
-					if (startDate != null){
-						startDateTime = DateUtils.dateParse(startDate);
-					}else{
-						startDateTime = provExecStartTime;
-					}
+					Date startDateTime = provExecStartTime;
 					
 					String workspacePath = cmd.getOptionValue("wp");
 					
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "notifyActivityExecutionStartup", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
-					
-	//				String extendedContext = cmd.getOptionValue("sceContext");
-	//				if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-	//					workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
-	//					ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
-	//					String[] context2 = exCUtil.appendContext(context);
-	//					
-	//					//Invoking BusinessServices
-	//					RetrospectiveProvenanceBusinessServices.notifyActivityExecutionStartup(activityInstanceId, context2, starDateTime, workspacePath);
-	//				}
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
 					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
@@ -200,34 +163,11 @@ public class ProvMonitor {
 					//Getting parameters
 					String activityInstanceId = cmd.getOptionValue("aii");
 					String[] context = cmd.getOptionValues("context");
-					//String startDate = cmd.getOptionValue("stDt");
-					String startDate = null;
 					Date startDateTime = null;
-					if (startDate != null){
-						startDateTime = DateUtils.dateParse(startDate);
-					}  
-					startDateTime = null;
 					
-					//String endDate = cmd.getOptionValue("edDt");
-					String endDate = null;
-					Date endDateTime = null;
-					if (endDate != null){
-						endDateTime = DateUtils.dateParse(endDate);
-					}else{
-						endDateTime = provExecStartTime;
-					}
+					Date endDateTime = provExecStartTime;
 					
 					String workspacePath = cmd.getOptionValue("wp");
-					
-//					String extendedContext = cmd.getOptionValue("sceContext");
-//					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
-//						workspacePath = SciCumulusBusinessHelper.workspaceUpdate(workspacePath, extendedContext);
-//						ExtendedContextUtils exCUtil = new ExtendedContextUtils(extendedContext);
-//						String[] context2 = exCUtil.appendContext(context);
-//						
-//						//Invoking BusinessServices
-//						RetrospectiveProvenanceBusinessServices.notifyActivityExecutionEnding(activityInstanceId, context2, starDateTime, endDateTime, workspacePath);
-//					}
 					
 					String extendedContext = cmd.getOptionValue("sceContext");
 					if (SciCumulusBusinessHelper.isSciCumulusExecution(extendedContext)){
@@ -369,75 +309,13 @@ public class ProvMonitor {
 	 * @see ProvMonitorOutputManager
 	 * 
 	 */
-	private static void printProvMonitorVersion(){
-//		try {
-//				File file = new File("ProvMonitor.jar");
-//		        JarFile jar = new JarFile(file);
-//		        Manifest mf = jar.getManifest();
-//			    Map<String, Attributes> entries = mf.getEntries();
-//			    for (String att: entries.keySet()){
-//			    	//System.out.println(att +  ": " + entries.values().  
-//			    }
-//			    jar.close();
-			
+	private static void printProvMonitorVersion() {
 		try {
-			//URLClassLoader cl = (URLClassLoader) ProvMonitor.class.getClassLoader();
-			//URL url = cl.findResource("META-INF/MANIFEST.MF");
-			//Manifest manifest = new Manifest(url.openStream());
-			
-			//FileInputStream in = new FileInputStream("../META-INF/MANIFEST.MF");
-			//Manifest manifest = new Manifest(in);
-			
-			//String path = ProvMonitor.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-		    //path = path.replace("classes/", "");
-
-		    //URL url = new URL("jar:file:"+path+"PMonitor.jar!/");
-			
-//	        JarURLConnection jarConnection = null;
-//            jarConnection = (JarURLConnection)url.openConnection();
-//            Manifest manifest = jarConnection.getManifest();
-
-            //java.util.jar.Attributes manifestItem = manifest.getMainAttributes();
-            //System.out.println(manifestItem.getValue("ProvMonior-Version"));
-			
-			//Manifest manifest = new Manifest(new URL(manifestPath).openStream());
-//			Manifest manifest = new Manifest(ProvMonitor.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF"));
-//			if (manifest == null){
-//				System.out.println("Manifest file not found!");
-//				return;
-//			}
-//			Attributes attr = manifest.getMainAttributes();
-//			if (attr == null){
-//				System.out.println("Attributes of the Manifest file not found!");
-//				return;
-//			}
-//			for (Object value:attr.values()){
-//				System.out.println("Value: " + (String) value);
-//			}
-			
-//			String value = attr.getValue("ProvMonior-Version");
-//			ProvMonitorOutputManager.getInstance().appendMessageLine("ProvMonitor Version: " + value);
-			
-			//Enumeration<URL> resources = ProvMonitor.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-//			Enumeration<URL> resources = ClassLoader.getSystemResources("MANIFEST.MF");
-//			while (resources.hasMoreElements()) {
-//				URL url = resources.nextElement();
-//				System.out.println("Resource: " + url.getPath());
-//				Manifest manifest = new Manifest(url.openStream());
-//				Attributes attr = manifest.getMainAttributes();
-//				for (Object value:attr.values()){
-//					System.out.println("Value: " + (String) value);
-//				}
-//			}
-			
 			Manifest manifest = new Manifest(ClassLoader.getSystemResourceAsStream("MANIFEST.MF"));
 			String versionValue = manifest.getMainAttributes().getValue("ProvMonior-Version");
 			ProvMonitorOutputManager.appendMessageLine("ProvMonitor Version: " + versionValue);
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-
 }

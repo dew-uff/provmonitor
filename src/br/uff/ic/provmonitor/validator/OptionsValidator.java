@@ -48,12 +48,6 @@ public class OptionsValidator {
 					if(!cmd.hasOption("context")){
 						throw new ValidateException("The context must be informed: -context parameter");
 					}
-					//if(!cmd.hasOption("stDt")){
-					//	throw new ValidateException("The star time must be informed: -stDt parameter");
-					//}
-					//if(!cmd.hasOption("edDt")){
-					//	throw new ValidateException("The end time must be informed: -edDt parameter");
-					//}
 				}
 				break;
 			case NOTIFY_ACTIVITY_EXECUTION_STARTUP:
@@ -64,9 +58,6 @@ public class OptionsValidator {
 					if(!cmd.hasOption("context")){
 						throw new ValidateException("The context must be informed: -context parameter");
 					}
-					//if(!cmd.hasOption("stDt")){
-					//	throw new ValidateException("The star time must be informed: -stDt parameter");
-					//}
 					if(!cmd.hasOption("wp")){
 						throw new ValidateException("The workspace path must be informed: -wp parameter");
 					}
@@ -94,7 +85,7 @@ public class OptionsValidator {
 						throw new ValidateException("The context must be informed: -context parameter");
 					}
 					if(!cmd.hasOption("stDt")){
-						throw new ValidateException("The star time must be informed: -stDt parameter");
+						throw new ValidateException("The start time must be informed: -stDt parameter");
 					}
 					if(!cmd.hasOption("edDt")){
 						throw new ValidateException("The end time must be informed: -edDt parameter");
