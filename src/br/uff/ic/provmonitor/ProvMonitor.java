@@ -105,10 +105,6 @@ public class ProvMonitor {
 					String centralRepository = cmd.getOptionValue("cR");
 					String experimentInstanceId = cmd.getOptionValue("eii");
 					
-					if (experimentInstanceId == null || !(experimentInstanceId.length() > 0) ){
-						experimentInstanceId = ProvMonitorBusinessHelper.generateExperimentInstanceId(experimentId);
-					}
-					
 					Date methodInit = Calendar.getInstance().getTime();
 					ProvMonitorLogger.measure(RetrospectiveProvenanceBusinessServices.class.getName(), "initializeExperimentExecution", LogMessages.START_METHOD_EXECUTION_TIME, new Object[]{sdf.format(methodInit)});
 					
