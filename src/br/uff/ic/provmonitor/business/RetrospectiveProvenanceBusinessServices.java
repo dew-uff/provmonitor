@@ -112,9 +112,9 @@ public class RetrospectiveProvenanceBusinessServices {
 		
 		//Workspace preparation
 		VCSManager vcsManager = VCSManagerFactory.getInstance();
-		//System.out.println("Cloning to: " + workspacePath);
 		
 		Boolean workspaceAlreadyCreated = false;
+		
 		//Verify if Workspace already exists. If not, clone it.
 		if (vcsManager.isWorkspaceCreated(workspacePath)){
 			workspaceAlreadyCreated = true;
